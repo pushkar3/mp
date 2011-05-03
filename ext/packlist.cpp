@@ -9,6 +9,7 @@
 #include "xml_parser.h"
 #include <stdlib.h>
 #include <fstream>
+#include <string>
 
 int Article::parse(std::string data) {
 	id = atoi(xml_parse_tag(data, "ID").c_str());
@@ -157,5 +158,31 @@ int OrderXML::parse(const char* filename, int debug_p, int debug_o) {
 	printf("Order Read.\n");
 	free(orderlist_buf);
 	return ret;
+}
+
+void OrderXML::convertToProblem(const char* filename, const char* problem_filename) {
+	parse(filename);
+
+	printf("Number of Orders: %d\n", order.n_orderline());
+
+	std::string prob;
+	prob.append(itoa(order.n_orderline()).c_str()); prob.append(" ");
+	prob.append(itoa(pallet[0].length).c_str()); prob.append(" ");
+	prob.append(itoa(pallet[0].width).c_str()); prob.append(" ");
+	prob.append(itoa(pallet[0].maxloadheight).c_str()); prob.append("\n");
+	for(uint i = 0; i < order.n_orderline(); i++) {
+		std::string w = itoa(order.orderline[i].article.width);
+		std::string l = itoa(order.orderline[i].article.length);
+		std::string h = itoa(order.orderline[i].article.height);
+		std::string p = w + " " + l + " " + h + "\n";
+		prob.append(p);
+	}
+
+	printf("Writing problem to %s\n", problem_filename);
+	std::ofstream ofs(problem_filename);
+	ofs.write(prob.c_str(), prob.size());
+	ofs.close();
+	printf("Writing Done.\n");
+
 }
 

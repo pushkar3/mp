@@ -126,6 +126,7 @@ public:
 	OrderXML() {}
 	~OrderXML() {}
 	int parse(const char* filename, int debug_p = 0, int debug_o = 0);
+	void convertToProblem(const char* filename, const char* problem_filename);
 };
 
 

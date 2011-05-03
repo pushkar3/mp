@@ -347,7 +347,7 @@ void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
   }
 }
 
-void printpacklistxml(int n, int W, int H, int D, int *w, int *h, int *d,
+void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *h, int *d,
                 int *x, int *y, int *z, int *bno)
 {
   int i = 0;
@@ -368,7 +368,7 @@ void printpacklistxml(int n, int W, int H, int D, int *w, int *h, int *d,
 	  list.insertPallet(pallet[i], W, H, D, 0);
 
 
-  write_response(list, "out.xml", 0);
+  write_response(list, out, 0);
 }
 
 /* ======================================================================
@@ -402,6 +402,25 @@ int main(int argc, char *argv[])
   int ub, lb, solved, gap, sumnode, sumiter;
   double time, sumtime, deviation, sumub, sumlb, sumdev;
   char file[1000];
+  char file_packlist[100] = "out.xml";
+  char problem[10] = "test.p";
+
+  if (argc == 3) {
+	  OrderXML oxml;
+	  oxml.convertToProblem(argv[1], problem);
+	  strcpy(file, problem);
+	  strcpy(file_packlist, argv[2]);
+	  nodelimit   = 0;
+	  iterlimit   = 0;
+	  timelimit   = 0;
+	  packingtype = 1;
+	  printf("3DBPP PROBLEM %s %d %d %d %d\n",
+			 file, nodelimit, iterlimit, timelimit, packingtype);
+	  n = readtest(tab, &W, &H, &D, file);
+	  bdim = 0;
+	  type = 0;
+	  TESTS = 1;
+  }
 
   if (argc == 6) {
     strcpy(file, argv[1]);
@@ -426,7 +445,7 @@ int main(int argc, char *argv[])
     packingtype = atoi(argv[7]);
     TESTS = RANDOMTESTS;
   }
-  if ((argc != 6) && (argc != 8)) {
+  if ((argc != 3) && (argc != 6) && (argc != 8)) {
     printf("3DBPP PROBLEM\n");
     printf("n = ");
     scanf("%d", &n);
@@ -469,7 +488,7 @@ int main(int argc, char *argv[])
     sumlb += lb;
     if (lb == ub) solved++;
     if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, bno);
-    printpacklistxml(n, W, H, D, w, h, d, x, y, z, bno);
+    if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, bno);
   }
   printf("n           = %d\n", n);
   printf("bdim        = %d\n", bdim);
