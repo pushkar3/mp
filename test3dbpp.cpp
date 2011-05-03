@@ -360,7 +360,7 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
   for (i = 0; i < n; i++) {
 	  Package package;
 	  package.place_position.set(x[i],y[i],z[i]);
-	  package.article.id = 1;
+	  package.article.id = i;
 	  pallet[bno[i]-1].insertPackage(package, w[i], h[i], d[i], 0);
 	  if(bno[i] > max_bins) max_bins = bno[i];
   }
