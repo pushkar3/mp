@@ -87,6 +87,12 @@
 #include <time.h>
 #include <limits.h>
 
+#include <xml_parser.h>
+#include <packlist.h>
+#include <response.h>
+#include <vector>
+#include <map>
+
 
 /* ======================================================================
 				   macros
@@ -341,6 +347,29 @@ void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
   }
 }
 
+void printpacklistxml(int n, int W, int H, int D, int *w, int *h, int *d,
+                int *x, int *y, int *z, int *bno)
+{
+  int i = 0;
+  int max_bins = 0;
+
+  PackList list;
+  list.order_id = 1;
+
+  PackPallet pallet[10];
+  for (i = 0; i < n; i++) {
+	  Package package;
+	  package.place_position.set(x[i],y[i],z[i]);
+	  pallet[bno[i]-1].insertPackage(package, w[i], h[i], d[i], 0);
+	  if(bno[i] > max_bins) max_bins = bno[i];
+  }
+
+  for (i = 0; i < max_bins; i++)
+	  list.insertPallet(pallet[i], W, H, D, 0);
+
+
+  write_response(list, "out.xml", 0);
+}
 
 /* ======================================================================
                                 prepareboxes
@@ -440,6 +469,7 @@ int main(int argc, char *argv[])
     sumlb += lb;
     if (lb == ub) solved++;
     if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, bno);
+    printpacklistxml(n, W, H, D, w, h, d, x, y, z, bno);
   }
   printf("n           = %d\n", n);
   printf("bdim        = %d\n", bdim);

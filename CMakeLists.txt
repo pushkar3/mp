@@ -11,11 +11,20 @@ SET(CPACK_SYSTEM_NAME "i386")
 
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
+set ( HEADERS
+./ext
+/usr/include
+)
+
 set ( SRC
 3dbpp
 test3dbpp
+ext/packlist
+ext/response
+ext/xml_parser
 )
  
+include_directories (${HEADERS})
 add_executable (pallet_planner ${SRC})
-target_link_libraries (pallet_planner m )
+target_link_libraries (pallet_planner m)
 

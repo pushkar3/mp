@@ -98,6 +98,11 @@
 #include <time.h>  
 #include <limits.h>
 
+#include <map>
+#include "ext/xml_parser.h"
+#include "ext/packlist.h"
+#include "ext/response.h"
+
 
 /* ======================================================================
 				   macros
@@ -283,7 +288,7 @@ int bblevel;
 				  error
    ======================================================================= */
 
-void error(char *str, ...)
+void error(const char *str, ...)
 {
   va_list args;
 
