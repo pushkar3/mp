@@ -72,7 +72,7 @@ public:
 		incoming_sequence = 0;
 		orderlineno = 0;
 		parent_layer = 0;
-		orientation = 0;
+		orientation = 1;
 		stack_height_before = 0;
 		normal_force = 0;
 		min_x = 0;
