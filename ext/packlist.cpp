@@ -166,7 +166,9 @@ void OrderXML::convertToProblem(const char* filename, const char* problem_filena
 	printf("Number of Orders: %d\n", order.n_orderline());
 
 	std::string prob;
-	prob.append(itoa(order.n_orderline()).c_str()); prob.append(" ");
+	std::string prob_all;
+	int count = 0;
+
 	prob.append(itoa(pallet[0].length).c_str()); prob.append(" ");
 	prob.append(itoa(pallet[0].width).c_str()); prob.append(" ");
 	prob.append(itoa(pallet[0].maxloadheight).c_str()); prob.append("\n");
@@ -175,12 +177,20 @@ void OrderXML::convertToProblem(const char* filename, const char* problem_filena
 		std::string l = itoa(order.orderline[i].article.length);
 		std::string h = itoa(order.orderline[i].article.height);
 		std::string p = w + " " + l + " " + h + "\n";
-		prob.append(p);
+		for (uint j = 0; j < order.orderline[i].n_barcode(); j++) {
+			prob.append(p);
+			count++;
+		}
 	}
+
+	//TODO:
+	if(count > 100) count = 100;
+	prob_all.append(itoa(count).c_str()); prob_all.append(" ");
+	prob_all.append(prob.c_str());
 
 	printf("Writing problem to %s\n", problem_filename);
 	std::ofstream ofs(problem_filename);
-	ofs.write(prob.c_str(), prob.size());
+	ofs.write(prob_all.c_str(), prob_all.size());
 	ofs.close();
 	printf("Writing Done.\n");
 

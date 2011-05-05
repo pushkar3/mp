@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
 	  n = readtest(tab, &W, &H, &D, file);
 	  bdim = 0;
 	  type = 0;
-	  TESTS = 1;
+	  TESTS = 2;
   }
 
   if (argc == 6) {
