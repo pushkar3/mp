@@ -357,9 +357,12 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
   list.order_id = 1;
 
   PackPallet pallet[10];
-  for (i = 0; i < n; i++) {
+  for (i = n-1; i >= 0; i--) {
 	  Package package;
-	  package.place_position.set(x[i],y[i],z[i]);
+	  int pos_x = x[i] + w[i]/2.0;
+	  int pos_y = y[i] + h[i]/2.0;
+	  int pos_z = z[i] + d[i];
+	  package.place_position.set(pos_x, pos_y, pos_z);
 	  package.article.id = i;
 	  pallet[bno[i]-1].insertPackage(package, w[i], h[i], d[i], 0);
 	  if(bno[i] > max_bins) max_bins = bno[i];

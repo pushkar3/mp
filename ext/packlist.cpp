@@ -169,8 +169,8 @@ void OrderXML::convertToProblem(const char* filename, const char* problem_filena
 	std::string prob_all;
 	int count = 0;
 
-	prob.append(itoa(pallet[0].length).c_str()); prob.append(" ");
 	prob.append(itoa(pallet[0].width).c_str()); prob.append(" ");
+	prob.append(itoa(pallet[0].length).c_str()); prob.append(" ");
 	prob.append(itoa(pallet[0].maxloadheight).c_str()); prob.append("\n");
 	for(uint i = 0; i < order.n_orderline(); i++) {
 		std::string w = itoa(order.orderline[i].article.width);
