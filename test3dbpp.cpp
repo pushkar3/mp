@@ -347,6 +347,37 @@ void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
   }
 }
 
+void exchange(int *a, int i, int j)
+{
+	if(a == NULL) return;
+	int temp = a[i];
+	a[i] = a[j];
+	a[j] = temp;
+}
+
+
+void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, int *f, int *g)
+{
+	if (a == NULL) {
+		printf("Error in %d %s\n", __LINE__, __func__);
+		return;
+	}
+
+	for (int i = i_start; i < i_end; i++) {
+		for (int j = i; j < i_end; j++) {
+			if(a[i] > a[j]) {
+				exchange(a, i, j);
+				exchange(b, i, j);
+				exchange(c, i, j);
+				exchange(d, i, j);
+				exchange(e, i, j);
+				exchange(f, i, j);
+				exchange(g, i, j);
+			}
+		}
+	}
+}
+
 void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *h, int *d,
                 int *x, int *y, int *z, int *bno)
 {
@@ -357,7 +388,10 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
   list.order_id = 1;
 
   PackPallet pallet[10];
-  for (i = n-1; i >= 0; i--) {
+
+  sort_range(0, n, z, x, y, w, h, d, bno);
+
+  for (i = 0; i < n; i++) {
 	  Package package;
 	  int pos_x = x[i] + w[i]/2.0;
 	  int pos_y = y[i] + h[i]/2.0;
@@ -417,7 +451,7 @@ int main(int argc, char *argv[])
 	  nodelimit   = 0;
 	  iterlimit   = 0;
 	  timelimit   = 0;
-	  packingtype = 1;
+	  packingtype = 0;
 	  printf("3DBPP PROBLEM %s %d %d %d %d\n",
 			 file, nodelimit, iterlimit, timelimit, packingtype);
 	  n = readtest(tab, &W, &H, &D, file);
@@ -491,8 +525,8 @@ int main(int argc, char *argv[])
     sumub += ub;
     sumlb += lb;
     if (lb == ub) solved++;
-    if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, bno);
     if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, bno);
+    if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, bno);
   }
   printf("n           = %d\n", n);
   printf("bdim        = %d\n", bdim);
