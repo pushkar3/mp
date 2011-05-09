@@ -157,7 +157,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 				b1.w = w1[j];
 				b1.h = h1[j];
 				b1.d = d1[j];
-				b1.bno = 0;
+				b1.bno = 1; // has to be > 0
 				l.pattern.push_back(b1);
 			}
 		}
@@ -206,7 +206,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 			if(z[n] + d[n] > _h) _h = z[n] + d[n];
  			n++;
 		}
-		_h_layer += _h;
+		_h_layer = _h;
 	}
 
 	printf("\n\n");
