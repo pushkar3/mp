@@ -101,11 +101,54 @@ int sol_use_layer(bpp_t* sol, layer_t layer) {
 // ---------------------------------------------------------------------------------
 // Main Algorithm
 
-int binpack3d_layer(int n, int W, int H, int D, int w, int h, int d, int *x,
-		int *y, int *z, int *bno, int *lb, int *ub, int nodelimit,
-		int iterlimit, int timelimit, int *nodeused, int *iterused,
-		int *timeused, int packingtype, int off_x, int off_y, int off_z) {
+layer_t create_layer(int W, int H, int D, int box_type, int off_x, int off_y, int off_z) {
+	layer_t l;
+	int w = bpp.box[box_type].w;
+	int h = bpp.box[box_type].h;
+	int d = bpp.box[box_type].d;
 
+	int n_bw = W/w; // Boxes that fit along w, h
+	int n_bh = H/h;
+	double g_bw = (W-n_bw*w)/n_bw; // Gap that needs to be filled by each box
+	double g_bh = (H-n_bh*w)/n_bh;
+	printf("w->%d, %d and %d\n", W, n_bw, w);
+	printf("%lf\n", (double) W-(n_bw*w));
+
+	int x1[MAXBOXES];
+	int y1[MAXBOXES];
+	int z1[MAXBOXES];
+	int w1[MAXBOXES];
+	int h1[MAXBOXES];
+	int d1[MAXBOXES];
+	int bno1[MAXBOXES];
+	int lb1 = 0; int ub1 = 0;
+	int nodeused1 = 0;
+	int iterused1 = 0;
+	int timeused1 = 0;
+	int nodelimit1 = 5;
+	for(int i = 0; i < 50; i++) {
+		x1[i] = y1[i] = z1[i] = 0;
+		w1[i] = w+g_bw; h1[i] = h+g_bh; d1[i] = d;
+		bno1[i] = 1;
+	}
+	binpack3d(50, W, H, D, w1, h1, d1, x1, y1, z1, bno1, &lb1, &ub1, 0, nodelimit1, 0, &nodeused1, &iterused1, &timeused1, 1);
+
+	l.box.push_back(box_type);
+	for(int i = 0; i < 50; i++) {
+		if(z1[i] == 0) {
+			box_t b;
+			b.w = bpp.box[box_type].w;
+			b.h = bpp.box[box_type].h;
+			b.d = bpp.box[box_type].d;
+			b.x = x1[i] + g_bw/2.0 + off_x;
+			b.y = y1[i] + g_bh/2.0 + off_y;
+			b.z = z1[i] + off_z;
+			b.bno = 1;
+			l.pattern.push_back(b);
+		}
+	}
+	l.n_box.push_back(l.pattern.size());
+	return l;
 }
 
 int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
@@ -137,51 +180,15 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 	//-------------------
 	// Layers made of box of one type alone
 	for (int i = 0; i < bpp.box.size(); i++) {
-		box_t b = bpp.box[i];
-		int x1[50];
-		int y1[50];
-		int z1[50];
-		int w1[50];
-		int h1[50];
-		int d1[50];
-		int bno1[50];
-		int lb1, ub1;
-		int nodeused1 = 2;
-		int iterused1 = 0;
-		int timeused1 = 0;
-		for(int j = 0; j < 50; j++) {
-			w1[j] = b.w; h1[j] = b.h; d1[j] = b.d;
-		}
-		// Bin packing with w, h
-		printf("Solving bpp for box (%d, %d, %d) \n", w1[0], h1[0], d1[0]);
-		binpack3d(50, W, H, D, w1, h1, d1, x1, y1, z1, bno1, &lb1, &ub1, 0, 5 /*TODO*/, 0, &nodeused1, &iterused1, &timeused1, 1);
-		//printboxes(50, W, H, D, w1, h1, d1, x1, y1, z1, bno1);
-		layer_t l;
-		l.box.push_back(i);
-		for(int j = 0; j < 50; j++) {
-			if(z1[j] == 0) {
-				box_t b1;
-				b1.x = x1[j];
-				b1.y = y1[j];
-				b1.z = z1[j];
-				b1.w = w1[j];
-				b1.h = h1[j];
-				b1.d = d1[j];
-				b1.bno = 1; // has to be > 0
-				l.pattern.push_back(b1);
-			}
-		}
-		l.n_box.push_back(l.pattern.size());
+		printf("Creating layer for box %d\n", i);
+		layer_t l = create_layer(W, H, D, i, 0, 0, 0);
 		layer.push_back(l);
-		printf(".");
 	}
 
-	if(debug > 1) {
-		printf("Layers created.");
-		printf("\n\n");
-		layer_debug();
-		printf("\n\n");
-	}
+
+	layer_debug();
+	//-------------------
+    // Make all changes below this only --------------------------------------------------------
 
 	// Try to solve the problem
 	bpp_t sol = bpp;

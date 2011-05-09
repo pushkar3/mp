@@ -1,3 +1,9 @@
+#define IUNIT        1000  /* scaling factor of nodes and iterat */
+#define MAXBOXES      101  /* max number of boxes (plus one box) */
+#define MAXBPP    1000000  /* max numer of iterations in 1-dim bpp */
+#define MAXITER      1000  /* max iterations in heuristic onebin_robot */
+#define MAXCLOSE       16  /* max level for which try_close is applied */
+
 /* ======================================================================
                                 binpack3d
    ====================================================================== */
