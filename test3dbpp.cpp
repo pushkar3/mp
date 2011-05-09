@@ -503,8 +503,9 @@ int main(int argc, char *argv[])
               packingtype);
 
     if (type == 0) printpacklistxml(file_packlist, nt, W, H, D, w, h, d, x, y, z, bno);
-    if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
+    // if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
 
+    printf("\n\n");
     return 0;
 
     time = timeused * 0.001;
