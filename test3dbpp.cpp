@@ -77,7 +77,6 @@
  */
 
 #define RANDOMTESTS    10     /* Number of test to run for each type */
-#define MAXBOXES      201     /* Max number of boxes plus one */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -386,7 +385,8 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
 	  int pos_z = z[i] + d[i];
 	  package.place_position.set(pos_x, pos_y, pos_z);
 	  package.article.id = i;
-	  pallet[bno[i]-1].insertPackage(package, w[i], h[i], d[i], 0);
+	  pallet[0].insertPackage(package, w[i], h[i], d[i], 0);
+	  // TODO: For multiple pallets it should be bno[i]-1
 	  if(bno[i] > max_bins) max_bins = bno[i];
   }
 
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
               packingtype);
 
     if (type == 0) printpacklistxml(file_packlist, nt, W, H, D, w, h, d, x, y, z, bno);
-    // if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
+    //if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
 
     printf("\n\n");
     return 0;

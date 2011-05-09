@@ -107,12 +107,10 @@ layer_t create_layer(int W, int H, int D, int box_type, int off_x, int off_y, in
 	int h = bpp.box[box_type].h;
 	int d = bpp.box[box_type].d;
 
-	int n_bw = W/w; // Boxes that fit along w, h
-	int n_bh = H/h;
-	double g_bw = (W-n_bw*w)/n_bw; // Gap that needs to be filled by each box
-	double g_bh = (H-n_bh*w)/n_bh;
-	printf("w->%d, %d and %d\n", W, n_bw, w);
-	printf("%lf\n", (double) W-(n_bw*w));
+	int n_w = W/w; // Boxes that fit along w, h
+	int n_h = H/h;
+	double g_w = (double)((W-n_w*w)/n_w); // Gap that needs to be filled by each box
+	double g_h = (double)((H-n_h*h)/n_h);
 
 	int x1[MAXBOXES];
 	int y1[MAXBOXES];
@@ -128,21 +126,21 @@ layer_t create_layer(int W, int H, int D, int box_type, int off_x, int off_y, in
 	int nodelimit1 = 5;
 	for(int i = 0; i < 50; i++) {
 		x1[i] = y1[i] = z1[i] = 0;
-		w1[i] = w+g_bw; h1[i] = h+g_bh; d1[i] = d;
+		w1[i] = w+g_w; h1[i] = h+g_h; d1[i] = d;
 		bno1[i] = 1;
 	}
 	binpack3d(50, W, H, D, w1, h1, d1, x1, y1, z1, bno1, &lb1, &ub1, 0, nodelimit1, 0, &nodeused1, &iterused1, &timeused1, 1);
 
 	l.box.push_back(box_type);
 	for(int i = 0; i < 50; i++) {
-		if(z1[i] == 0) {
+		if(z1[i] == 0 && bno1[i] == 1) {
 			box_t b;
 			b.w = bpp.box[box_type].w;
 			b.h = bpp.box[box_type].h;
 			b.d = bpp.box[box_type].d;
-			b.x = x1[i] + g_bw/2.0 + off_x;
-			b.y = y1[i] + g_bh/2.0 + off_y;
-			b.z = z1[i] + off_z;
+			b.x = x1[i] + g_w/2 + off_x;
+			b.y = y1[i] + g_h/2 + off_y;
+			b.z = off_z;
 			b.bno = 1;
 			l.pattern.push_back(b);
 		}
@@ -186,7 +184,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 	}
 
 
-	layer_debug();
+	// layer_debug();
 	//-------------------
     // Make all changes below this only --------------------------------------------------------
 
@@ -203,7 +201,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		for(int i = 0; i < layer.size(); i++) {
 			int ret = sol_use_layer(&sol, layer[i]);
 			if(ret == 1) {
-				printf("\nBox %d -> %d ", layer[i].box[0], layer[i].pattern.size());
+				printf("\nBox %d -> %d instead of %d ", layer[i].box[0], layer[i].pattern.size(), bpp.n_box[layer[i].box[0]]);
 				sol_layer.push_back(layer[i]);
 				solved++;
 			}
@@ -213,6 +211,10 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 	if(debug > 0) {
 		printf("Solved");
 		printf("\n\n");
+	}
+
+	for(int i = 0; i < MAXBOXES; i++) {
+		x[i] = y[i] = z[i] = w[i] = h[i] = d[i] = 0.0f;
 	}
 
 	n = 0;
@@ -236,7 +238,6 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 
 	printf("\n\nCreated a pallet of %d boxes. Done", n);
 	printf("\n");
-
 	return n;
 }
 
