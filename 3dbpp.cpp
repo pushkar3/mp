@@ -102,6 +102,8 @@
 #include "ext/packlist.h"
 #include "ext/response.h"
 
+#include "3dbpp.h"
+
 /* ======================================================================
  macros
  ====================================================================== */
@@ -603,7 +605,8 @@ void isortincr(int *f, int *l) {
 		while (*j > mi);
 		if (i > j)
 			break;
-			elseSWAPINT(i, j);
+			else
+				SWAPINT(i, j);
 	}
 	isortincr(f, i - 1);
 	isortincr(i, l);
@@ -650,7 +653,8 @@ void isortdecr(int *f, int *l) {
 		while (*j < mi);
 		if (i > j)
 			break;
-			elseSWAPINT(i, j);
+			else
+				SWAPINT(i, j);
 	}
 	isortdecr(f, i - 1);
 	isortdecr(i, l);
@@ -695,7 +699,8 @@ void psortdecr(point *f, point *l) {
 		while (DF(*j,mi) < 0);
 		if (i > j)
 			break;
-			elseSWAPP(i, j);
+			else
+				SWAPP(i, j);
 	}
 	psortdecr(f, i - 1);
 	psortdecr(i, l);

@@ -18,6 +18,7 @@ set ( HEADERS
 
 set ( SRC
 3dbpp
+3dbpp_layer
 test3dbpp
 ext/packlist
 ext/response

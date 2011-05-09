@@ -93,6 +93,8 @@
 #include <vector>
 #include <map>
 
+#include "3dbpp.h"
+
 
 /* ======================================================================
 				   macros
@@ -139,19 +141,6 @@ typedef struct irec {
    ====================================================================== */
 
 int TESTS;
-
-
-/* ======================================================================
-                                binpack3d
-   ====================================================================== */
-
-void binpack3d(int n, int W, int H, int D,
-               int *w, int *h, int *d,
-               int *x, int *y, int *z, int *bno,
-               int *lb, int *ub,
-               int nodelimit, int iterlimit, int timelimit,
-               int *nodeused, int *iterused, int *timeused,
-               int packingtype);
 
 
 /* =======================================================================
@@ -339,7 +328,6 @@ void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
                 int *x, int *y, int *z, int *bno)
 {
   int i;
-
   printf("%d (%d,%d,%d)\n", n, W, H, D);
   for (i = 0; i < n; i++) {
     printf("%2d (%2d %2d %2d) : Bin %2d (%2d, %2d, %2d)\n",
@@ -509,10 +497,16 @@ int main(int argc, char *argv[])
     srand(v+n); /* initialize random generator */
     if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
     prepareboxes(tab, tab+n-1, w, h, d);
-    binpack3d(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub, 
+    int nt = binpack3d_layer(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub,
               nodelimit, iterlimit, timelimit, 
               &nodeused, &iterused, &timeused, 
               packingtype);
+
+    if (type == 0) printpacklistxml(file_packlist, nt, W, H, D, w, h, d, x, y, z, bno);
+    if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
+
+    return 0;
+
     time = timeused * 0.001;
     printf("%2d : lb %2d z %2d node %9d iter %9d time %6.2f\n", 
             v, lb, ub, nodeused, iterused, time); 
