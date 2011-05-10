@@ -96,7 +96,8 @@ int bpp_relaxed(bpp_t sol, surface_t* s) {
 		int n_boxes = nw * nh;
 
 		double n_sol_boxes = sol.n_box[i];
-		double part = (double) (n_sol_boxes / n_boxes);
+		double part = 0.0f;
+		if(n_boxes > 0) part = (double) (n_sol_boxes / n_boxes);
 		if (part < 0.0f) part = 0.0f;
 		s->bpp_part[i] = part;
 		if (part > 1.0) ret *= 0;
@@ -169,7 +170,6 @@ layer_t bpp_create_layer(int W, int H, int D, int box_type, int off_x, int off_y
 }
 
 void bpp_add_layer(bpp_t* sol, vector<layer_t>* sol_layer, surface_t* surface, int box_type) {
-	printf("\nTrying to add box %d\n", box_type);
 	surface_t s = *surface;
 	layer_t l = bpp_create_layer(s.x, s.y, s.z, box_type, s.off_x, s.off_y, s.off_z);
 	sol->n_box[box_type] -= l.pattern.size();
@@ -317,22 +317,28 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		int box_type = -1;
 		int best_surface = 0;
 		for(int k = 0; k < surface.size(); k++) {
-		for (int i = 0; i < hash.size(); i++) {
+			//printf("\n");
+			for (int i = 0; i < hash.size(); i++) {
 
-			for (int j = 0; j < hash[i].box_types.size(); j++) {
-				if (surface[k].bpp_part[hash[i].box_types[j]] <= 0.0f)
-					hash[i].box_types.erase(hash[i].box_types.begin() + j);
+				//printf("\nHash: h = %d ", hash[i].d);
+				for (int j = 0; j < hash[i].box_types.size(); j++) {
+					/*if (surface[k].bpp_part[hash[i].box_types[j]] <= 0.0f)
+						hash[i].box_types.erase(hash[i].box_types.begin() + j);
+						*/
+					// TODO: Not required? Why?
+					//printf(" %d ", hash[i].box_types[j]);
 
-				if(max_bpp < surface[k].bpp_part[hash[i].box_types[j]]) {
-					max_bpp = surface[k].bpp_part[hash[i].box_types[j]];
-					box_type = hash[i].box_types[j];
-					best_surface = k;
+					if (max_bpp < surface[k].bpp_part[hash[i].box_types[j]]) {
+						max_bpp = surface[k].bpp_part[hash[i].box_types[j]];
+						box_type = hash[i].box_types[j];
+						best_surface = k;
+					}
 				}
 			}
 		}
-		}
 
 		if(box_type == -1) {
+			printf("\nEnd\n");
 			solved = 1;
 			break;
 		}
@@ -352,10 +358,12 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		}
 
 		bpp_add_layer(&sol, &sol_layer, &surface.back(), box_type);
+		printf("\nTrying to add box %d on layer %d\n", box_type, best_surface);
+		surface_debug();
 		surface.back().off_z += bpp.box[box_type].d;
 
 		for(int k = 0; k < surface.size(); k++) {
-			printf("\nLayer %d\n", k);
+			printf("\n\nLayer %d", k);
 			bpp_relaxed(sol, &surface[k]);
 		}
 	}
