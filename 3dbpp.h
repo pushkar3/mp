@@ -26,3 +26,11 @@ int binpack3d_layer(int n, int W, int H, int D,
 
 void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
                 int *x, int *y, int *z, int *bno);
+
+void exchange(int *a, int i, int j);
+
+void exchange_double(double *a, int i, int j);
+
+void sort_range(int i_start, int i_end, int *a, int *b=NULL, int *c=NULL, int *d=NULL, int *e=NULL, int *f=NULL, int *g=NULL);
+
+void sort_sol_range(int i_start, int i_end, int *a, int *b, double *c, int use_h_to_sort);

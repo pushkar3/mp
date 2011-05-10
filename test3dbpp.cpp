@@ -342,6 +342,14 @@ void exchange(int *a, int i, int j)
 	a[j] = temp;
 }
 
+void exchange_double(double *a, int i, int j)
+{
+	if(a == NULL) return;
+	double temp = a[i];
+	a[i] = a[j];
+	a[j] = temp;
+}
+
 
 void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, int *f, int *g)
 {
@@ -354,12 +362,12 @@ void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, 
 		for (int j = i; j < i_end; j++) {
 			if(a[i] > a[j]) {
 				exchange(a, i, j);
-				exchange(b, i, j);
-				exchange(c, i, j);
-				exchange(d, i, j);
-				exchange(e, i, j);
-				exchange(f, i, j);
-				exchange(g, i, j);
+				if(b!=NULL) exchange(b, i, j);
+				if(c!=NULL) exchange(c, i, j);
+				if(d!=NULL) exchange(d, i, j);
+				if(e!=NULL) exchange(e, i, j);
+				if(f!=NULL) exchange(f, i, j);
+				if(g!=NULL) exchange(g, i, j);
 			}
 		}
 	}
@@ -497,6 +505,7 @@ int main(int argc, char *argv[])
     srand(v+n); /* initialize random generator */
     if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
     prepareboxes(tab, tab+n-1, w, h, d);
+    sort_range(0, n, d, w, h, x, y, z, bno);
     int nt = binpack3d_layer(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub,
               nodelimit, iterlimit, timelimit, 
               &nodeused, &iterused, &timeused, 
