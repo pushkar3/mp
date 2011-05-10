@@ -33,7 +33,7 @@ unsigned int xml_parser_get_buffer_length(const char* filename) {
 // Make XML tag value pair and return as a string
 std::string xml_make_tag(const char* tag, const char* value) {
 	std::string ret("");
-	for(int i = 0; i < depth; i++) ret.append("\t");
+	for(int i = 0; i < depth; i++) ret.append("    ");
 	ret.append("<");
 	ret.append(tag);
 	ret.append(">");
@@ -47,7 +47,7 @@ std::string xml_make_tag(const char* tag, const char* value) {
 
 std::string xml_start_tag(const char* tag) {
 	std::string ret("");
-	for(int i = 0; i < depth; i++) ret.append("\t");
+	for(int i = 0; i < depth; i++) ret.append("    ");
 	ret.append("<");
 	ret.append(tag);
 	ret.append(">");
@@ -58,7 +58,7 @@ std::string xml_start_tag(const char* tag) {
 
 std::string xml_value_tag(const char* value) {
 	std::string ret("");
-	for(int i = 0; i < depth; i++) ret.append("\t");
+	for(int i = 0; i < depth; i++) ret.append("    ");
 	ret.append(value);
 	ret.append("\n");
 	return ret;
@@ -67,7 +67,7 @@ std::string xml_value_tag(const char* value) {
 std::string xml_end_tag(const char* tag) {
 	std::string ret("");
 	depth--;
-	for(int i = 0; i < depth; i++) ret.append("\t");
+	for(int i = 0; i < depth; i++) ret.append("    ");
 	ret.append("</");
 	ret.append(tag);
 	ret.append(">");

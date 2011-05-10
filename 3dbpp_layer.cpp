@@ -13,6 +13,7 @@ using namespace std;
 // Global data types
 typedef struct {
 	int x, y, z, w, h, d, bno;
+	int wt, id;
 } box_t;
 
 typedef struct {
@@ -200,7 +201,7 @@ void sort_sol_range(int i_start, int i_end, int *a, int *b, double *c, int use_h
 
 
 int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
-		int *y, int *z, int *bno, int *lb, int *ub, int nodelimit,
+		int *y, int *z, int* wt, int* id, int *bno, int *lb, int *ub, int nodelimit,
 		int iterlimit, int timelimit, int *nodeused, int *iterused,
 		int *timeused, int packingtype) {
 
@@ -208,6 +209,8 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 	box_t b;
 	b.w = w[0]; b.h = h[0]; b.d = d[0];
 	b.x = b.y = b.z = b.bno = 0;
+	b.wt = wt[0];
+	b.id = id[0];
 	bpp.box.push_back(b);
 	bpp.n_box.push_back(1);
 
@@ -220,6 +223,8 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		if((w[i] != w[i-1]) || (h[i] != h[i-1]) || (d[i] != d[i-1])) {
 			b.w = w[i]; b.h = h[i]; b.d = d[i];
 			b.x = b.y = b.z = b.bno = 0;
+			b.wt = wt[i];
+			b.id = id[i];
 			bpp.box.push_back(b);
 			bpp.n_box.push_back(1);
 		}
@@ -381,7 +386,9 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 			w[n] = sol_layer[i].pattern[j].w;
 			h[n] = sol_layer[i].pattern[j].h;
 			d[n] = sol_layer[i].pattern[j].d;
-			bno[n] = sol_layer[i].pattern[j].bno;
+			bno[n] = 1;
+			wt[n] = bpp.box[sol_layer[i].box_type].wt;
+			id[n] = bpp.box[sol_layer[i].box_type].id;
  			n++;
 		}
 	}

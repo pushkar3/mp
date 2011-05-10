@@ -176,7 +176,9 @@ void OrderXML::convertToProblem(const char* filename, const char* problem_filena
 		std::string w = itoa(order.orderline[i].article.width);
 		std::string l = itoa(order.orderline[i].article.length);
 		std::string h = itoa(order.orderline[i].article.height);
-		std::string p = w + " " + l + " " + h + "\n";
+		std::string wt = itoa(order.orderline[i].article.weight);
+		std::string id = itoa(order.orderline[i].article.id);
+		std::string p = w + " " + l + " " + h + " " + wt + " " + id + "\n";
 		for (uint j = 0; j < order.orderline[i].n_barcode(); j++) {
 			prob.append(p);
 			count++;

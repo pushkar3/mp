@@ -194,10 +194,11 @@ void write_response(PackList list, const char* filename, int debug) {
 				printf("%d. Number of Packages: %d\n", list.n_packpallet(), list.packpallet[i].n_package());
 				for(uint j = 0; j < list.packpallet[i].n_package(); j++) {
 					printf("Pack Sequence: %d\t", list.packpallet[i].package[j].pack_sequence);
-					printf("ID: %d \t Size: <%d, %d, %d>\n", list.packpallet[i].package[j].article.id,
+					printf("ID: %d \t Size: <%d, %d, %d> \t %d\n", list.packpallet[i].package[j].article.id,
 							list.packpallet[i].package[j].article.width,
 							list.packpallet[i].package[j].article.height,
-							list.packpallet[i].package[j].article.length);
+							list.packpallet[i].package[j].article.length,
+							list.packpallet[i].package[j].article.weight);
 				}
 			}
 		}

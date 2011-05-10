@@ -35,11 +35,12 @@ public:
 	~Article() {}
 	int parse(std::string data);
 	std::string xml();
-	void set(int _length, int _width, int _height, int _weight) {
+	void set(int _length, int _width, int _height, int _weight, int _id) {
 		length = _length;
 		width = _width;
 		height = _height;
 		weight = _weight;
+		id = _id;
 	}
 };
 

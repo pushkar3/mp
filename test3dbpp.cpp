@@ -132,6 +132,8 @@ typedef struct irec {
   itype    z;            /* optimal z-position */
   ntype    bno;          /* bin number */
   stype    vol;          /* volume of box */
+  itype	   wt;
+  itype    id;
 } box;
 
 
@@ -303,7 +305,7 @@ int readtest(box *tab, itype *W, itype *H, itype *D, char *file)
 {
   FILE *in;
   box *i;
-  int n, w, h, d;
+  int n, w, h, d, wt, id;
 
   in = fopen(file, "r");
   if (in == NULL) { printf("wrong filename"); exit(-1); }
@@ -311,8 +313,9 @@ int readtest(box *tab, itype *W, itype *H, itype *D, char *file)
   fscanf(in,"%d %d %d %d", &n, &w, &h, &d);
   *W = w; *H = h; *D = d;
   for (i = tab; i < tab+n; i++) {
-    fscanf(in,"%d %d %d", &w, &h, &d);
+    fscanf(in,"%d %d %d %d %d", &w, &h, &d, &wt, &id);
     i->w = w; i->h = h; i->d = d;
+    i->wt = wt; i->id = id;
   }
   fclose(in);
   return n;
@@ -324,13 +327,13 @@ int readtest(box *tab, itype *W, itype *H, itype *D, char *file)
    ====================================================================== */
 
 void printboxes(int n, int W, int H, int D, int *w, int *h, int *d, 
-                int *x, int *y, int *z, int *bno)
+                int *x, int *y, int *z, int *wt, int *id, int *bno)
 {
   int i;
   printf("%d (%d,%d,%d)\n", n, W, H, D);
   for (i = 0; i < n; i++) {
-    printf("%2d (%2d %2d %2d) : Bin %2d (%2d, %2d, %2d)\n",
-           i,w[i],h[i],d[i],bno[i],x[i],y[i],z[i]);
+    printf("%2d (%2d %2d %2d) : Bin %2d (%2d, %2d, %2d) \t %d %d\n",
+           i,w[i],h[i],d[i],bno[i],x[i],y[i],z[i], wt[i], id[i]);
   }
 }
 
@@ -351,7 +354,7 @@ void exchange_double(double *a, int i, int j)
 }
 
 
-void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, int *f, int *g)
+void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *k)
 {
 	if (a == NULL) {
 		printf("Error in %d %s\n", __LINE__, __func__);
@@ -368,13 +371,14 @@ void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, 
 				if(e!=NULL) exchange(e, i, j);
 				if(f!=NULL) exchange(f, i, j);
 				if(g!=NULL) exchange(g, i, j);
+				if(h!=NULL) exchange(h, i, j);
+				if(k!=NULL) exchange(k, i, j);
 			}
 		}
 	}
 }
 
-void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *h, int *d,
-                int *x, int *y, int *z, int *bno)
+void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *h, int *d, int *x, int *y, int *z, int *wt, int *id, int *bno)
 {
   int i = 0;
   int max_bins = 0;
@@ -384,7 +388,7 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
 
   PackPallet pallet[10];
 
-  sort_range(0, n, z, x, y, w, h, d, bno);
+  sort_range(0, n, z, x, y, w, h, d, wt, id, bno);
 
   for (i = 0; i < n; i++) {
 	  Package package;
@@ -392,10 +396,11 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
 	  int pos_y = y[i] + h[i]/2.0;
 	  int pos_z = z[i] + d[i];
 	  package.place_position.set(pos_x, pos_y, pos_z);
-	  package.article.id = i;
-	  pallet[0].insertPackage(package, w[i], h[i], d[i], 0);
+	  package.article.description = itoa(id[i]);
+	  pallet[0].insertPackage(package, w[i], h[i], d[i], wt[i], id[i]);
 	  // TODO: For multiple pallets it should be bno[i]-1
-	  if(bno[i] > max_bins) max_bins = bno[i];
+	  // if(bno[i] > max_bins) max_bins = bno[i];
+	  max_bins = bno[i] = 1;
   }
 
   for (i = 0; i < max_bins; i++)
@@ -409,13 +414,14 @@ void printpacklistxml(const char* out, int n, int W, int H, int D, int *w, int *
                                 prepareboxes
    ====================================================================== */
 
-void prepareboxes(box *f, box *l, int *w, int *h, int *d)
+void prepareboxes(box *f, box *l, int *w, int *h, int *d, int *wt, int *id)
 {
   box *i;
   int k;
 
   for (i = f, k = 0; i != l+1; i++, k++) {
     w[k] = i->w; h[k] = i->h; d[k] = i->d;
+    wt[k] = i->wt; id[k] = i->id;
   }
 }
 
@@ -433,6 +439,7 @@ int main(int argc, char *argv[])
   box tab[MAXBOXES];
   int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
   int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
+  int wt[MAXBOXES], id[MAXBOXES];
   int ub, lb, solved, gap, sumnode, sumiter;
   double time, sumtime, deviation, sumub, sumlb, sumdev;
   char file[1000];
@@ -504,15 +511,15 @@ int main(int argc, char *argv[])
   for (v = 1; v <= TESTS; v++) {
     srand(v+n); /* initialize random generator */
     if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
-    prepareboxes(tab, tab+n-1, w, h, d);
-    sort_range(0, n, d, w, h, x, y, z, bno);
-    int nt = binpack3d_layer(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub,
+    prepareboxes(tab, tab+n-1, w, h, d, wt, id);
+    sort_range(0, n, d, w, h, x, y, z, wt, id, bno);
+    int nt = binpack3d_layer(n, W, H, D, w, h, d, x, y, z, wt, id, bno, &lb, &ub,
               nodelimit, iterlimit, timelimit, 
               &nodeused, &iterused, &timeused, 
               packingtype);
 
-    if (type == 0) printpacklistxml(file_packlist, nt, W, H, D, w, h, d, x, y, z, bno);
-    //if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, bno);
+    if (type == 0) printpacklistxml(file_packlist, nt, W, H, D, w, h, d, x, y, z, wt, id, bno);
+    //if (type == 0) printboxes(nt, W, H, D, w, h, d, x, y, z, wt, id, bno);
 
     printf("\n\n");
     return 0;
@@ -529,8 +536,8 @@ int main(int argc, char *argv[])
     sumub += ub;
     sumlb += lb;
     if (lb == ub) solved++;
-    if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, bno);
-    if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, bno);
+    if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, wt, id, bno);
+    if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, wt, id, bno);
   }
   printf("n           = %d\n", n);
   printf("bdim        = %d\n", bdim);

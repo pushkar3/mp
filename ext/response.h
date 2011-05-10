@@ -113,8 +113,8 @@ public:
 	Dimensions() {
 		length = 0;
 		width = 0;
-		max_load_weight = 0;
-		max_load_height = 0;
+		max_load_weight = 16667;
+		max_load_height = 16667;
 	}
 	~Dimensions() {}
 	int parse(std::string data);
@@ -125,6 +125,7 @@ public:
 		width = _width;
 		max_load_height = _height;
 		max_load_weight = _weight;
+		max_load_weight = 16667;
 	}
 };
 
@@ -139,7 +140,7 @@ public:
 
 	PackPallet() {
 		pallet_number = 0;
-		brutto_weight = 0;
+		brutto_weight = 63000;
 		number_of_packages = 0;
 	};
 	~PackPallet() {};
@@ -147,10 +148,10 @@ public:
 	int parse(std::string data);
 	std::string xml();
 
-	void insertPackage(Package pack, int w, int h, int d, int e) {
+	void insertPackage(Package pack, int w, int h, int d, int e, int id) {
 		package.push_back(pack);
 		package[n_package()-1].pack_sequence = n_package();
-		package[n_package()-1].article.set(w, h, d, e);
+		package[n_package()-1].article.set(w, h, d, e, id);
 	}
 
 	// Call once
