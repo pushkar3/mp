@@ -169,6 +169,7 @@ layer_t bpp_create_layer(int W, int H, int D, int box_type, int off_x, int off_y
 }
 
 void bpp_add_layer(bpp_t* sol, vector<layer_t>* sol_layer, surface_t* surface, int box_type) {
+	printf("\nTrying to add box %d\n", box_type);
 	surface_t s = *surface;
 	layer_t l = bpp_create_layer(s.x, s.y, s.z, box_type, s.off_x, s.off_y, s.off_z);
 	sol->n_box[box_type] -= l.pattern.size();
@@ -313,7 +314,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 	printf("\n");
 	while(!solved) {
 		double max_bpp = 0.0f;
-		int box_type = 0;
+		int box_type = -1;
 		int best_surface = 0;
 		for(int k = 0; k < surface.size(); k++) {
 		for (int i = 0; i < hash.size(); i++) {
@@ -331,21 +332,32 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		}
 		}
 
-		printf("Best found: %d type %2.2lf value on layer %d\n", box_type, max_bpp, best_surface);
-		surface_debug();
+		if(box_type == -1) {
+			solved = 1;
+			break;
+		}
+
 		surface_t s = surface[best_surface];
-		surface[best_surface].y = (1.0-max_bpp)*s.y;
-		s.y = max_bpp*s.y;
-		s.off_y += (1.0-max_bpp)*s.y;
-		surface.push_back(s);
-		bpp_add_layer(&sol, &sol_layer, &surface[best_surface], box_type);
-		surface[best_surface].off_z += bpp.box[box_type].d;
+		if(max_bpp*s.x >= bpp.box[box_type].w && s.y >= bpp.box[box_type].h) {
+			s.x = max_bpp*s.x;
+			surface[best_surface].x -= s.x;
+			surface[best_surface].off_x += s.x;
+			surface.push_back(s);
+		}
+		else if(max_bpp*s.y >= bpp.box[box_type].h && s.x >= bpp.box[box_type].w) {
+			s.y = max_bpp*s.y;
+			surface[best_surface].y -= s.y;
+			surface[best_surface].off_y += s.y;
+			surface.push_back(s);
+		}
+
+		bpp_add_layer(&sol, &sol_layer, &surface.back(), box_type);
+		surface.back().off_z += bpp.box[box_type].d;
 
 		for(int k = 0; k < surface.size(); k++) {
-			printf("\n");
+			printf("\nLayer %d\n", k);
 			bpp_relaxed(sol, &surface[k]);
 		}
-		solved = 1;
 	}
 
 	// After this I have to maintain many surfaces
