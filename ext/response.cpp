@@ -138,6 +138,7 @@ int PackList::parse(std::string data) {
 
 std::string PackList::xml() {
 	std::string ret("");
+	ret.append("<Response index=\"0\">");
 	ret.append(xml_start_tag("PackList"));
 	ret.append(xml_make_tag("OrderID", itoa(order_id).c_str()));
 	ret.append(xml_start_tag("PackPallets"));
@@ -147,6 +148,7 @@ std::string PackList::xml() {
 	}
 	ret.append(xml_end_tag("PackPallets"));
 	ret.append(xml_end_tag("PackList"));
+	ret.append("</Response>");
 	return ret;
 }
 

@@ -513,6 +513,7 @@ int main(int argc, char *argv[])
     if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
     prepareboxes(tab, tab+n-1, w, h, d, wt, id);
     sort_range(0, n, d, w, h, x, y, z, wt, id, bno);
+
     int nt = binpack3d_layer(n, W, H, D, w, h, d, x, y, z, wt, id, bno, &lb, &ub,
               nodelimit, iterlimit, timelimit, 
               &nodeused, &iterused, &timeused, 

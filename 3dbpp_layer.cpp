@@ -102,7 +102,7 @@ int bpp_relaxed(bpp_t sol, surface_t* s) {
 		if (part < 0.0f) part = 0.0f;
 		s->bpp_part[i] = part;
 		if (part > 1.0) ret *= 0;
-		printf("\n %d [%d] \t %2.2lf (%d left)", i, bpp.box[i].d, s->bpp_part[i], sol.n_box[i]);
+		//printf("\n %d [%d] \t %2.2lf (%d left)", i, bpp.box[i].d, s->bpp_part[i], sol.n_box[i]);
 	}
 	return ret;
 }
@@ -148,7 +148,7 @@ layer_t bpp_create_layer(int W, int H, int D, int box_type, int off_x, int off_y
 	int nodelimit1 = 5;
 	for(int i = 0; i < 50; i++) {
 		x1[i] = y1[i] = z1[i] = 0;
-		w1[i] = w+g_w; h1[i] = h+g_h; d1[i] = d;
+		w1[i] = w; h1[i] = h; d1[i] = d;
 		bno1[i] = 1;
 	}
 	binpack3d(50, W, H, D, w1, h1, d1, x1, y1, z1, bno1, &lb1, &ub1, 0, nodelimit1, 0, &nodeused1, &iterused1, &timeused1, 1);
@@ -160,8 +160,8 @@ layer_t bpp_create_layer(int W, int H, int D, int box_type, int off_x, int off_y
 			b.w = bpp.box[box_type].w;
 			b.h = bpp.box[box_type].h;
 			b.d = bpp.box[box_type].d;
-			b.x = x1[i] + g_w/2 + off_x;
-			b.y = y1[i] + g_h/2 + off_y;
+			b.x = x1[i] + /*g_w/2 +*/ off_x;
+			b.y = y1[i] + /*g_h/2 +*/ off_y;
 			b.z = off_z;
 			b.bno = 1;
 			l.pattern.push_back(b);
@@ -295,7 +295,6 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		if(bpp_sum >= 0.85) {
 			for(int j = 0; j < hash[i].box_types.size(); j++) {
 				double h_part = surface.back().bpp_part[hash[i].box_types[j]];
-				h_part += 0.02;
 				surface.back().y = h_part*H;
 				bpp_add_layer(&sol, &sol_layer, &surface.back(), hash[i].box_types[j]);
 				surface.back().off_y += h_part*H;
@@ -349,17 +348,24 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 		}
 
 		surface_t s = surface[best_surface];
+		if(max_bpp > 1.0) max_bpp = 1.0;
 		if(max_bpp*s.x >= bpp.box[box_type].w && s.y >= bpp.box[box_type].h) {
 			s.x = max_bpp*s.x;
-			surface[best_surface].x -= s.x;
+			surface[best_surface].x += s.x;
 			surface[best_surface].off_x += s.x;
 			surface.push_back(s);
 		}
 		else if(max_bpp*s.y >= bpp.box[box_type].h && s.x >= bpp.box[box_type].w) {
 			s.y = max_bpp*s.y;
-			surface[best_surface].y -= s.y;
+			surface[best_surface].y += s.y;
 			surface[best_surface].off_y += s.y;
 			surface.push_back(s);
+		}
+
+		if(surface.back().off_z + bpp.box[box_type].d > D) {
+			printf("\n\nBin full\n");
+			box_type = -1;
+			break;
 		}
 
 		bpp_add_layer(&sol, &sol_layer, &surface.back(), box_type);
@@ -389,6 +395,7 @@ int binpack3d_layer(int n, int W, int H, int D, int *w, int *h, int *d, int *x,
 			bno[n] = 1;
 			wt[n] = bpp.box[sol_layer[i].box_type].wt;
 			id[n] = bpp.box[sol_layer[i].box_type].id;
+			if(z[n] + w[n] > D) break;
  			n++;
 		}
 	}
