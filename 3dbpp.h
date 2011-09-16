@@ -13,9 +13,6 @@
 #include <packlist.h>
 #include <response.h>
 
-#include <Eigen/Eigen>
-
-
 #define IUNIT        1000  /* scaling factor of nodes and iterat */
 #define MAXBOXES      501  /* max number of boxes (plus one box) */
 #define MAXBPP    1000000  /* max numer of iterations in 1-dim bpp */
