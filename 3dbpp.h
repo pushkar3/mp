@@ -15,22 +15,3 @@ void binpack3d(int n, int W, int H, int D,
                int nodelimit, int iterlimit, int timelimit,
                int *nodeused, int *iterused, int *timeused,
                int packingtype);
-
-int binpack3d_layer(int n, int W, int H, int D,
-               int *w, int *h, int *d,
-               int *x, int *y, int *z, int* wt, int* id, int *bno,
-               int *lb, int *ub,
-               int nodelimit, int iterlimit, int timelimit,
-               int *nodeused, int *iterused, int *timeused,
-               int packingtype);
-
-void printboxes(int n, int W, int H, int D, int *w, int *h, int *d,
-                int *x, int *y, int *z, int *wt, int *id, int *bno);
-
-void exchange(int *a, int i, int j);
-
-void exchange_double(double *a, int i, int j);
-
-void sort_range(int i_start, int i_end, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int* i, int* k);
-
-void sort_sol_range(int i_start, int i_end, int *a, int *b, double *c, int use_h_to_sort);
