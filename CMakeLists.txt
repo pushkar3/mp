@@ -12,8 +12,10 @@ SET(CPACK_SYSTEM_NAME "i386")
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 set ( HEADERS
+./
 ./ext
 /usr/include
+/usr/local/include
 )
 
 set ( SRC

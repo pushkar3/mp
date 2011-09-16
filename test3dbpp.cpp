@@ -89,8 +89,6 @@
 #include <xml_parser.h>
 #include <packlist.h>
 #include <response.h>
-#include <vector>
-#include <map>
 
 #include "3dbpp.h"
 
@@ -109,32 +107,6 @@
 #define VOL(i)                 ((i)->w * (stype) (i)->h * (i)->d)
 #define DIF(i,j)               ((int) ((j) - (i) + 1))
 
-
-/* ======================================================================
-				 type declarations
-   ====================================================================== */
-
-typedef int           boolean; /* logical variable      */
-typedef int           ntype;   /* number of states,bins */
-typedef short         itype;   /* can hold up to W,H,D  */
-typedef int           stype;   /* can hold up to W*H*D  */
-
-typedef int (*funcptr) (const void *, const void *);
-
-/* box record */
-typedef struct irec {
-  ntype    no;           /* box number */
-  itype    w;            /* box x-size */
-  itype    h;            /* box y-size */
-  itype    d;            /* box z-size */
-  itype    x;            /* optimal x-position */
-  itype    y;            /* optimal y-position */
-  itype    z;            /* optimal z-position */
-  ntype    bno;          /* bin number */
-  stype    vol;          /* volume of box */
-  itype	   wt;
-  itype    id;
-} box;
 
 
 /* ======================================================================
@@ -425,252 +397,101 @@ void prepareboxes(box *f, box *l, int *w, int *h, int *d, int *wt, int *id)
 
 
 /* ======================================================================
+                actual binpacking
+   ====================================================================== */
+
+void binpack(bpp_layer layer, bpp_solver_settings settings) {
+
+}
+
+/* ======================================================================
 				main
    ====================================================================== */
 
+
 int main(int argc, char *argv[])
 {
-  int v, n;
+  int n;
   itype W, H, D;
-  int bdim, type, packingtype;
-  int nodelimit, iterlimit, timelimit, nodeused, iterused, timeused;
   box tab[MAXBOXES];
   int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
   int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
   int wt[MAXBOXES], id[MAXBOXES];
-  int ub, lb, solved, gap, sumnode, sumiter;
-  double time, sumtime, deviation, sumub, sumlb, sumdev;
   char file[1000];
   char file_packlist[100] = "out.xml";
   char problem[10] = "test.p";
+
+  bpp_solver_settings settings;
 
   if (argc == 3) {
       OrderXML oxml;
       oxml.convertToProblem(argv[1], problem);
       strcpy(file, problem);
       strcpy(file_packlist, argv[2]);
-      nodelimit   = 0;
-      iterlimit   = 1000;
-      timelimit   = 50;
-      packingtype = 1;
-      printf("3DBPP PROBLEM %s %d %d %d %d\n",
-             file, nodelimit, iterlimit, timelimit, packingtype);
+      settings.nodelimit   = 0;
+      settings.iterlimit   = 1000;
+      settings.timelimit   = 50;
+      settings.packingtype = 1;
+      settings.bdim = 0;
+      settings.type = 0;
+      settings.tests = 2;
       n = readtest(tab, &W, &H, &D, file);
-      bdim = 0;
-      type = 0;
-      TESTS = 2;
   }
-  if (argc == 6) {
-    strcpy(file, argv[1]);
-    nodelimit   = atoi(argv[2]);
-    iterlimit   = atoi(argv[3]);
-    timelimit   = atoi(argv[4]);
-    packingtype = atoi(argv[5]);
-    printf("3DBPP PROBLEM %s %d %d %d %d\n",
-           file, nodelimit, iterlimit, timelimit, packingtype);
-    n = readtest(tab, &W, &H, &D, file);
-    bdim = 0;
-    type = 0;
-    TESTS = 1;
-  }
-  if (argc == 8) {
-    n           = atoi(argv[1]);
-    bdim        = atoi(argv[2]);
-    type        = atoi(argv[3]);
-    nodelimit   = atoi(argv[4]);
-    iterlimit   = atoi(argv[5]);
-    timelimit   = atoi(argv[6]);
-    packingtype = atoi(argv[7]);
-    TESTS = RANDOMTESTS;
-  }
-  if ((argc != 3) && (argc != 6) && (argc != 8)) {
+
+  if ((argc != 3)) {
     printf("3DBPP PROBLEM\n");
     printf("n = ");
     scanf("%d", &n);
     printf("bindim = ");
-    scanf("%d", &bdim);
+    scanf("%d", &settings.bdim);
     printf("type = ");
-    scanf("%d", &type);
+    scanf("%d", &settings.type);
     printf("nodelimit = ");
-    scanf("%d", &nodelimit);
+    scanf("%d", &settings.nodelimit);
     printf("iterlimit = ");
-    scanf("%d", &iterlimit);
+    scanf("%d", &settings.iterlimit);
     printf("timelimit = ");
-    scanf("%d", &timelimit);
+    scanf("%d", &settings.timelimit);
     printf("packingtype = ");
-    scanf("%d", &packingtype);
-    TESTS = RANDOMTESTS;
+    scanf("%d", &settings.packingtype);
+    settings.tests = RANDOMTESTS;
   }
 
-  printf("3DBPP PROBLEM %d %d %d %d %d %d %d\n",
-          n, bdim, type, nodelimit, iterlimit, timelimit, packingtype);
-  sumnode = sumiter = sumtime = sumdev = sumub = sumlb = gap = solved = 0;
-  for (v = 1; v <= TESTS; v++) {
-    srand(v+n); // initialize random generator
-    if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
-    prepareboxes(tab, tab+n-1, w, h, d, wt, id);
-    binpack3d(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub,
-              nodelimit, iterlimit, timelimit,
-              &nodeused, &iterused, &timeused,
-              packingtype);
-    time = timeused * 0.001;
-    printf("%2d : lb %2d z %2d node %9d iter %9d time %6.2f\n",
-            v, lb, ub, nodeused, iterused, time);
-    sumnode += nodeused;
-    sumiter += iterused;
-    sumtime += time;
-    gap += ub - lb;
-    deviation = (ub - lb) / (double) lb;
-    sumdev += deviation;
-    sumub += ub;
-    sumlb += lb;
-    if (lb == ub) solved++;
-    if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, wt, id, bno);
-  }
-  if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, wt, id, bno);
+  box t[3];
+  t[0].w = 43;
+  t[0].h = 132;
+  t[0].d = 41;
+  t[0].wt = 500;
+  t[0].id = 1;
 
-  printf("n           = %d\n", n);
-  printf("bdim        = %d\n", bdim);
-  printf("type        = %d\n", type);
-  printf("nodelimit   = %d\n", nodelimit);
-  printf("iterlimit   = %d\n", iterlimit);
-  printf("timelimit   = %d\n", timelimit);
-  printf("packingtype = %d\n", packingtype);
-  printf("solved      = %d\n", solved);
-  printf("ub          = %.1f\n",   sumub / (double) TESTS);
-  printf("lb          = %.1f\n",   sumlb / (double) TESTS);
-  printf("gap         = %.1f\n",     gap / (double) TESTS);
-  printf("dev         = %.2f\n",  sumdev / (double) TESTS);
-  printf("nodes       = %.0f\n", sumnode / (double) TESTS);
-  printf("iterations  = %.0f\n", sumiter / (double) TESTS);
-  printf("time        = %.2f\n", sumtime / (double) TESTS);
+  t[1].w = 106;
+  t[1].h = 159;
+  t[1].d = 75;
+  t[1].wt = 500;
+  t[1].id = 2;
+
+  t[2].w = 80;
+  t[2].h = 161;
+  t[2].d = 110;
+  t[2].wt = 500;
+  t[2].id = 3;
+
+  bpp_layer l1, l2, l3;
+  l1.set(W, H, D);
+  l1.set(t[0], 50);
+  l2.set(W, H, D);
+  l2.set(t[1], 50);
+  l3.set(W, H, D);
+  l3.set(t[2], 50);
+  l1.solve(settings, true);
+  l2.solve(settings, true);
+  l3.solve(settings, true);
+  l1.show();
+  l2.show();
+  l3.show();
+
+//  if (settings.type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, wt, id, bno);
 
   return 0; // correct termination
 }
 
-/*
-int main(int argc, char *argv[])
-{
-  int v, n;
-  itype W, H, D;
-  int bdim, type, packingtype;
-  int nodelimit, iterlimit, timelimit, nodeused, iterused, timeused;
-  box tab[MAXBOXES];
-  int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
-  int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
-  int wt[MAXBOXES], id[MAXBOXES];
-  int ub, lb, solved, gap, sumnode, sumiter;
-  double time, sumtime, deviation, sumub, sumlb, sumdev;
-  char file[1000];
-  char file_packlist[100] = "out.xml";
-  char problem[10] = "test.p";
-
-  if (argc == 3) {
-	  OrderXML oxml;
-	  oxml.convertToProblem(argv[1], problem);
-	  strcpy(file, problem);
-	  strcpy(file_packlist, argv[2]);
-	  nodelimit   = 0;
-	  iterlimit   = 0;
-	  timelimit   = 0;
-	  packingtype = 0;
-	  printf("3DBPP PROBLEM %s %d %d %d %d\n",
-			 file, nodelimit, iterlimit, timelimit, packingtype);
-	  n = readtest(tab, &W, &H, &D, file);
-	  bdim = 0;
-	  type = 0;
-	  TESTS = 2;
-  }
-
-  if (argc == 6) {
-    strcpy(file, argv[1]);
-    nodelimit   = atoi(argv[2]);
-    iterlimit   = atoi(argv[3]);
-    timelimit   = atoi(argv[4]);
-    packingtype = atoi(argv[5]);
-    printf("3DBPP PROBLEM %s %d %d %d %d\n", 
-           file, nodelimit, iterlimit, timelimit, packingtype);
-    n = readtest(tab, &W, &H, &D, file);
-    bdim = 0;
-    type = 0;
-    TESTS = 1;
-  } 
-  if (argc == 8) {
-    n           = atoi(argv[1]);
-    bdim        = atoi(argv[2]);
-    type        = atoi(argv[3]);
-    nodelimit   = atoi(argv[4]);
-    iterlimit   = atoi(argv[5]);
-    timelimit   = atoi(argv[6]);
-    packingtype = atoi(argv[7]);
-    TESTS = RANDOMTESTS;
-  }
-  if ((argc != 3) && (argc != 6) && (argc != 8)) {
-    printf("3DBPP PROBLEM\n");
-    printf("n = ");
-    scanf("%d", &n);
-    printf("bindim = ");
-    scanf("%d", &bdim);
-    printf("type = ");
-    scanf("%d", &type);
-    printf("nodelimit = ");
-    scanf("%d", &nodelimit);
-    printf("iterlimit = ");
-    scanf("%d", &iterlimit);
-    printf("timelimit = ");
-    scanf("%d", &timelimit);
-    printf("packingtype = ");
-    scanf("%d", &packingtype);
-    TESTS = RANDOMTESTS;
-  }
-
-  printf("3DBPP PROBLEM %d %d %d %d %d %d %d\n", 
-          n, bdim, type, nodelimit, iterlimit, timelimit, packingtype);
-  sumnode = sumiter = sumtime = sumdev = sumub = sumlb = gap = solved = 0;
-  for (v = 1; v <= TESTS; v++) {
-    srand(v+n); // initialize random generator
-    if (type != 0) maketest(tab, tab+n-1, &W, &H, &D, bdim, type);
-    prepareboxes(tab, tab+n-1, w, h, d, wt, id);
-
-    binpack3d(n, W, H, D, w, h, d, x, y, z, bno, &lb, &ub,
-              nodelimit, iterlimit, timelimit, 
-              &nodeused, &iterused, &timeused, 
-              packingtype);
-
-    time = timeused * 0.001;
-    printf("%2d : lb %2d z %2d node %9d iter %9d time %6.2f\n", 
-            v, lb, ub, nodeused, iterused, time); 
-    sumnode += nodeused;
-    sumiter += iterused;
-    sumtime += time; 
-    gap += ub - lb;
-    deviation = (ub - lb) / (double) lb;
-    sumdev += deviation;
-    sumub += ub;
-    sumlb += lb;
-    if (lb == ub) solved++;
-  }
-
-  //if (type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, wt, id, bno);
-  if (type == 0) printboxes(n, W, H, D, w, h, d, x, y, z, wt, id, bno);
-
-  printf("n           = %d\n", n);
-  printf("bdim        = %d\n", bdim);
-  printf("type        = %d\n", type);
-  printf("nodelimit   = %d\n", nodelimit);
-  printf("iterlimit   = %d\n", iterlimit);
-  printf("timelimit   = %d\n", timelimit);
-  printf("packingtype = %d\n", packingtype);
-  printf("solved      = %d\n", solved);
-  printf("ub          = %.1f\n",   sumub / (double) TESTS);
-  printf("lb          = %.1f\n",   sumlb / (double) TESTS);
-  printf("gap         = %.1f\n",     gap / (double) TESTS);
-  printf("dev         = %.2f\n",  sumdev / (double) TESTS);
-  printf("nodes       = %.0f\n", sumnode / (double) TESTS);
-  printf("iterations  = %.0f\n", sumiter / (double) TESTS);
-  printf("time        = %.2f\n", sumtime / (double) TESTS);
-
-  return 0; // correct termination
-}
-
-*/

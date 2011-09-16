@@ -133,30 +133,7 @@
 #define SWAPP(a,b)        { register point t; t=*(a);*(a)=*(b);*(b)=t; }
 #define DF(a,b)           ((r=(a).y-(b).y) != 0 ? r : (a).x-(b).x)
 
-/* ======================================================================
- type declarations
- ====================================================================== */
 
-typedef short boolean; /* logical variable      */
-typedef short ntype; /* number of states,bins */
-typedef short itype; /* can hold up to W,H,D  */
-typedef long stype; /* can hold up to W*H*D  */
-typedef long ptype; /* product multiplication */
-
-/* box record */
-typedef struct irec {
-	ntype no; /* box number                            */
-	itype w; /* box width  (x-size)                   */
-	itype h; /* box height (y-size)                   */
-	itype d; /* box depth  (z-size)                   */
-	itype x; /* optimal x-position                    */
-	itype y; /* optimal y-position                    */
-	itype z; /* optimal z-position                    */
-	ntype bno; /* bin number                            */
-	boolean k; /* is the box chosen?                    */
-	stype vol; /* volume of box                         */
-	struct irec *ref; /* reference to original box (if necessary) */
-} box;
 
 /* all problem information */
 typedef struct {
