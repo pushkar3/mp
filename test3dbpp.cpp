@@ -75,7 +75,9 @@
  * This code can be used free of charge for research and academic purposes 
  * only. 
  */
-
+#define RESET   "\033[0m"
+#define RED     "\033[1m\033[31m"
+#define GREEN   "\033[1m\033[32m"
 #define RANDOMTESTS    10     /* Number of test to run for each type */
 
 #include <stdlib.h>
@@ -90,10 +92,14 @@
 #include <packlist.h>
 #include <response.h>
 
+#include <pthread.h>
+
 #include "3dbpp.h"
 
 #include <Eigen/Eigen>
 
+using namespace Eigen;
+using namespace std;
 
 /* ======================================================================
 				   macros
@@ -406,15 +412,100 @@ void binpack(bpp_layer layer, bpp_solver_settings settings) {
 
 }
 
+
 /* ======================================================================
-				main
+                Global vars to be used with mutex
+   ====================================================================== */
+
+
+itype W, H, D;
+bpp_solver_settings settings;
+bpp_layer l[1000];
+int bpp_layer_count;
+
+/* ======================================================================
+				Create columns of A
+   ====================================================================== */
+
+void *create_layer_thread(void*) {
+    printf(RED "[INFO] Starting create_layer_thread\n" RESET);
+
+    bpp_layer_count = 0;
+    box t[4];
+    int tcap[4];
+    t[0].w = 43;
+    t[0].h = 132;
+    t[0].d = 41;
+    t[0].wt = 500;
+    t[0].id = 1;
+
+    t[1].w = 43;
+    t[1].h = 86;
+    t[1].d = 41;
+    t[1].wt = 500;
+    t[1].id = 2;
+
+    t[2].w = 67;
+    t[2].h = 90;
+    t[2].d = 82;
+    t[2].wt = 500;
+    t[2].id = 3;
+
+    t[3].w = 66;
+    t[3].h = 132;
+    t[3].d = 41;
+    t[3].wt = 500;
+    t[3].id = 4;
+
+    for(int i = 0; i < 1000; i++) {
+        l[i].set(W, H, D);
+        l[i].set(settings);
+    }
+
+    l[0].set(t[0], 40);
+    l[1].set(t[1], 40);
+    l[2].set(t[2], 40);
+    l[3].set(t[3], 40);
+    tcap[0] = l[0].solve(true);
+    tcap[1] = l[1].solve(true);
+    tcap[2] = l[2].solve(true);
+    tcap[3] = l[3].solve(true);
+
+    int i[4];
+    bpp_layer_count = 4;
+    for (i[0] = 0; i[0] < tcap[0]; i[0]++) {
+        for (i[1] = 0; i[1] < tcap[1]; i[1]++) {
+            for (i[2] = 0; i[2] < tcap[2]; i[2]++) {
+                for (i[3] = 0; i[3] < tcap[3]; i[3]++) {
+                    l[bpp_layer_count].set(t[0], i[0]);
+                    l[bpp_layer_count].set(t[1], i[1]);
+                    l[bpp_layer_count].set(t[2], i[2]);
+                    l[bpp_layer_count].set(t[3], i[3]);
+                    printf(GREEN "Solved %d [%d %d %d %d]: %d\n" RESET, bpp_layer_count,
+                            i[0],i[1],i[2],i[3],l[bpp_layer_count].solve(true));
+                    l[bpp_layer_count].show();
+                    bpp_layer_count++;
+                }
+            }
+        }
+    }
+
+    printf(RED "[INFO] Terminating create_layer_thread\n" RESET);
+    pthread_exit(NULL);
+}
+
+
+/* ======================================================================
+                main
    ====================================================================== */
 
 
 int main(int argc, char *argv[])
 {
-  int n;
-  itype W, H, D;
+
+  pthread_t thread_layer, thread_lp;
+
+  int N;
   box tab[MAXBOXES];
   int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
   int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
@@ -422,8 +513,6 @@ int main(int argc, char *argv[])
   char file[1000];
   char file_packlist[100] = "out.xml";
   char problem[10] = "test.p";
-
-  bpp_solver_settings settings;
 
   if (argc == 3) {
       OrderXML oxml;
@@ -437,13 +526,13 @@ int main(int argc, char *argv[])
       settings.bdim = 0;
       settings.type = 0;
       settings.tests = 2;
-      n = readtest(tab, &W, &H, &D, file);
+      N = readtest(tab, &W, &H, &D, file);
   }
 
   if ((argc != 3)) {
     printf("3DBPP PROBLEM\n");
     printf("n = ");
-    scanf("%d", &n);
+    scanf("%d", &N);
     printf("bindim = ");
     scanf("%d", &settings.bdim);
     printf("type = ");
@@ -459,41 +548,26 @@ int main(int argc, char *argv[])
     settings.tests = RANDOMTESTS;
   }
 
-  box t[3];
-  t[0].w = 43;
-  t[0].h = 132;
-  t[0].d = 41;
-  t[0].wt = 500;
-  t[0].id = 1;
+  int rc = pthread_create(&thread_layer, NULL, create_layer_thread, NULL);
 
-  t[1].w = 106;
-  t[1].h = 159;
-  t[1].d = 75;
-  t[1].wt = 500;
-  t[1].id = 2;
+  int m = 3;
+  int n = 3;
+  MatrixXf A(m, n);
+  MatrixXf basis(m, m);
+  MatrixXf basis_index(n, 1);
+  MatrixXf c(n, 1);
+  MatrixXf b(m, 1);
+  MatrixXf xb(n, 1);
 
-  t[2].w = 80;
-  t[2].h = 161;
-  t[2].d = 110;
-  t[2].wt = 500;
-  t[2].id = 3;
-
-  bpp_layer l1, l2, l3;
-  l1.set(W, H, D);
-  l1.set(t[0], 50);
-  l2.set(W, H, D);
-  l2.set(t[1], 50);
-  l3.set(W, H, D);
-  l3.set(t[2], 50);
-  l1.solve(settings, true);
-  l2.solve(settings, true);
-  l3.solve(settings, true);
-  l1.show();
-  l2.show();
-  l3.show();
+  A.setIdentity();
+  b << 10, 10, 10;
+  xb = A.inverse()*b;
 
 //  if (settings.type == 0) printpacklistxml(file_packlist, n, W, H, D, w, h, d, x, y, z, wt, id, bno);
 
+  pthread_exit(NULL);
   return 0; // correct termination
 }
+
+
 

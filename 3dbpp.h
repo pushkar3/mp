@@ -85,6 +85,31 @@ public:
 
     }
 
+    bpp_solver_settings (const bpp_solver_settings& s) {
+        tests = s.tests;
+        bdim = s.bdim;
+        type = s.type;
+        packingtype = s.packingtype;
+        nodelimit = s.nodelimit;
+        iterlimit = s.iterlimit;
+        timelimit = s.timelimit;
+        nodeused = s.nodeused;
+        iterused = s.iterused;
+        timeused = s.timeused;
+        ub = s.ub;
+        lb = s.lb;
+        solved = s.solved;
+        gap = s.gap;
+        sumnode = s.sumnode;
+        sumiter = s.sumiter;
+        time = s.time;
+        sumtime = s.sumtime;
+        deviation = s.deviation;
+        sumub = s.sumub;
+        sumlb = s.sumlb;
+        sumdev = s.sumdev;
+    }
+
     void show_start() {
         printf("3DBPP PROBLEM %d %d %d %d\n", nodelimit, iterlimit, timelimit, packingtype);
     }
@@ -119,13 +144,16 @@ public:
 class bpp_layer {
 public:
     int n;
+    int active;
     int W, H, D, max_D;
     double C;
     box tab[MAXBOXES_LAYER];
+    bpp_solver_settings settings;
 
     bpp_layer() {
         n = 0;
         C = 0.0f;
+        active = 1;
     }
 
     ~bpp_layer() {
@@ -149,7 +177,11 @@ public:
         if(max_D < _tab.d) max_D = _tab.d;
     }
 
-    void solve(bpp_solver_settings settings, boolean solve_one_layer) {
+    void set(bpp_solver_settings _settings) {
+        settings = _settings;
+    }
+
+    int solve(boolean solve_one_layer) {
         int w[MAXBOXES_LAYER], h[MAXBOXES_LAYER], d[MAXBOXES_LAYER];
         int x[MAXBOXES_LAYER], y[MAXBOXES_LAYER], z[MAXBOXES_LAYER], bno[MAXBOXES_LAYER];
         int wt[MAXBOXES_LAYER], id[MAXBOXES_LAYER];
@@ -202,6 +234,8 @@ public:
             n = c_new;
             C /= (W*H*max_D);
         }
+
+        return n;
     }
 
     void show() {

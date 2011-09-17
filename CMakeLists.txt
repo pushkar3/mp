@@ -28,5 +28,5 @@ ext/xml_parser
  
 include_directories (${HEADERS})
 add_executable (pallet_planner ${SRC})
-target_link_libraries (pallet_planner m)
+target_link_libraries (pallet_planner m pthread)
 
