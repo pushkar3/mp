@@ -1,17 +1,21 @@
 #include <iostream>
 #include <stdio.h>
+#include <vector>
 #include "3dbpp.h"
-#include "3dbpp_solver_settings.h"
+#include "3dbpp_settings.h"
 #include "3dbpp_test.h"
 
+using namespace std;
 
 itype W, H, D;
-bpp_solver_settings settings;
+bpp_settings settings;
+vector<p_type> p;
+vector<b_type> b;
 
 
 int main(int argc, char *argv[])
 {
-  int N;
+  int N = 0;
   box tab[MAXBOXES];
   int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
   int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
@@ -26,11 +30,9 @@ int main(int argc, char *argv[])
   settings.tests = 2;
 
   // Try problem
-  W = 4;
-  H = 4;
-  D = 4;
+  p.push_back(p_type(2, 2, 2, 8));
+  p.push_back(p_type(1, 1, 1, 8));
 
-  N = 8;
   for (int i = 0; i < 8; i++) {
 	  w[i] = 2;
 	  h[i] = 2;
@@ -48,6 +50,7 @@ int main(int argc, char *argv[])
 		  &settings.lb, &settings.ub, settings.nodelimit, settings.iterlimit, settings.timelimit,
 		  &settings.nodeused, &settings.iterused, &settings.timeused, settings.packingtype);
   settings.show_end();
+
   printboxes(N, W, H, D, w, h, d, x, y, z, wt, id, bno);
 
   return 0;

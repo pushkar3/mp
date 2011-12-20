@@ -20,6 +20,7 @@ set ( HEADERS
 
 set ( SRC
 3dbpp
+3dbpp_settings
 3dbpp_test
 3dbpp_main
 ext/packlist
