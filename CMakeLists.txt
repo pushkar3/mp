@@ -20,7 +20,8 @@ set ( HEADERS
 
 set ( SRC
 3dbpp
-test3dbpp
+3dbpp_test
+3dbpp_main
 ext/packlist
 ext/response
 ext/xml_parser
