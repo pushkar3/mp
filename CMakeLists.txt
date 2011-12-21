@@ -16,6 +16,7 @@ set ( HEADERS
 ./ext
 /usr/include
 /usr/local/include
+/usr/include/c++/4.4.3
 )
 
 set ( SRC

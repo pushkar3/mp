@@ -7,20 +7,39 @@
 
 using namespace std;
 
-itype W, H, D;
+itype W, H, D, N;
+int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
+int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
+int wt[MAXBOXES], id[MAXBOXES];
 bpp_settings settings;
 vector<p_type> p;
 vector<b_type> b;
+vector<int> p_n;
 
+void binpack() {
+	int c = 0;
+	for (int n = 0; n < p_n.size(); n++) {
+		for (int i = 0; i < p_n[n]; i++) {
+			w[c] = p[n].w;
+			h[c] = p[n].h;
+			d[c] = p[n].d;
+			c++;
+		}
+	}
+
+	N = c;
+    settings.show_start();
+	binpack3d(N, W, H, D, w, h, d, x, y, z, bno, &settings.lb, &settings.ub,
+			settings.nodelimit, settings.iterlimit, settings.timelimit,
+			&settings.nodeused, &settings.iterused, &settings.timeused,
+			settings.packingtype);
+	settings.show_end();
+
+	printboxes(N, W, H, D, w, h, d, x, y, z, wt, id, bno);
+}
 
 int main(int argc, char *argv[])
 {
-  int N = 0;
-  box tab[MAXBOXES];
-  int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
-  int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
-  int wt[MAXBOXES], id[MAXBOXES];
-
   settings.nodelimit   = 0;
   settings.iterlimit   = 1000;
   settings.timelimit   = 50;
@@ -29,29 +48,23 @@ int main(int argc, char *argv[])
   settings.type = 0;
   settings.tests = 2;
 
+  W = 8;
+  H = 8;
+  D = 8;
+
   // Try problem
   p.push_back(p_type(2, 2, 2, 8));
   p.push_back(p_type(1, 1, 1, 8));
+  p_n.push_back(0);
+  p_n.push_back(0);
 
-  for (int i = 0; i < 8; i++) {
-	  w[i] = 2;
-	  h[i] = 2;
-	  d[i] = 2;
-	  x[i] = 0;
-	  y[i] = 0;
-	  z[i] = 0;
-	  wt[i] = 50;
-	  bno[i] = 0;
-	  id[i] = i+100;
+  for (int i = 0; i < p[0].n; i++) {
+	  for (int j = 0; j < p[1].n; j++) {
+		  p_n[0] = i;
+		  p_n[1] = j;
+		  binpack();
+	  }
   }
-
-  settings.show_start();
-  binpack3d(N, W, H, D, w, h, d, x, y, z, bno,
-		  &settings.lb, &settings.ub, settings.nodelimit, settings.iterlimit, settings.timelimit,
-		  &settings.nodeused, &settings.iterused, &settings.timeused, settings.packingtype);
-  settings.show_end();
-
-  printboxes(N, W, H, D, w, h, d, x, y, z, wt, id, bno);
 
   return 0;
 }
