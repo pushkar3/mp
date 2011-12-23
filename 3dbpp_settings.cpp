@@ -36,6 +36,16 @@ bpp_settings::bpp_settings (const bpp_settings& s) {
 	sumdev = s.sumdev;
 }
 
+void bpp_settings::set_default() {
+	  nodelimit   = 0;
+	  iterlimit   = 1000;
+	  timelimit   = 50;
+	  packingtype = 1;
+	  bdim = 0;
+	  type = 0;
+	  tests = 2;
+}
+
 void bpp_settings::show_start() {
 	printf("3DBPP PROBLEM %d %d %d %d\n", nodelimit, iterlimit, timelimit,
 			packingtype);
