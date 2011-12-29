@@ -7,11 +7,6 @@
 
 using namespace std;
 
-
-vector<package> p;
-vector<bin> b;
-vector<int> p_n;
-
 //void binpack() {
 //	int c = 0;
 //	for (int n = 0; n < p_n.size(); n++) {
@@ -34,60 +29,72 @@ vector<int> p_n;
 //	printboxes(N, W, H, D, w, h, d, x, y, z, wt, id, bno);
 //}
 
-void generate_combo(const input &i, vector<int> &combo, int max, int id) {
-	if(id == i.package_info.size()) {
-		//shit!
-		return;
-	}
+void generate_combo(const input &in, vector<int> &combo, int max, int id, bpp_settings* settings) {
+	if (id == in.package_info.size()) { // create layer
+		// cout
+		for (int i = 0; i < in.package_info.size(); i++)
+			cout << combo[i] << " ";
+		cout << endl;
+		// cout
 
-	for(int i = 0; i <= max && i <= i.package_info[id].n; i++) {
+		int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
+		int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
+		int wt[MAXBOXES], id[MAXBOXES];
+		int c = 0;
+		for (int n = 0; n < in.package_info.size(); n++) {
+			for (int j = 0; j < combo[n]; j++) {
+				w[c] = in.package_info[n].w;
+				h[c] = in.package_info[n].h;
+				d[c] = in.package_info[n].d;
+				x[c] = 0;
+				y[c] = 0;
+				z[c] = 0;
+				bno[c] = 0;
+				c++;
+			}
+		}
+
+		binpack3d(c, in.bin_info[0].w, in.bin_info[0].h, in.bin_info[0].d, w, h,
+				d, x, y, z, bno, &settings->lb, &settings->ub, settings->nodelimit,
+				settings->iterlimit, settings->timelimit, &settings->nodeused,
+				&settings->iterused, &settings->timeused, settings->packingtype);
+
+		return;
+	} // create layer
+
+	for (int i = 0; i <= max && i <= in.package_info[id].n; i++) {
 		combo[id] = i;
-		generate_combo(i, combo, max, id+1);
+		generate_combo(in, combo, max, id + 1, settings);
 	}
 
 }
 
-database binpack(const input &i, const bpp_settings &settings) {
+database binpack(const input &in, bpp_settings* settings) {
 	database d;
 
 	int max = -1;
-	vector<int> combo;
-	generate_combo(i, combo, max, id)
-
-	// gen combo
-
-
-	// run this for every combo
-//	int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
-//	int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
-//	int wt[MAXBOXES], id[MAXBOXES];
-//	int c = 0;
-//	for (int n = 0; n < i.package_info.size(); n++) {
-//		for (int j = 0; j < i.package_info().n; n++) {
-//			//w[c] =
-//		}
-//	}
-
-//	binpack3d(N, W, H, D, w, h, d, x, y, z, bno, &settings.lb, &settings.ub,
-//			settings.nodelimit, settings.iterlimit, settings.timelimit,
-//			&settings.nodeused, &settings.iterused, &settings.timeused,
-//			settings.packingtype);
+	vector<int> combo(in.package_info.size(), 0);
+	for (int i = 0; i < in.package_info.size(); i++)
+		if (max < in.package_info[i].n)
+			max = in.package_info[i].n;
+	generate_combo(in, combo, max, 0, settings);
 
 	return d;
 }
 
-int main(int argc, char *argv[])
-{
-  bpp_settings settings;
-  settings.set_default();
+int main(int argc, char *argv[]) {
+	bpp_settings settings;
+	settings.set_default();
 
-  input i;
-  i.load_package_list("package_list.txt");
-  i.load_bin_list("bin_list.txt");
-  i.print_package_list();
-  i.print_bin_list();
+	input i;
+	i.load_package_list("package_list.txt");
+	i.load_bin_list("bin_list.txt");
+	i.print_package_list();
+	i.print_bin_list();
 
-  database d = binpack(i, settings);
+	cout << "Done loading files" << endl;
+
+	database d = binpack(i, &settings);
 
 //
 //  // Try problem
@@ -104,5 +111,5 @@ int main(int argc, char *argv[])
 //	  }
 //  }
 
-  return 0;
+	return 0;
 }
