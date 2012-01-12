@@ -6,6 +6,10 @@
 #include <iostream>
 #include <fstream>
 
+typedef double cost;
+typedef std::vector<int> key;
+typedef std::vector<int> pattern;
+
 class package {
 public:
 	int id, w, h, d, n;
@@ -30,13 +34,25 @@ public:
 	}
 };
 
+struct classcomp {
+	bool operator()(const key& lhs, const key& rhs) const {
+		int d1 = 0, d2 = 0;
+		for (int i = 0; i < lhs.size(); i++) {
+			d1 += lhs[i] * lhs[i];
+			d2 += rhs[i] * rhs[i];
+		}
+
+		return (d1 < d2);
+	}
+};
+
 class input {
 public:
 	std::vector<package> package_info;
 	std::vector<bin> bin_info;
 
 	void load_package_list(const char* filename) {
-	    std::ifstream ifs;
+		std::ifstream ifs;
 		ifs.open(filename);
 		int id, w, h, d, n;
 		while (!ifs.eof()) {
@@ -51,8 +67,9 @@ public:
 
 	void print_package_list() {
 		for (int i = 0; i < package_info.size(); i++) {
-			std::cout << package_info[i].id << " " << package_info[i].w
-					<< " " << package_info[i].h << " " << package_info[i].d << " " << package_info[i].n << std::endl;
+			std::cout << package_info[i].id << " " << package_info[i].w << " "
+					<< package_info[i].h << " " << package_info[i].d << " "
+					<< package_info[i].n << std::endl;
 		}
 	}
 
@@ -73,25 +90,60 @@ public:
 	void print_bin_list() {
 		for (int i = 0; i < bin_info.size(); i++) {
 			std::cout << bin_info[i].id << " " << bin_info[i].w << " "
-					<< bin_info[i].h << " " << bin_info[i].d << " " << bin_info[i].n
-					<< std::endl;
+					<< bin_info[i].h << " " << bin_info[i].d << " "
+					<< bin_info[i].n << std::endl;
 		}
 	}
-
 
 };
 
 class database {
 public:
-	typedef std::vector<int> key;
-	typedef double cost;
-	std::map<key, cost> arrangement;
+	std::map<key, cost, classcomp> layer_cost;
+	std::map<key, pattern, classcomp> layer_pattern;
 
 	database() {
 	}
 
-	~database() {
+	void insert(key _key, pattern _pattern) {
+		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
+		printf("Inserting ");
+		for (int i = 0; i < _key.size(); i++) {
+			printf("%d ", _key[i]);
+		}
+		for (int i = 0; i < _pattern.size(); i++) {
+			printf("%d ", _pattern[i]);
+		}
+		printf("\n");
 	}
+
+	void exportdb(const char* filename) {
+		std::ofstream ofs(filename);
+		std::map<key, pattern>::iterator itp;
+
+		for (itp = layer_pattern.begin(); itp != layer_pattern.end(); itp++) {
+
+			for (int i = 0; i < (*itp).first.size(); i++) {
+				printf("%d ", (*itp).first[i]);
+				ofs << (*itp).first[i] << " ";
+			}
+
+			ofs << "| ";
+			printf("| ");
+
+			for	(int i = 0; i < (*itp).second.size(); i++) {
+				ofs << (*itp).second[i] << " ";
+				printf("%d ", (*itp).second[i]);
+			}
+
+		ofs << '\n';
+		printf("\n");
+	}
+	ofs.close();
+}
+
+~database() {
+}
 
 };
 
