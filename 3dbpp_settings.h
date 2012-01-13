@@ -99,45 +99,31 @@ public:
 
 class database {
 public:
-	std::map<key, cost, classcomp> layer_cost;
-	std::map<key, pattern, classcomp> layer_pattern;
+	std::multimap<key, cost, classcomp> layer_cost;
+	std::multimap<key, pattern, classcomp> layer_pattern;
 
 	database() {
 	}
 
 	void insert(key _key, pattern _pattern) {
 		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
-		printf("Inserting ");
-		for (int i = 0; i < _key.size(); i++) {
-			printf("%d ", _key[i]);
-		}
-		for (int i = 0; i < _pattern.size(); i++) {
-			printf("%d ", _pattern[i]);
-		}
-		printf("\n");
 	}
 
 	void exportdb(const char* filename) {
 		std::ofstream ofs(filename);
-		std::map<key, pattern>::iterator itp;
+		std::multimap<key, pattern>::iterator itp;
 
 		for (itp = layer_pattern.begin(); itp != layer_pattern.end(); itp++) {
 
-			for (int i = 0; i < (*itp).first.size(); i++) {
-				printf("%d ", (*itp).first[i]);
+			for (int i = 0; i < (*itp).first.size(); i++)
 				ofs << (*itp).first[i] << " ";
-			}
 
 			ofs << "| ";
-			printf("| ");
 
-			for	(int i = 0; i < (*itp).second.size(); i++) {
+			for	(int i = 0; i < (*itp).second.size(); i++)
 				ofs << (*itp).second[i] << " ";
-				printf("%d ", (*itp).second[i]);
-			}
 
 		ofs << '\n';
-		printf("\n");
 	}
 	ofs.close();
 }

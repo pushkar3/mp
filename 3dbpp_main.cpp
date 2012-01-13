@@ -8,37 +8,9 @@
 
 using namespace std;
 
-//void binpack() {
-//	int c = 0;
-//	for (int n = 0; n < p_n.size(); n++) {
-//		for (int i = 0; i < p_n[n]; i++) {
-//			w[c] = p[n].w;
-//			h[c] = p[n].h;
-//			d[c] = p[n].d;
-//			c++;
-//		}
-//	}
-//
-//	N = c;
-//    settings.show_start();
-//	binpack3d(N, W, H, D, w, h, d, x, y, z, bno, &settings.lb, &settings.ub,
-//			settings.nodelimit, settings.iterlimit, settings.timelimit,
-//			&settings.nodeused, &settings.iterused, &settings.timeused,
-//			settings.packingtype);
-//	settings.show_end();
-//
-//	printboxes(N, W, H, D, w, h, d, x, y, z, wt, id, bno);
-//}
-
 void generate_combo(const input &in, vector<int> &combo, int max, int id,
 		bpp_settings* settings, database* db) {
 	if (id == in.package_info.size()) { // create layer
-
-		// cout
-		for (int i = 0; i < in.package_info.size(); i++)
-			cout << combo[i] << " ";
-		cout << endl;
-		// cout
 
 		int w[MAXBOXES], h[MAXBOXES], d[MAXBOXES];
 		int x[MAXBOXES], y[MAXBOXES], z[MAXBOXES], bno[MAXBOXES];
@@ -78,15 +50,6 @@ void generate_combo(const input &in, vector<int> &combo, int max, int id,
 		_pattern.insert(_pattern.end(), x, x+c);
 		_pattern.insert(_pattern.end(), y, y+c);
 		_pattern.insert(_pattern.end(), z, z+c);
-
-//		for (int i = 0; i < c; i++) {
-//			printf("%d %d %d ", x[i], y[i], z[i]);
-//		}
-//		printf("\n");
-//		for (int i = 0; i < _pattern.size(); i++) {
-//			printf("%d ", _pattern[i]);
-//		}
-//		printf("\n");
 
 		db->insert(_key, _pattern);
 
