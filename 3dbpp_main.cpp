@@ -5,6 +5,7 @@
 #include "3dbpp.h"
 #include "3dbpp_settings.h"
 #include "3dbpp_test.h"
+#include "palletizing.h"
 
 using namespace std;
 
@@ -40,18 +41,36 @@ void generate_combo(const input &in, vector<int> &combo, int max, int id,
 				&settings->nodeused, &settings->iterused, &settings->timeused,
 				settings->packingtype);
 
+		if (c == 0) return;
+
 		key _key = combo;
 		pattern _pattern;
+		int _cost = 0;
 		pattern::iterator _pattern_it;
 
 		// todo
 		// check if combo matches pattern with z = 0
+		for (int i = 0; i < in.package_info.size(); i++)
+			_key[i] = 0;
 
-		_pattern.insert(_pattern.end(), x, x+c);
-		_pattern.insert(_pattern.end(), y, y+c);
-		_pattern.insert(_pattern.end(), z, z+c);
+		for (int i = 0; i < c; i++) {
+			if(z[i] > 0) continue;
+			for (int j = 0; j < in.package_info.size(); j++) {
+				if(w[i] == in.package_info[j].w
+						&& h[i] == in.package_info[j].h
+						&& d[i] == in.package_info[j].d) {
+					_key[j]++;
+				}
+			}
+			_pattern.push_back(x[i]);
+			_pattern.push_back(y[i]);
+			_pattern.push_back(z[i]);
 
-		db->insert(_key, _pattern);
+			_cost += (w[i]*h[i]*d[i]);
+		}
+
+		db->insert(_key, _pattern, _cost);
+
 
 		return;
 	} // create layer
@@ -63,17 +82,13 @@ void generate_combo(const input &in, vector<int> &combo, int max, int id,
 
 }
 
-database binpack(const input &in, bpp_settings* settings) {
-	database d;
-
+void binpack(const input &in, bpp_settings* settings, database *d) {
 	int max = -1;
 	vector<int> combo(in.package_info.size(), 0);
 	for (int i = 0; i < in.package_info.size(); i++)
 		if (max < in.package_info[i].n)
 			max = in.package_info[i].n;
-	generate_combo(in, combo, max, 0, settings, &d);
-
-	return d;
+	generate_combo(in, combo, max, 0, settings, d);
 }
 
 
@@ -84,16 +99,27 @@ int main(int argc, char *argv[]) {
 	bpp_settings settings;
 	settings.set_default();
 
+	output o;
 	input i;
 	i.load_package_list("package_list.txt");
 	i.load_bin_list("bin_list.txt");
+	i.load_problem("problem_list.txt");
 	i.print_package_list();
 	i.print_bin_list();
+	i.print_problem();
 
 	cout << "Done loading files" << endl;
 
-	database d = binpack(i, &settings);
+	database d(&i, &o);
+	binpack(i, &settings, &d);
 	d.exportdb("db.txt");
+
+	cout << "Done exporting database" << endl << endl;
+
+	palletizing p(&d, &i);
+	p.solve();
+
+	o.exportl("output_list.txt");
 
 	return 0;
 }
