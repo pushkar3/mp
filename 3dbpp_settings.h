@@ -126,10 +126,16 @@ public:
 		ofs << '\n';
 	}
 	ofs.close();
-}
+	}
 
-~database() {
-}
+	void importdb(const char* filename) {
+		std::ifstream ifs(filename);
+
+
+	}
+
+	~database() {
+	}
 
 };
 

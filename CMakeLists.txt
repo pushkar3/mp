@@ -19,7 +19,7 @@ set ( HEADERS
 /usr/include/c++/4.4.3
 )
 
-set ( SRC
+set ( BPP_SRC
 3dbpp
 3dbpp_settings
 3dbpp_test
@@ -28,8 +28,15 @@ ext/packlist
 ext/response
 ext/xml_parser
 )
- 
-include_directories (${HEADERS})
-add_executable (pallet_planner ${SRC})
-target_link_libraries (pallet_planner m pthread)
 
+set ( SIMPLEX_SRC
+simplex_main
+)
+
+include_directories (${HEADERS})
+
+add_executable (bpp_planner ${BPP_SRC})
+target_link_libraries (bpp_planner m pthread)
+
+add_executable (simplex_planner ${SIMPLEX_SRC})
+target_link_libraries (simplex_planner m pthread)

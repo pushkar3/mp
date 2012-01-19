@@ -95,19 +95,5 @@ int main(int argc, char *argv[]) {
 	database d = binpack(i, &settings);
 	d.exportdb("db.txt");
 
-//  // Try problem
-//  p.push_back(package(2, 2, 2, 8));
-//  p.push_back(package(1, 1, 1, 8));
-//  p_n.push_back(0);
-//  p_n.push_back(0);
-//
-//  for (int i = 0; i < p[0].n; i++) {
-//	  for (int j = 0; j < p[1].n; j++) {
-//		  p_n[0] = i;
-//		  p_n[1] = j;
-//		  //binpack();
-//	  }
-//  }
-
 	return 0;
 }
