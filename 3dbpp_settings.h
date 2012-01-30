@@ -1,10 +1,12 @@
 #ifndef BPP_SOLVER_SETTINGS_H_
 #define BPP_SOLVER_SETTINGS_H_
 
-#include <vector>
-#include <map>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <map>
+#include <string.h>
 
 typedef double cost;
 typedef std::vector<int> key;
@@ -214,21 +216,97 @@ public:
 		for (itp = layer_pattern.begin(), itc = layer_cost.begin(); itp
 				!= layer_pattern.end(); itp++, itc++) {
 
+			ofs << "k ";
 			for (int i = 0; i < (*itp).first.size(); i++)
 				ofs << (*itp).first[i] << " ";
+			ofs << "\n";
 
-			ofs << "\t" << (*itc).second << "\t";
+			ofs << "c " << (*itc).second << "\n";
 
+			ofs << "p";
 			for (int i = 0; i < (*itp).second.size(); i++)
 				ofs << (*itp).second[i] << " ";
-
 			ofs << '\n';
+
 		}
 		ofs.close();
 	}
 
+	std::vector<int> deserialize_vector(std::string str) {
+		std::vector<int> vec;
+		char* p;
+		str = str.substr(2); // remove first char and space
+		char* c = (char*) str.c_str();
+		p = strtok(c, " ");
+		while(p != NULL) {
+			vec.push_back(atoi(p));
+			p = strtok(NULL, " ");
+		}
+
+		return vec;
+	}
+
+	double deserialize_cost(std::string str) {
+		str = str.substr(2);
+		int i = atoi(str.c_str());
+		return (double) i;
+	}
+
 	void importdb(const char* filename) {
 		std::ifstream ifs(filename);
+		std::string str;
+		std::vector<int> key, pattern;
+		double cost;
+		int is_key = 0;
+		int is_cost= 0;
+		int is_pattern = 0;
+
+		while(ifs.good()) {
+			char c = ifs.get();
+			if(c != '\n') {
+				str.push_back(c);
+			}
+			else {
+				switch (str.at(0)) {
+				case 'k': key = deserialize_vector(str); is_key = 1; break;
+				case 'c': cost = deserialize_cost(str); is_cost = 1; break;
+				case 'p': pattern = deserialize_vector(str); is_pattern = 1; break;
+				default: printf("error");
+				}
+				str.clear();
+
+				if(is_key && is_cost && is_pattern) {
+					insert(key, pattern, cost);
+					key.clear();
+					pattern.clear();
+					is_key = 0;
+					is_cost = 0;
+					is_pattern = 0;
+				}
+			}
+		}
+		ifs.close();
+	}
+
+	void printdb() {
+		std::map<key, pattern>::iterator itp;
+		std::map<key, cost>::iterator itc;
+
+		std::cout << "Database in record: " << std::endl;
+		for (itp = layer_pattern.begin(), itc = layer_cost.begin(); itp
+				!= layer_pattern.end(); itp++, itc++) {
+
+			for (int i = 0; i < (*itp).first.size(); i++)
+				std::cout << (*itp).first[i] << " ";
+
+			std::cout << "\t" << (*itc).second << "\t";
+
+			for (int i = 0; i < (*itp).second.size(); i++)
+				std::cout << (*itp).second[i] << " ";
+
+			std::cout << '\n';
+		}
+		std::cout << "Database End." << std::endl;
 
 	}
 

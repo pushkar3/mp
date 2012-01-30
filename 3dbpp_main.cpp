@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <vector>
 #include <map>
+#include <sys/stat.h>
 #include "3dbpp.h"
 #include "3dbpp_settings.h"
 #include "3dbpp_test.h"
@@ -111,10 +112,16 @@ int main(int argc, char *argv[]) {
 	cout << "Done loading files" << endl;
 
 	database d(&i, &o);
-	binpack(i, &settings, &d);
-	d.exportdb("db.txt");
+	struct stat* buf;
+	if(stat("db.txt", buf) == 0) {
+		d.importdb("db.txt");
+	}
+	else {
+		binpack(i, &settings, &d);
+		d.exportdb("db.txt");
+	}
 
-	cout << "Done exporting database" << endl << endl;
+	d.printdb();
 
 	palletizing p(&d, &i);
 	p.solve();
