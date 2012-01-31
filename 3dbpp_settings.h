@@ -63,7 +63,7 @@ public:
 
 	double density() {
 		double d = 0;
-		for (int i = 0; i < package_list.size(); i++) {
+		for (uint i = 0; i < package_list.size(); i++) {
 			d += package_list[i].volume();
 		}
 		return (d / volume());
@@ -82,7 +82,7 @@ public:
 struct classcomp {
 	bool operator()(const key& lhs, const key& rhs) const {
 		int d1 = 0, d2 = 0;
-		for (int i = 0; i < lhs.size(); i++) {
+		for (uint i = 0; i < lhs.size(); i++) {
 			d1 += lhs[i] * lhs[i];
 			d2 += rhs[i] * rhs[i];
 		}
@@ -116,7 +116,7 @@ public:
 	}
 
 	void print_package_list() {
-		for (int i = 0; i < package_info.size(); i++) {
+		for (uint i = 0; i < package_info.size(); i++) {
 			std::cout << package_info[i].id << " " << package_info[i].w << " "
 					<< package_info[i].h << " " << package_info[i].d << " "
 					<< package_info[i].n << std::endl;
@@ -139,7 +139,7 @@ public:
 	}
 
 	void print_bin_list() {
-		for (int i = 0; i < bin_info.size(); i++) {
+		for (uint i = 0; i < bin_info.size(); i++) {
 			std::cout << bin_info[i].id << " " << bin_info[i].w << " "
 					<< bin_info[i].h << " " << bin_info[i].d << " "
 					<< bin_info[i].n << std::endl;
@@ -162,7 +162,7 @@ public:
 	}
 
 	void print_problem() {
-		for (int i = 0; i < order_info.size(); i++) {
+		for (uint i = 0; i < order_info.size(); i++) {
 			std::cout << order_info[i].id << " " << order_info[i].quantity
 					<< std::endl;
 		}
@@ -246,14 +246,14 @@ public:
 				!= layer_pattern.end(); itp++, itc++) {
 
 			ofs << "k ";
-			for (int i = 0; i < (*itp).first.size(); i++)
+			for (uint i = 0; i < (*itp).first.size(); i++)
 				ofs << (*itp).first[i] << " ";
 			ofs << "\n";
 
 			ofs << "c " << (*itc).second << "\n";
 
-			ofs << "p";
-			for (int i = 0; i < (*itp).second.size(); i++)
+			ofs << "p ";
+			for (uint i = 0; i < (*itp).second.size(); i++)
 				ofs << (*itp).second[i] << " ";
 			ofs << '\n';
 
@@ -338,12 +338,12 @@ public:
 		for (itp = layer_pattern.begin(), itc = layer_cost.begin(); itp
 				!= layer_pattern.end(); itp++, itc++) {
 
-			for (int i = 0; i < (*itp).first.size(); i++)
+			for (uint i = 0; i < (*itp).first.size(); i++)
 				std::cout << (*itp).first[i] << " ";
 
 			std::cout << "\t" << (*itc).second << "\t";
 
-			for (int i = 0; i < (*itp).second.size(); i++)
+			for (uint i = 0; i < (*itp).second.size(); i++)
 				std::cout << (*itp).second[i] << " ";
 
 			std::cout << '\n';
@@ -373,7 +373,7 @@ public:
 
 		std::ofstream ofs;
 		ofs.open(output_list.c_str());
-		for (int i = 0; i < packlist.size(); i++) {
+		for (uint i = 0; i < packlist.size(); i++) {
 			ofs << packlist[i].id << "\t"
 					<< packlist[i].w << " "
 					<< packlist[i].h << " "

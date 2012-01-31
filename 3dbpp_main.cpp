@@ -56,6 +56,7 @@ void generate_combo(vector<int> &combo, int max, int id,
 
 		for (int i = 0; i < c; i++) {
 			if(z[i] > 0) continue;
+			if(bno[i] > 1) continue;
 			for (int j = 0; j < db->package_info.size(); j++) {
 				if(w[i] == db->package_info[j].w
 						&& h[i] == db->package_info[j].h
