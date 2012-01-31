@@ -9,7 +9,6 @@
 
 class palletizing {
 	database* db;
-	input* in;
 
 	double distance(std::vector<int> vec) {
 		double d = 0;
@@ -55,9 +54,8 @@ class palletizing {
 	}
 
 public:
-	palletizing(database* _d, input* _i) {
+	palletizing(database* _d) {
 		db = _d;
-		in = _i;
 	}
 
 	~palletizing() {
@@ -66,11 +64,11 @@ public:
 
 	void solve() {
 		std::vector<int> order;
-		for (int i = 0; i < in->package_info.size(); i++) {
+		for (int i = 0; i < db->package_info.size(); i++) {
 			int order_key = 0;
-			for (int j = 0; j < in->order_info.size(); j++) {
-				if (in->order_info[j].id == in->package_info[i].id) {
-					order_key = in->order_info[j].quantity;
+			for (int j = 0; j < db->order_info.size(); j++) {
+				if (db->order_info[j].id == db->package_info[i].id) {
+					order_key = db->order_info[j].quantity;
 					break;
 				}
 			}
@@ -106,14 +104,14 @@ public:
 					int x = pos[n++];
 					int y = pos[n++];
 					int z = pos[n++]+layer_height;
-					package p(i, db->i->package_info[i].w,
-							db->i->package_info[i].h, db->i->package_info[i].d,
+					package p(i, db->package_info[i].w,
+							db->package_info[i].h, db->package_info[i].d,
 							x, y, z);
-					db->o->insert(p);
+					db->packlist.push_back(p);
 				}
 
-				if(min_vec[i] > 0 && max_height < db->i->package_info[i].h)
-					max_height = db->i->package_info[i].h;
+				if(min_vec[i] > 0 && max_height < db->package_info[i].h)
+					max_height = db->package_info[i].h;
 			}
 
 			order = diff(order, min_vec);

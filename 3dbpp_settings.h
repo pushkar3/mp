@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <string.h>
+#include <sys/stat.h>
 
 typedef double cost;
 typedef std::vector<int> key;
@@ -92,13 +93,17 @@ struct classcomp {
 
 class input {
 public:
+
 	std::vector<package> package_info;
 	std::vector<bin> bin_info;
 	std::vector<order> order_info;
 
+	input() {}
+
 	void load_package_list(const char* filename) {
 		std::ifstream ifs;
 		ifs.open(filename);
+
 		int id, w, h, d, n;
 		while (!ifs.eof()) {
 			ifs >> id >> w >> h >> d >> n;
@@ -164,48 +169,72 @@ public:
 		std::cout << std::endl;
 	}
 
-};
+	void load(const char* dirname) {
+		std::string dir;
+		dir.assign(dirname);
+		std::string package_list = dir + "/package_list.txt";
+		std::string bin_list = dir + "/bin_list.txt";
+		std::string problem_list = dir + "/problem_list.txt";
 
-class output {
-	std::vector<package> packlist;
-public:
-	output() {}
-	~output() {}
-	void insert(package p) {
-		packlist.push_back(p);
+		struct stat buf;
+		if(stat(package_list.c_str(), &buf) == 0) {
+			std::cerr << "Loading " << package_list << std::endl;
+			load_package_list(package_list.c_str());
+		}
+		else std::cerr << "Package List not found at " << package_list << std::endl;
+
+		if(stat(bin_list.c_str(), &buf) == 0) {
+			std::cerr << "Loading " << bin_list << std::endl;
+			load_bin_list(bin_list.c_str());
+		}
+		else std::cerr << "Bin List not found at " << bin_list << std::endl;
+
+		if(stat(problem_list.c_str(), &buf) == 0) {
+			std::cerr << "Loading " << bin_list << std::endl;
+			load_problem(problem_list.c_str());
+		}
+		else std::cerr << "Problem List not found at " << problem_list << std::endl;
 	}
 
-	void exportl(const char* filename) {
-		std::ofstream ofs;
-		ofs.open(filename);
-		for (int i = 0; i < packlist.size(); i++) {
-			ofs << packlist[i].id << "\t"
-					<< packlist[i].w << " "
-					<< packlist[i].h << " "
-					<< packlist[i].d << "\t"
-					<< packlist[i].x << " "
-					<< packlist[i].y << " "
-					<< packlist[i].z << " " << std::endl;
-		}
-		ofs.close();
+	void print() {
+		std::cout << "Package List" << std::endl;
+		print_package_list();
+		std::cout << "Bin List" << std::endl;
+		print_bin_list();
+		std::cout << "Order" << std::endl;
+		print_problem();
 	}
 };
 
 class database {
 public:
-	input* i;
-	output* o;
+	std::vector<package> package_info;
+	std::vector<bin> bin_info;
+	std::vector<order> order_info;
+	std::vector<package> packlist;
 	std::map<key, cost, classcomp> layer_cost;
 	std::map<key, pattern, classcomp> layer_pattern;
+	std::string db_list;
 
-	database(input* _i, output* _o) {
-		i = _i;
-		o = _o;
+	database() { }
+
+	void get_input(input i) {
+		package_info.clear();
+		bin_info.clear();
+		order_info.clear();
+		packlist.clear();
+		package_info = i.package_info;
+		bin_info = i.bin_info;
+		order_info = i.order_info;
 	}
 
 	void insert(key _key, pattern _pattern, int _cost) {
 		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
 		layer_cost.insert(std::pair<key, cost>(_key, _cost));
+	}
+
+	void exportdb() {
+		exportdb(db_list.c_str());
 	}
 
 	void exportdb(const char* filename) {
@@ -252,8 +281,19 @@ public:
 		return (double) i;
 	}
 
-	void importdb(const char* filename) {
-		std::ifstream ifs(filename);
+	int importdb(const char* dirname) {
+		std::string dir;
+		dir.assign(dirname);
+		db_list = dir + "/db.txt";
+
+		struct stat buf;
+		if(stat(db_list.c_str(), &buf) != 0) {
+			return 0;
+		}
+
+		std::cerr << "Found database at " << db_list << ". Importing..." << std::endl;
+
+		std::ifstream ifs(db_list.c_str());
 		std::string str;
 		std::vector<int> key, pattern;
 		double cost;
@@ -286,6 +326,8 @@ public:
 			}
 		}
 		ifs.close();
+
+		return 1;
 	}
 
 	void printdb() {
@@ -313,6 +355,35 @@ public:
 	~database() {
 	}
 
+};
+
+class output {
+	std::vector<package> packlist;
+public:
+	output() {}
+	~output() {}
+
+	void exportl(database db, const char* dirname) {
+		std::string dir;
+		dir.assign(dirname);
+		std::string output_list = dir + "/output_list.txt";
+
+		packlist.clear();
+		packlist = db.packlist;
+
+		std::ofstream ofs;
+		ofs.open(output_list.c_str());
+		for (int i = 0; i < packlist.size(); i++) {
+			ofs << packlist[i].id << "\t"
+					<< packlist[i].w << " "
+					<< packlist[i].h << " "
+					<< packlist[i].d << "\t"
+					<< packlist[i].x << " "
+					<< packlist[i].y << " "
+					<< packlist[i].z << " " << std::endl;
+		}
+		ofs.close();
+	}
 };
 
 class bpp_settings {
