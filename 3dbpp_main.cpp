@@ -300,9 +300,9 @@ public:
 
 		float diff = fabs(l1.density() - l2.density()) / max(l1.density(), l2.density());
 		for (uint i = 0; i < d->bin_info.size(); i++) {
-			if (l2.corner(0) < d->bin_info[i].w
-					&& l2.corner(1)	< d->bin_info[i].h
-					&& l2.corner(2) < d->bin_info[i].d
+			if (l2.corner(0) <= d->bin_info[i].w
+					&& l2.corner(1)	<= d->bin_info[i].h
+					&& l2.corner(2) <= d->bin_info[i].d
 					&& diff < 0.05) {
 				return 1;
 			}
@@ -356,7 +356,7 @@ void binpack2(bpp_settings* settings, database *d) {
 							layer_comp.get_dimensions2());
 				}
 			}
-			if (++c % 100 == 0) {
+			if (++c % 10 == 0) {
 				printf("Database size: %d\r", d->layer_pattern.size());
 				d->exportdb();
 			}
@@ -376,16 +376,12 @@ int main(int argc, char *argv[]) {
 	i.print();
 
 	d.get_input(i);
-	//	if(!d.importdb("data")) {
-	//		binpack(&settings, &d);
-	//		d.exportdb();
-	//	}
 	std::cout << "Starting binpacking" << std::endl;
-	binpack2(&settings, &d);
-	d.exportdb();
-	d.printdb();
 
-	return 1;
+	if (!d.importdb()) {
+		binpack2(&settings, &d);
+		d.exportdb();
+	}
 
 	palletizing p(&d);
 	p.solve();

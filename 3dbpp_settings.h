@@ -295,13 +295,13 @@ public:
 		std::cout << std::endl;
 	}
 
-	void insert(key _key, pattern _pattern, float _cost, pattern _dimensions) {
+	int insert(key _key, pattern _pattern, float _cost, pattern _dimensions) {
 		std::multimap<key, pattern>::iterator it;
 		std::pair <std::multimap<key, pattern>::iterator, std::multimap<key, pattern>::iterator> ret;
 		ret = layer_pattern.equal_range(_key);
 		for (it = ret.first; it != ret.second; it++) {
 			if(_key == (*it).first && _pattern == (*it).second) {
-				return;
+				return 0;
 			}
 		}
 
@@ -309,13 +309,15 @@ public:
 		ret = layer_dimensions.equal_range(_key);
 		for (it = ret.first; it != ret.second; it++) {
 			if (_key == (*it).first && _dimensions == (*it).second) {
-				return;
+				return 0;
 			}
 		}
 
 		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
 		layer_cost.insert(std::pair<key, cost>(_key, _cost));
 		layer_dimensions.insert(std::pair<key, pattern>(_key, _dimensions));
+
+		return 1;
 	}
 
 	void exportdb() {
