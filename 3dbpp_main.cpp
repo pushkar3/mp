@@ -73,7 +73,11 @@ void generate_combo(vector<int> &combo, int max, int id,
 			_cost += (w[i] * h[i] * d[i]);
 		}
 
-		db->insert(_key, _pattern, _cost);
+		std::vector<int> dims(3, 0);
+		dims[0] = db->bin_info[0].w;
+		dims[1] = db->bin_info[0].h;
+		dims[2] = db->bin_info[0].d;
+		db->insert(_key, _pattern, _cost, dims);
 
 		return;
 	} // create layer
@@ -244,9 +248,6 @@ public:
 			exit(1);
 		}
 		std::vector<int> key = l1.get_key();
-		for (uint i = 0; i < _key.size(); i++)
-					std::cout << _key[i] << " ";
-		std::cout << std::endl;
 		std::vector<int> pattern = l1.get_pattern();
 
 		int c = 0;
@@ -282,20 +283,15 @@ public:
 	}
 
 	int compare() {
-		printf("========================================================\n");
-		l1.print();
-		l2.print();
-		if (l2.corner(0) > d->bin_info[0].w || l2.corner(1) > d->bin_info[0].h
-				|| l2.corner(2) > 1)
-			return 0;
-
 		float diff = fabs(l1.density() - l2.density()) / max(l1.density(), l2.density());
+		for (uint i = 0; i < d->bin_info.size(); i++) {
+			if (l2.corner(0) < d->bin_info[i].w
+				&& l2.corner(1)	< d->bin_info[i].h
+				&& l2.corner(2) < d->bin_info[i].d
+				&& diff < 0.05)
+				return 1;
+		}
 
-		printf("%d %d %d with %d %d %d\n", l2.corner(0), l2.corner(1), l2.corner(2), d->bin_info[0].w, d->bin_info[0].h, d->bin_info[0].d);
-		printf("diff = %.2lf\n", diff);
-
-		printf("========================================================\n");
-		if (diff < 0.05) return 1;
 		return 0;
 	}
 };
@@ -329,9 +325,9 @@ void binpack2(bpp_settings* settings, database *d) {
 	for (itp = d->layer_pattern.begin(), itc = d->layer_cost.begin(), itd
 			= d->layer_dimensions.begin(); itp != d->layer_pattern.end(); itp++, itc++, itd++) {
 
-		itp2 = itp;
-		itc2 = itc;
-		itd2 = itd;
+		itp2 = d->layer_pattern.begin();
+		itc2 = d->layer_cost.begin();
+		itd2 = d->layer_dimensions.begin();
 		layer_comp.set1((*itp).first, (*itp).second);
 
 		for (; itp2 != d->layer_pattern.end(); itp2++, itc2++, itd2++) {
@@ -343,7 +339,7 @@ void binpack2(bpp_settings* settings, database *d) {
 							layer_comp.get_dimensions2());
 				}
 			}
-			d->exportdb();
+			//d->exportdb();
 		}
 	}
 }
@@ -364,6 +360,7 @@ int main(int argc, char *argv[]) {
 	//		binpack(&settings, &d);
 	//		d.exportdb();
 	//	}
+	std::cout << "Starting binpacking" << std::endl;
 	binpack2(&settings, &d);
 	d.exportdb();
 	d.printdb();

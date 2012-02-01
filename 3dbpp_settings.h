@@ -13,6 +13,25 @@ typedef double cost;
 typedef std::vector<int> key;
 typedef std::vector<int> pattern;
 
+static int hcf(int x, int y) {
+    int tmp;
+	if (x < y) {
+		tmp = x;
+		x = y;
+		y = tmp;
+	}
+	while (x % y != 0) {
+		tmp = x % y;
+		y = x;
+		x = tmp;
+	}
+	return (y);
+}
+
+static int lcm(int x, int y) {
+	return (x * y / hcf(x, y));
+}
+
 class package {
 public:
 	int id, w, h, d, n;
@@ -45,6 +64,10 @@ class bin {
 public:
 	int id, w, h, d, n;
 	std::vector<package> package_list;
+	bin() {
+		id = w = h = d = n = 0;
+	}
+
 	bin(int _id, int _w, int _h, int _d, int _n) {
 		id = _id;
 		w = _w;
@@ -215,6 +238,7 @@ public:
 	std::vector<bin> bin_info; // need not be a vector
 	std::vector<order> order_info; // need not be a vector
 	std::vector<package> packlist;
+	bin bin_real;
 	std::multimap<key, cost, classcomp> layer_cost;
 	std::multimap<key, pattern, classcomp> layer_pattern;
 	std::multimap<key, pattern, classcomp> layer_dimensions;
@@ -234,23 +258,60 @@ public:
 		order_info.clear();
 		packlist.clear();
 		package_info = i.package_info;
-		bin_info = i.bin_info;
 		order_info = i.order_info;
 		set_dir(i.dir.c_str());
 		db_list = dir + "/db.txt";
-	}
 
-	void insert(key _key, pattern _pattern, double _cost) {
-		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
-		layer_cost.insert(std::pair<key, cost>(_key, _cost));
-		std::vector<int> dimensions(3, 0);
-		dimensions[0] = bin_info[0].w;
-		dimensions[1] = bin_info[0].h;
-		dimensions[2] = bin_info[0].d;
-		layer_dimensions.insert(std::pair<key, pattern>(_key, dimensions));
+		// bin juggad
+		int bin_add = 0;
+		bin_real = i.bin_info[0];
+		for (uint i = 0; i < package_info.size(); i++) {
+			for (uint j = i; j < package_info.size(); j++) {
+				bin b = bin_real;
+				b.d = lcm(package_info[i].d, package_info[j].d);
+				bin_add = 1;
+				for (uint k = 0; k < bin_info.size(); k++) {
+					if(bin_info[k].d == b.d) {
+						bin_add = 0;
+						break;
+					}
+				}
+
+				if(b.d > bin_real.d) bin_add = 0;
+
+				if(bin_add) {
+					bin_info.push_back(b);
+					bin_add = 0;
+				}
+			}
+		}
+
+		std::cout << "New bins" << std::endl;
+		for (uint i = 0; i < bin_info.size(); i++) {
+			std::cout << bin_info[i].id << " " << bin_info[i].w << " "
+					<< bin_info[i].h << " " << bin_info[i].d << " "
+					<< bin_info[i].n << std::endl;
+		}
+		std::cout << std::endl;
 	}
 
 	void insert(key _key, pattern _pattern, double _cost, pattern _dimensions) {
+		std::multimap<key, pattern>::iterator it;
+		std::pair <std::multimap<key, pattern>::iterator, std::multimap<key, pattern>::iterator> ret;
+		ret = layer_pattern.equal_range(_key);
+		for (it = ret.first; it != ret.second; it++) {
+			if(_key == (*it).first && _pattern == (*it).second) {
+				return;
+			}
+		}
+
+		ret = layer_dimensions.equal_range(_key);
+		for (it = ret.first; it != ret.second; it++) {
+			if (_key == (*it).first && _dimensions == (*it).second) {
+				return;
+			}
+		}
+
 		layer_pattern.insert(std::pair<key, pattern>(_key, _pattern));
 		layer_cost.insert(std::pair<key, cost>(_key, _cost));
 		layer_dimensions.insert(std::pair<key, pattern>(_key, _dimensions));
@@ -258,9 +319,9 @@ public:
 
 	void exportdb() {
 		std::ofstream ofs(db_list.c_str());
-		std::map<key, pattern>::iterator itp;
-		std::map<key, pattern>::iterator itd;
-		std::map<key, cost>::iterator itc;
+		std::multimap<key, pattern>::iterator itp;
+		std::multimap<key, pattern>::iterator itd;
+		std::multimap<key, cost>::iterator itc;
 
 		for (itp = layer_pattern.begin(), itc = layer_cost.begin(), itd
 				= layer_dimensions.begin(); itp != layer_pattern.end(); itp++, itc++, itd++) {
@@ -368,9 +429,9 @@ public:
 	}
 
 	void printdb() {
-		std::map<key, pattern>::iterator itp;
-		std::map<key, pattern>::iterator itd;
-		std::map<key, cost>::iterator itc;
+		std::multimap<key, pattern>::iterator itp;
+		std::multimap<key, pattern>::iterator itd;
+		std::multimap<key, cost>::iterator itc;
 
 		std::cout << "Database in record: " << std::endl;
 		for (itp = layer_pattern.begin(), itc = layer_cost.begin(), itd
