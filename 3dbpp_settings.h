@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-typedef double cost;
+typedef float cost;
 typedef std::vector<int> key;
 typedef std::vector<int> pattern;
 
@@ -84,8 +84,8 @@ public:
 		package_list.push_back(p);
 	}
 
-	double density() {
-		double d = 0;
+	float density() {
+		float d = 0;
 		for (uint i = 0; i < package_list.size(); i++) {
 			d += package_list[i].volume();
 		}
@@ -295,7 +295,7 @@ public:
 		std::cout << std::endl;
 	}
 
-	void insert(key _key, pattern _pattern, double _cost, pattern _dimensions) {
+	void insert(key _key, pattern _pattern, float _cost, pattern _dimensions) {
 		std::multimap<key, pattern>::iterator it;
 		std::pair <std::multimap<key, pattern>::iterator, std::multimap<key, pattern>::iterator> ret;
 		ret = layer_pattern.equal_range(_key);
@@ -305,6 +305,7 @@ public:
 			}
 		}
 
+		// uncomment this loop to include shuffles of the same size
 		ret = layer_dimensions.equal_range(_key);
 		for (it = ret.first; it != ret.second; it++) {
 			if (_key == (*it).first && _dimensions == (*it).second) {
@@ -360,10 +361,10 @@ public:
 		return vec;
 	}
 
-	double deserialize_cost(std::string str) {
+	float deserialize_cost(std::string str) {
 		str = str.substr(2);
 		int i = atoi(str.c_str());
-		return (double) i;
+		return (float) i;
 	}
 
 	int importdb() {
@@ -378,7 +379,7 @@ public:
 		std::ifstream ifs(db_list.c_str());
 		std::string str;
 		std::vector<int> key, pattern, dimensions;
-		double cost;
+		float cost;
 		int is_key = 0;
 		int is_cost = 0;
 		int is_pattern = 0;

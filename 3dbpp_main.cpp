@@ -219,6 +219,7 @@ public:
 		std::cout << "Total packvolume: " << n_packvolume << std::endl;
 		std::cout << "Total volume: " << n_tvolume << std::endl;
 		std::cout << "Total area: " << n_area << std::endl;
+		std::cout << "Max height: " << n_maxd << std::endl;
 		printf("Density: %.2f\n", n_density);
 		std::cout << std::endl;
 	}
@@ -242,25 +243,38 @@ public:
 		l1.evaluate();
 	}
 
-	void set2(std::vector<int> _key, std::vector<int> _pattern, int corner_pos) {
+	void set2(std::vector<int> key2, std::vector<int> pattern2, int corner_pos) {
 		if (corner_pos >= 3) {
 			std::cerr << "Error at corner_pos" << std::endl;
 			exit(1);
 		}
-		std::vector<int> key = l1.get_key();
-		std::vector<int> pattern = l1.get_pattern();
 
-		int c = 0;
-		for (uint i = 0; i < _key.size(); i++) {
-			key[i] += _key[i];
-			for (uint j = 0; j < _key[i]; j++) {
-				_pattern[c * 3 + corner_pos] += l1.corner(corner_pos);
-				c++;
+		int w = 0 , h = 0, d = 0;
+		if(corner_pos == 0) w = l1.corner(0);
+		if(corner_pos == 1) h = l1.corner(1);
+		if(corner_pos == 2) d = l1.corner(2);
+
+		std::vector<int> key1 = l1.get_key();
+		std::vector<int> pattern1 = l1.get_pattern();
+		std::vector<int> key(key1.size(), 0);
+		std::vector<int> pattern;
+
+		int c1 = 0, c2 = 0;
+		for (uint i = 0; i < key1.size(); i++) {
+			for (uint j = 0; j < key1[i]; j++) {
+				pattern.push_back(pattern1[c1 * 3 + 0]);
+				pattern.push_back(pattern1[c1 * 3 + 1]);
+				pattern.push_back(pattern1[c1 * 3 + 2]);
+				c1++;
 			}
+			for (uint j = 0; j < key2[i]; j++) {
+				pattern.push_back(pattern2[c2 * 3 + 0] + w);
+				pattern.push_back(pattern2[c2 * 3 + 1] + h);
+				pattern.push_back(pattern2[c2 * 3 + 2] + d);
+				c2++;
+			}
+			key[i] = key1[i] + key2[i];
 		}
-
-		for (uint i = 0; i < _pattern.size(); i++)
-			pattern.push_back(_pattern[i]);
 
 		l2.set_layer(key, pattern);
 		l2.evaluate();
@@ -283,13 +297,15 @@ public:
 	}
 
 	int compare() {
+
 		float diff = fabs(l1.density() - l2.density()) / max(l1.density(), l2.density());
 		for (uint i = 0; i < d->bin_info.size(); i++) {
 			if (l2.corner(0) < d->bin_info[i].w
-				&& l2.corner(1)	< d->bin_info[i].h
-				&& l2.corner(2) < d->bin_info[i].d
-				&& diff < 0.05)
+					&& l2.corner(1)	< d->bin_info[i].h
+					&& l2.corner(2) < d->bin_info[i].d
+					&& diff < 0.05) {
 				return 1;
+			}
 		}
 
 		return 0;
@@ -322,6 +338,7 @@ void binpack2(bpp_settings* settings, database *d) {
 
 	layer_comp_t layer_comp(d);
 
+	long int c = 0;
 	for (itp = d->layer_pattern.begin(), itc = d->layer_cost.begin(), itd
 			= d->layer_dimensions.begin(); itp != d->layer_pattern.end(); itp++, itc++, itd++) {
 
@@ -339,7 +356,10 @@ void binpack2(bpp_settings* settings, database *d) {
 							layer_comp.get_dimensions2());
 				}
 			}
-			//d->exportdb();
+			if (++c % 100 == 0) {
+				printf("Database size: %d\r", d->layer_pattern.size());
+				d->exportdb();
+			}
 		}
 	}
 }
