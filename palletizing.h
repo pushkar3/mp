@@ -98,7 +98,9 @@ public:
 			show("min_vec", min_vec);
 
 			int n = 0;
-			std::vector<int> pos = db->layer_pattern[min_vec];
+			std::multimap<key, pattern, classcomp>::iterator it;
+			it = db->layer_pattern.find(min_vec);
+			std::vector<int> pos = it->second;
 			for (int i = 0; i < min_vec.size(); i++) {
 				for(int j = 0; j < min_vec[i]; j++) {
 					int x = pos[n++];
