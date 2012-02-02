@@ -28,5 +28,7 @@ lib/
 *.a
 *.so
 *.xml
+.settings
 icra2011TestFiles
-pallet_planner
+bpp_planner
+simplex_planner
