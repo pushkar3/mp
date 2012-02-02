@@ -20,7 +20,6 @@ set ( HEADERS
 )
 
 set ( BPP_SRC
-3dbpp_settings
 3dbpp_main
 ext/packlist
 ext/response

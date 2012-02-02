@@ -1,5 +1,5 @@
-#ifndef BPP_SOLVER_SETTINGS_H_
-#define BPP_SOLVER_SETTINGS_H_
+#ifndef BPP_H_
+#define BPP_H_
 
 #include <stdlib.h>
 #include <iostream>
@@ -491,22 +491,4 @@ public:
 	}
 };
 
-class bpp_settings {
-public:
-	int tests;
-	int bdim, type, packingtype;
-	int nodelimit, iterlimit, timelimit, nodeused, iterused, timeused;
-	int ub, lb, solved, gap, sumnode, sumiter;
-	double time, sumtime, deviation, sumub, sumlb, sumdev;
-
-	bpp_settings();
-	~bpp_settings();
-
-	bpp_settings(const bpp_settings& s);
-	void set_default();
-	void show_start();
-	void show_end();
-	void reset();
-};
-
-#endif /* BPP_SOLVER_SETTINGS_H_ */
+#endif /* BPP_H_ */

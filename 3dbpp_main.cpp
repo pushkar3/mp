@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <sys/stat.h>
-#include "3dbpp_settings.h"
+#include "3dbpp.h"
 #include "palletizing.h"
 
 using namespace std;
@@ -222,7 +222,7 @@ public:
 	}
 };
 
-void binpack2(bpp_settings* settings, database *d) {
+void binpack2(database *d) {
 	// Build the smallest blocks
 	vector<int> combo(d->package_info.size(), 0);
 	vector<int> combo_max(d->package_info.size(), 5);
@@ -276,9 +276,6 @@ void binpack2(bpp_settings* settings, database *d) {
 
 int main(int argc, char *argv[]) {
 
-	bpp_settings settings;
-	settings.set_default();
-
 	input i;
 	output o;
 	database d;
@@ -289,7 +286,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Starting binpacking" << std::endl;
 
 	if (!d.importdb()) {
-		binpack2(&settings, &d);
+		binpack2(&d);
 		d.exportdb();
 	}
 

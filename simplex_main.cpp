@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <vector>
 #include <map>
-#include "3dbpp_settings.h"
+#include "3dbpp.h"
 
 using namespace std;
 

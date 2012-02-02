@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <3dbpp_settings.h>
 #include <vector>
 #include <map>
+#include <3dbpp.h>
 
 class palletizing {
 	database* db;
