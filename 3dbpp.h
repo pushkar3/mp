@@ -507,6 +507,91 @@ public:
 		cout << "Database End." << endl;
 	}
 
+	void pose_mps(const char* filename) {
+		uint i = 0;
+		string str = dir + "/" + filename + ".mps";
+		multimap<key_, config_t>::iterator it;
+
+		cout << "Will write to " << str << endl;
+		ofstream ofs(str.c_str());
+
+		ofs << "NAME\tPROB\n";
+
+		ofs << "ROWS\n";
+		ofs << " N  COST" << "\n";
+		for (i = 0; i < package.size(); i++) {
+			ofs << " E  R" << i << "\n";
+		}
+
+		ofs << "COLUMNS\n";
+		ofs << "    MARK0000  'MARKER'                 'INTORG'\n";
+
+		i = 0;
+		for (it = layer_map.begin(); it != layer_map.end(); it++, i++) {
+			config_t c = (*it).second;
+			ofs << "    C" << i << "\tCOST" << "\t-1\n";
+			for (uint j = 0; j < c.get_key().size(); j++) {
+				if (c.get_key()[j] > 0)
+					ofs << "    C" << i << "\tR" << j << "\t" << c.get_key()[j] << ".\n";
+			}
+		}
+		ofs << "    MARK0001  'MARKER'                 'INTEND'\n";
+
+		ofs << "RHS\n";
+		for (i = 0; i < order_info.size(); i++) {
+			ofs << "    RHS\tR" << order_info[i].id-1 << "\t" << order_info[i].quantity << ".\n";
+		}
+
+		ofs << "ENDATA\n";
+		ofs.close();
+	}
+
+	void pose_lp(const char* filename) {
+		uint j = 0;
+		string str = dir + "/" + filename + ".lp";
+		multimap<key_, config_t>::iterator it;
+
+		cout << "Will write to " << str << endl;
+		ofstream ofs(str.c_str());
+
+		ofs << "Maximize\n";
+		ofs << "    ";
+		it = layer_map.begin();
+		it++;
+		ofs << "c0";
+		for (j = 1; it != layer_map.end(); it++, j++) {
+			ofs << " + " << "c" << j;
+		}
+		ofs << "\n";
+
+		ofs << "Subject To\n";
+		for (uint i = 0; i < package.size(); i++) {
+			ofs << "    ";
+			ofs << "c" << i << ": ";
+			it = layer_map.begin();
+			ofs << ((*it).first)[i] << " c0";
+			it++;
+			for (j = 1	; it != layer_map.end(); it++, j++) {
+				if (((*it).first)[i] != 0) ofs <<  " + " << ((*it).first)[i] << " c" << j;
+			}
+			ofs << " <= 80";
+			ofs << "\n";
+		}
+
+		ofs << "Generals\n";
+		ofs << "    ";
+		it = layer_map.begin();
+		ofs << "c0";
+		it++;
+		for (j = 1; it != layer_map.end(); it++, j++) {
+			ofs << " c" << j;
+		}
+		ofs << "\n";
+		ofs << "End\n";
+
+		ofs.close();
+	}
+
 	~database() {
 	}
 

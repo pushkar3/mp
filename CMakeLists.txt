@@ -32,9 +32,10 @@ simplex_main
 )
 
 include_directories (${HEADERS})
-
 add_executable (bpp_planner ${BPP_SRC})
 target_link_libraries (bpp_planner m pthread)
 
+include_directories ($ENV{GUROBI_HOME}/include)
+link_directories ($ENV{GUROBI_HOME}/lib)
 add_executable (simplex_planner ${SIMPLEX_SRC})
-target_link_libraries (simplex_planner m pthread)
+target_link_libraries (simplex_planner m pthread gurobi_c++ gurobi46 gurobi_g++4.1 gurobi_g++4.2)

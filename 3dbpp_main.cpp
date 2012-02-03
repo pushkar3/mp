@@ -65,6 +65,8 @@ int main(int argc, char *argv[]) {
 		d.exportdb();
 	}
 
+	d.pose_mps("prob");
+	d.pose_lp("prob");
 	//d.printdb();
 
 	//palletizing p(&d);
