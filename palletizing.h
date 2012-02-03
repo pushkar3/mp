@@ -72,10 +72,10 @@ public:
 
 	void solve() {
 		std::vector<int> order;
-		for (int i = 0; i < db->package_info.size(); i++) {
+		for (int i = 0; i < db->package.size(); i++) {
 			int order_key = 0;
 			for (int j = 0; j < db->order_info.size(); j++) {
-				if (db->order_info[j].id == db->package_info[i].id) {
+				if (db->order_info[j].id == db->package[i].id) {
 					order_key = db->order_info[j].quantity;
 					break;
 				}
@@ -83,29 +83,26 @@ public:
 			order.push_back(order_key);
 		}
 
-		std::multimap<key, pattern>::iterator itp;
-		std::multimap<key, pattern>::iterator itd;
+		std::multimap<key_, config_t>::iterator it;
 		double d = distance(order);
 		double min = 99999.99f;
 		std::vector<int> min_vec;
 		std::vector<int> min_pattern;
 		std::vector<int> min_dims;
-		std::vector<int> pallet_key(db->package_info.size(), 0);
+		std::vector<int> pallet_key(db->package.size(), 0);
 		std::vector<int> pallet_pattern;
-		std::vector<int> pallet_dimensions(db->package_info.size(), 0);
+		std::vector<int> pallet_dimensions(db->package.size(), 0);
 		int layer_d = 0;
 
 		while (d > 0) {
-			itp = db->layer_pattern.begin();
-			itd = db->layer_dimensions.begin();
-			for (; itp!= db->layer_pattern.end(); itp++, itd++) {
-				double cost = distance(diff(order, (*itp).first));
+			for (it = db->config_map.begin(); it!= db->config_map.end(); it++) {
+				double cost = distance(diff(order, (*it).first));
 
 				if (cost >=0 && cost < min) {
 					min = cost;
-					min_vec = (*itp).first;
-					min_pattern = (*itp).second;
-					min_dims = (*itd).second;
+					min_vec = (*it).first;
+					min_pattern = (*it).second.get_pattern();
+					min_dims = (*it).second.get_dimensions();
 				}
 			}
 
@@ -121,9 +118,9 @@ public:
 					pallet_pattern.push_back(min_pattern[c*3+1]);
 					pallet_pattern.push_back(min_pattern[c*3+2] + layer_d);
 
-					int w = min_pattern[c * 3 + 0] + db->package_info[i].w;
-					int h = min_pattern[c * 3 + 1] + db->package_info[i].h;
-					int d = min_pattern[c * 3 + 2] + db->package_info[i].d;
+					int w = min_pattern[c * 3 + 0] + db->package[i].w;
+					int h = min_pattern[c * 3 + 1] + db->package[i].h;
+					int d = min_pattern[c * 3 + 2] + db->package[i].d;
 
 					if (w < pallet_dimensions[0]) pallet_dimensions[0] = w;
 					if (h < pallet_dimensions[1]) pallet_dimensions[0] = h;
@@ -140,12 +137,6 @@ public:
 			d = distance(order);
 			layer_d += min_dims[2];
 		}
-
-		db->layer_pattern.insert(std::pair<key, pattern>(pallet_key, pallet_pattern));
-		db->layer_cost.insert(std::pair<key, cost>(pallet_key, 0.0f));
-		db->layer_dimensions.insert(std::pair<key, pattern>(pallet_key, pallet_dimensions));
-		std::cout << "Exported pallet" << std::endl;
-		db->exportdb();
 
 	}
 
