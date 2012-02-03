@@ -3,8 +3,8 @@
 #include <vector>
 #include <map>
 #include <sys/stat.h>
+#include <math.h>
 #include "3dbpp.h"
-#include "palletizing.h"
 
 using namespace std;
 
@@ -68,11 +68,6 @@ int main(int argc, char *argv[]) {
 	d.pose_mps("prob");
 	d.pose_lp("prob");
 	//d.printdb();
-
-	//palletizing p(&d);
-	//p.solve();
-
-	//o.exportl(d, "data");
 
 	return 0;
 }

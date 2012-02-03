@@ -17,6 +17,7 @@ typedef float cost;
 typedef vector<int> key_;
 typedef vector<int> pattern_;
 typedef vector<int> dimensions_;
+typedef vector<int> order_t;
 
 static int hcf(int x, int y) {
     int tmp;
@@ -138,15 +139,6 @@ public:
 	}
 };
 
-class order {
-public:
-	int id, quantity;
-	order(int _id, int _quantity) {
-		id = _id;
-		quantity = _quantity;
-	}
-};
-
 struct classcomp {
 	bool operator()(const key_& lhs, const key_& rhs) const {
 		int d1 = 0, d2 = 0;
@@ -162,9 +154,9 @@ struct classcomp {
 class input {
 public:
 
-	vector<package_t> package_info;
-	vector<bin_t> bin_info;
-	vector<order> order_info;
+	vector<package_t> package;
+	bin_t bin;
+	order_t order;
 	string dir;
 
 	input() {
@@ -180,16 +172,16 @@ public:
 			if (!ifs.good())
 				break;
 			package_t p(id, w, h, d, n);
-			package_info.push_back(p);
+			package.push_back(p);
 		}
 		ifs.close();
 	}
 
 	void print_package_list() {
-		for (uint i = 0; i < package_info.size(); i++) {
-			cout << package_info[i].id << " " << package_info[i].w << " "
-					<< package_info[i].h << " " << package_info[i].d << " "
-					<< package_info[i].n << endl;
+		for (uint i = 0; i < package.size(); i++) {
+			cout << package[i].id << " " << package[i].w << " "
+					<< package[i].h << " " << package[i].d << " "
+					<< package[i].n << endl;
 		}
 		cout << endl;
 	}
@@ -203,38 +195,36 @@ public:
 			if (!ifs.good())
 				break;
 			bin_t b(id, w, h, d, n);
-			bin_info.push_back(b);
+			bin = b;
 		}
 		ifs.close();
 	}
 
 	void print_bin_list() {
-		for (uint i = 0; i < bin_info.size(); i++) {
-			cout << bin_info[i].id << " " << bin_info[i].w << " "
-					<< bin_info[i].h << " " << bin_info[i].d << " "
-					<< bin_info[i].n << endl;
-		}
-		cout << endl;
+			cout << bin.id << " " << bin.w << " "
+					<< bin.h << " " << bin.d << " "	<< bin.n << endl;
 	}
 
 	void load_problem(const char* filename) {
 		ifstream ifs;
 		ifs.open(filename);
 		int id, quantity;
+		order_t o (package.size(), 0);
+
 		while (!ifs.eof()) {
 			ifs >> id >> quantity;
-			if (!ifs.good())
-				break;
-			order o(id, quantity);
-			order_info.push_back(o);
+			if (!ifs.good()) break;
+			for (uint i = 0; i < package.size(); i++) {
+				if (package[i].id == id) o[i] = quantity;
+			}
 		}
+		order = o;
 		ifs.close();
 	}
 
 	void print_problem() {
-		for (uint i = 0; i < order_info.size(); i++) {
-			cout << order_info[i].id << " " << order_info[i].quantity
-					<< endl;
+		for (uint i = 0; i < order.size(); i++) {
+			cout << order[i] << " ";
 		}
 		cout << endl;
 	}
@@ -281,9 +271,8 @@ class database {
 public:
 	vector<package_t> package;
 	bin_t bin;
-	vector<bin_t> bin_info; // need not be a vector
-	vector<order> order_info; // need not be a vector
-	vector<package_t> packlist;
+	vector<bin_t> bin_d;
+	vector<int> order;
 	multimap<key_, config_t, classcomp> config_map;
 	multimap<key_, config_t, classcomp> layer_map;
 	string dir;
@@ -298,25 +287,24 @@ public:
 
 	void get_input(input i) {
 		package.clear();
-		bin_info.clear();
-		order_info.clear();
-		packlist.clear();
-		package = i.package_info;
-		order_info = i.order_info;
+		bin_d.clear();
+		order.clear();
+		package = i.package;
+		order = i.order;
 		set_dir(i.dir.c_str());
 		db_c = dir + "/db_config.txt";
 		db_l= dir + "/db_layer.txt";
 
 		// bin juggad
 		int bin_add = 0;
-		bin = i.bin_info[0];
+		bin = i.bin;
 		for (uint i = 0; i < package.size(); i++) {
 			for (uint j = i; j < package.size(); j++) {
 				bin_t b = bin;
 				b.d = lcm(package[i].d, package[j].d);
 				bin_add = 1;
-				for (uint k = 0; k < bin_info.size(); k++) {
-					if(bin_info[k].d == b.d) {
+				for (uint k = 0; k < bin_d.size(); k++) {
+					if(bin_d[k].d == b.d) {
 						bin_add = 0;
 						break;
 					}
@@ -325,19 +313,23 @@ public:
 				if(b.d > bin.d) bin_add = 0;
 
 				if(bin_add) {
-					bin_info.push_back(b);
+					bin_d.push_back(b);
 					bin_add = 0;
 				}
 			}
 		}
 
 		cout << "New bins" << endl;
-		for (uint i = 0; i < bin_info.size(); i++) {
-			cout << bin_info[i].id << " " << bin_info[i].w << " "
-					<< bin_info[i].h << " " << bin_info[i].d << " "
-					<< bin_info[i].n << endl;
+		for (uint i = 0; i < bin_d.size(); i++) {
+			cout << bin_d[i].id << " " << bin_d[i].w << " "
+					<< bin_d[i].h << " " << bin_d[i].d << " "
+					<< bin_d[i].n << endl;
 		}
 		cout << endl;
+	}
+
+	int insert(config_t c) {
+		return insert(c.get_key(), c.get_pattern());
 	}
 
 	int insert(key_ key, pattern_ pattern) {
@@ -538,8 +530,8 @@ public:
 		ofs << "    MARK0001  'MARKER'                 'INTEND'\n";
 
 		ofs << "RHS\n";
-		for (i = 0; i < order_info.size(); i++) {
-			ofs << "    RHS\tR" << order_info[i].id-1 << "\t" << order_info[i].quantity << ".\n";
+		for (i = 0; i < order.size(); i++) {
+			ofs << "    RHS\tR" << i << "\t" << order[i] << ".\n";
 		}
 
 		ofs << "ENDATA\n";
@@ -574,7 +566,7 @@ public:
 			for (j = 1	; it != layer_map.end(); it++, j++) {
 				if (((*it).first)[i] != 0) ofs <<  " + " << ((*it).first)[i] << " c" << j;
 			}
-			ofs << " <= 80";
+			ofs << " <= " << order[i];
 			ofs << "\n";
 		}
 
@@ -598,29 +590,31 @@ public:
 };
 
 class output {
-	vector<package_t> packlist;
+	vector<config_t> packlist;
 public:
-	output() {
-	}
-	~output() {
+	output() { }
+
+	~output() {	}
+
+	void insert(config_t c) {
+		packlist.push_back(c);
 	}
 
-	void exportl(database db, const char* dirname) {
-		string dir;
-		dir.assign(dirname);
-		string output_list = dir + "/output_list.txt";
-
+	void exportpl(database* db) {
+		string output_list = db->dir + "/pack_list.txt";
 		packlist.clear();
-		packlist = db.packlist;
 
 		ofstream ofs;
 		ofs.open(output_list.c_str());
+
 		for (uint i = 0; i < packlist.size(); i++) {
-			ofs << packlist[i].id << "\t" << packlist[i].w << " "
-					<< packlist[i].h << " " << packlist[i].d << "\t"
-					<< packlist[i].x << " " << packlist[i].y << " "
-					<< packlist[i].z << " " << endl;
+			config_t config = packlist[i];
+			ofs << "k " << config.key_s() << "\n";
+			ofs << "c " << config.cost_s() << "\n";
+			ofs << "p " << config.pattern_s() << "\n";
+			ofs << "d " << config.dimensions_s() << "\n";
 		}
+
 		ofs.close();
 	}
 };
