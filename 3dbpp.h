@@ -90,8 +90,10 @@ public:
 	void eval();
 	bool operator == (const config_t &c);
 	bool is_bound();
+	bool is_layer();
 	friend ostream & operator <<(ostream &o, const config_t &c);
 	void add(const config_t c);
+	int get_area();
 	vector<int> get_corner(int i);
 	key_ get_key();
 	pattern_ get_pattern();
@@ -283,8 +285,9 @@ public:
 	vector<order> order_info; // need not be a vector
 	vector<package_t> packlist;
 	multimap<key_, config_t, classcomp> config_map;
+	multimap<key_, config_t, classcomp> layer_map;
 	string dir;
-	string db_list;
+	string db_c, db_l;
 	config_t config_last;
 
 	database() { }
@@ -301,7 +304,8 @@ public:
 		package = i.package_info;
 		order_info = i.order_info;
 		set_dir(i.dir.c_str());
-		db_list = dir + "/db.txt";
+		db_c = dir + "/db_config.txt";
+		db_l= dir + "/db_layer.txt";
 
 		// bin juggad
 		int bin_add = 0;
@@ -351,6 +355,11 @@ public:
 
 		config_map.insert(pair<key_, config_t> (key, config));
 		config_last = config;
+
+		int area = bin.w * bin.h;
+		if(config_last.is_layer())
+			layer_map.insert(pair<key_, config_t> (config_last.get_key(), config_last));
+
 		return 1;
 	}
 
@@ -358,11 +367,31 @@ public:
 		return config_last;
 	}
 
+	void find_layers() {
+		int area = bin.w * bin.h;
+		multimap<key_, config_t>::iterator it;
+		for (it = config_map.begin(); it != config_map.end(); it++) {
+			config_t c = (*it).second;
+			if(((float)(area - c.get_area())/(float)area) < 0.05)
+				layer_map.insert(pair<key_, config_t> (c.get_key(), c));
+		}
+	}
+
 	void exportdb() {
-		ofstream ofs(db_list.c_str());
+		ofstream ofs(db_c.c_str());
 		multimap<key_, config_t>::iterator it;
 
 		for (it = config_map.begin(); it != config_map.end(); it++) {
+			config_t config = (*it).second;
+			ofs << "k " << config.key_s() << "\n";
+			ofs << "c " << config.cost_s() << "\n";
+			ofs << "p " << config.pattern_s() << "\n";
+			ofs << "d " << config.dimensions_s() << "\n";
+		}
+		ofs.close();
+
+		ofs.open(db_l.c_str());
+		for (it = layer_map.begin(); it != layer_map.end(); it++) {
 			config_t config = (*it).second;
 			ofs << "k " << config.key_s() << "\n";
 			ofs << "c " << config.cost_s() << "\n";
@@ -388,20 +417,16 @@ public:
 
 	float deserialize_cost(string str) {
 		str = str.substr(2);
-		int i = atoi(str.c_str());
+		int i = atoi	(str.c_str());
 		return (float) i;
 	}
 
 	int importdb() {
 		struct stat buf;
-		if (stat(db_list.c_str(), &buf) != 0) {
-			return 0;
-		}
+		if (stat(db_c.c_str(), &buf) != 0) return 0;
+		cerr << "Found config database at " << db_c << endl;
 
-		cerr << "Found database at " << db_list << ". Importing..."
-				<< endl;
-
-		ifstream ifs(db_list.c_str());
+		ifstream ifs(db_c.c_str());
 		string str;
 		vector<int> key, pattern, dimensions;
 		float cost;
@@ -442,7 +467,11 @@ public:
 					{
 						config_t c = get_last_inserted_config();
 						if (c.get_dimensions() != dimensions) {
-							cerr << "Error while importing database" << endl;
+							cerr << "Error while importing database at ";
+							for (uint i = 0; i < c.get_key().size(); i++) {
+								cerr << c.get_key()[i] << " ";
+							}
+							cerr << endl;
 						}
 					}
 					key.clear();
@@ -456,6 +485,10 @@ public:
 			}
 		}
 		ifs.close();
+
+		if (stat(db_l.c_str(), &buf) == 0) {
+			cout << "Found layer database, but will skip import" << endl;
+		}
 
 		return 1;
 	}

@@ -19,14 +19,14 @@ void binpack2(database *d) {
 	vector<int> combo(d->package.size(), 0);
 	for (uint i = 0; i < d->package.size(); i++) {
 		combo[i] = 1;
-		std::vector<int> key(combo);
-		std::vector<int> pattern(3, 0);
+		vector<int> key(combo);
+		vector<int> pattern(3, 0);
 		d->insert(key, pattern);
 		combo[i] = 0;
 	}
 
-	std::map<key_, config_t>::iterator it1;
-	std::map<key_, config_t>::iterator it2;
+	map<key_, config_t>::iterator it1;
+	map<key_, config_t>::iterator it2;
 
 	long int n = 0;
 	for (it1 = d->config_map.begin(); it1 != d->config_map.end(); it1++) {
@@ -42,7 +42,7 @@ void binpack2(database *d) {
 				}
 			}
 			if (++n % 10 == 0) {
-				printf("Database size: %d\r", d->config_map.size());
+				printf("Database size: c %d, l %d\r", d->config_map.size(), d->layer_map.size());
 				d->exportdb();
 			}
 		}
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	i.print();
 
 	d.get_input(i);
-	std::cout << "Starting binpacking" << std::endl;
+	cout << "Starting binpacking" << endl;
 
 	if (!d.importdb()) {
 		binpack2(&d);
@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
 
 	//d.printdb();
 
-	palletizing p(&d);
-	p.solve();
+	//palletizing p(&d);
+	//p.solve();
 
 	//o.exportl(d, "data");
 

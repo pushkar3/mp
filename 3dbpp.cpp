@@ -73,6 +73,11 @@ bool config_t::is_bound() {
 	return (n_maxw <= d->bin.w && n_maxh <= d->bin.h && n_maxd <= d->bin.d);
 }
 
+bool config_t::is_layer() {
+	int area = d->bin.w * d->bin.h;
+	return(((float)(area - get_area())/(float)area) < 0.05);
+}
+
 ostream & operator << (ostream &o, const config_t &c) {
 	vector<int> key = c.key;
 	vector<int> pattern = c.pattern;
@@ -115,6 +120,10 @@ void config_t::add(const config_t c) {
 
 	reset();
 	set(this->d, k, p);
+}
+
+int config_t::get_area() {
+	return n_area;
 }
 
 vector<int> config_t::get_corner(int i) {
