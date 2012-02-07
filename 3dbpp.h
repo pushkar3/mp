@@ -349,14 +349,31 @@ public:
 		config_last = config;
 
 		int area = bin.w * bin.h;
-		if(config_last.is_layer())
+		if(config_last.is_layer()) {
 			layer_map.insert(pair<key_, config_t> (config_last.get_key(), config_last));
+		}
 
 		return 1;
 	}
 
 	config_t get_last_inserted_config() {
 		return config_last;
+	}
+
+	config_t get_layer_from_name(string str) {
+		string alphas("abcdefghijklmnopqrstuvwxyz_.");
+		size_t found;
+		found = str.find_first_of(alphas);
+		while (found != string::npos) {
+			str[found] = '*';
+			found = str.find_first_of(alphas, found + 1);
+		}
+
+		int n = atoi(str.c_str());
+		multimap<key_, config_t>::iterator it;
+		it = layer_map.begin();
+		while (n > 0) ++it;
+		return (*it).second;
 	}
 
 	void find_layers() {

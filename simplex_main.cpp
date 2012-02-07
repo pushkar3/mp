@@ -1,9 +1,21 @@
 #include "gurobi_c++.h"
 #include <cmath>
+#include "3dbpp.h"
 
 using namespace std;
 
 int main(int   argc, char *argv[]) {
+	input i;
+	output o;
+	database d;
+	i.load("data");
+
+	d.get_input(i);
+	if (!d.importdb()) {
+		cerr << "Could not import database. End Program." << endl;
+		return 1;
+	}
+
 	GRBEnv *env = 0;
 	GRBVar *vars = 0, *fvars = 0;
 	try {
@@ -86,8 +98,11 @@ int main(int   argc, char *argv[]) {
 		for (int j = 0; j < numvars; j++) {
 			GRBVar v = fvars[j];
 			if (v.get(GRB_DoubleAttr_X) != 0.0) {
-				cout << v.get(GRB_StringAttr_VarName) << " " << v.get(
-						GRB_DoubleAttr_X) << endl;
+				cout << v.get(GRB_StringAttr_VarName) << " " << v.get(GRB_DoubleAttr_X) << endl;
+				config_t c = d.get_layer_from_name(v.get(GRB_StringAttr_VarName));
+				for (uint i = 0 ; i < v.get(GRB_DoubleAttr_X); i++) {
+					o.insert(c);
+				}
 			}
 		}
 
@@ -101,5 +116,8 @@ int main(int   argc, char *argv[]) {
 	delete[] fvars;
 	delete[] vars;
 	delete env;
+
+	o.exportpl(&d);
+
 	return 0;
 }
