@@ -617,9 +617,12 @@ public:
 		packlist.push_back(c);
 	}
 
+	void clear() {
+		packlist.clear();
+	}
+
 	void exportpl(database* db) {
 		string output_list = db->dir + "/pack_list.txt";
-		packlist.clear();
 
 		ofstream ofs;
 		ofs.open(output_list.c_str());

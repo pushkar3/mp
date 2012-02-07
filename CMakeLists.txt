@@ -17,7 +17,6 @@ set ( HEADERS
 /usr/include
 /usr/local/include
 /usr/include/c++/4.4.3
-/opt/gurobi461/linux32/include
 )
 
 set ( BPP_SRC
