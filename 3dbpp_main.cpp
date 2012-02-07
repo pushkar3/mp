@@ -69,5 +69,6 @@ int main(int argc, char *argv[]) {
 	d.pose_lp("prob");
 	//d.printdb();
 
+
 	return 0;
 }

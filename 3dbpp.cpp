@@ -19,6 +19,7 @@ void config_t::reset() {
 	n_tvolume = 0;
 	n_density = 0.0f;
 	n_packvolume = 0;
+	n_packweight = 0;
 	origin.assign(3, 0);
 	corner1.assign(3, 0);
 	corner2.assign(3, 0);
@@ -40,6 +41,7 @@ void config_t::set(database* db, key_ k, pattern_ p) {
 			if (n_maxh < yn)	n_maxh = yn;
 			if (n_maxd < zn)	n_maxd = zn;
 			n_packvolume += db->package[i].volume();
+			n_packweight += db->package[i].get_weight();
 			c++;
 		}
 	}
@@ -148,6 +150,10 @@ dimensions_ config_t::get_dimensions() {
 	dims.push_back(n_maxh);
 	dims.push_back(n_maxd);
 	return dims;
+}
+
+int config_t::get_weight() {
+	return n_packweight;
 }
 
 float config_t::density() {

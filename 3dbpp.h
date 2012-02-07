@@ -42,6 +42,7 @@ class package_t {
 public:
 	int id, w, h, d, n;
 	int x, y, z;
+	int weight;
 	package_t(int _id, int _w, int _h, int _d, int _n) {
 		id = _id;
 		w = _w;
@@ -59,6 +60,14 @@ public:
 		x = _x;
 		y = _y;
 		z = _z;
+	}
+
+	void set_weight(int _w) {
+		weight = _w;
+	}
+
+	int get_weight() {
+		return weight;
 	}
 
 	int volume() {
@@ -79,6 +88,7 @@ class config_t {
 
 	int n_tvolume;
 	int n_packvolume;
+	int n_packweight;
 
 	vector<int> origin;
 	vector<int> corner1, corner2, corner3;
@@ -99,6 +109,7 @@ public:
 	key_ get_key();
 	pattern_ get_pattern();
 	dimensions_ get_dimensions();
+	int get_weight();
 	string key_s();
 	string pattern_s();
 	string dimensions_s();
@@ -166,12 +177,13 @@ public:
 		ifstream ifs;
 		ifs.open(filename);
 
-		int id, w, h, d, n;
+		int id, w, h, d, n, weight;
 		while (!ifs.eof()) {
-			ifs >> id >> w >> h >> d >> n;
+			ifs >> id >> w >> h >> d >> n >> weight;
 			if (!ifs.good())
 				break;
 			package_t p(id, w, h, d, n);
+			p.set_weight(weight);
 			package.push_back(p);
 		}
 		ifs.close();
@@ -636,6 +648,51 @@ public:
 		}
 
 		ofs.close();
+	}
+
+	void run_mcmc(int iterations) {
+
+		double* t;
+		double* a;
+
+		int n = packlist.size();
+		t = new double(n*2);
+		a = new double(n*2);
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if(packlist[i].get_weight() > packlist[j].get_weight()) {
+					t[i*n+j] = 0.8;
+					t[j*n+i] = 0.2;
+				}
+				else {
+					t[i*n+j] = 0.2;
+					t[j*n+i] = 0.8;
+				}
+			}
+		}
+
+		double pl = 1.0f;
+		double prev_pl = pl;
+
+		while (iterations > 0) {
+
+			// make a random choice
+
+			for (int i = 0; i < n - 1; i++) {
+				pl += t[i * n] * t[(i + 1) * n];
+			}
+
+			if (pl > prev_pl) {
+				// accept choice
+			}
+
+			prev_pl = pl;
+			iterations--;
+		}
+
+		delete t;
+		delete a;
 	}
 };
 
