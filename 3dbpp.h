@@ -8,16 +8,19 @@
 #include <map>
 #include <string.h>
 #include <sys/stat.h>
+#include <cmath>
 
 using namespace std;
 
 class database;
+class config_t;
 
 typedef float cost;
 typedef vector<int> key_;
 typedef vector<int> pattern_;
 typedef vector<int> dimensions_;
 typedef vector<int> order_t;
+typedef vector<config_t> packlist_;
 
 static int hcf(int x, int y) {
     int tmp;
@@ -36,6 +39,24 @@ static int hcf(int x, int y) {
 
 static int lcm(int x, int y) {
 	return (x * y / hcf(x, y));
+}
+
+static int fact(int n) {
+	int ret = 1;
+	while (n > 0) {
+		ret *= n;
+		n--;
+	}
+	return ret;
+}
+
+static int coin_flip(double p) {
+	int n = 10;
+	int x = rand()%n;
+
+	double y = (fact(n)/(fact(x)*fact(n-x))) * pow(p, x) * pow(1.0-p, n-x);
+	if (y > 0.5) return 1;
+	return 0;
 }
 
 class package_t {
@@ -97,6 +118,7 @@ public:
 	~config_t() { }
 	void reset();
 	void set(database* d, key_ key, pattern_ pattern);
+	vector<int> get_origin();
 	void set_origin(vector<int> o);
 	void eval();
 	bool operator == (const config_t &c);
@@ -104,6 +126,7 @@ public:
 	bool is_layer();
 	friend ostream & operator <<(ostream &o, const config_t &c);
 	void add(const config_t c);
+	int get_height();
 	int get_area();
 	vector<int> get_corner(int i);
 	key_ get_key();
@@ -297,6 +320,10 @@ public:
 		dir.assign(dirname);
 	}
 
+	const char* get_dir() {
+		return dir.c_str();
+	}
+
 	void get_input(input i) {
 		package.clear();
 		bin_d.clear();
@@ -422,7 +449,7 @@ public:
 		ofs.close();
 	}
 
-	vector<int> deserialize_vector(string str) {
+	static vector<int> deserialize_vector(string str) {
 		vector<int> vec;
 		char* p;
 		str = str.substr(2); // remove first char and space
@@ -436,7 +463,7 @@ public:
 		return vec;
 	}
 
-	float deserialize_cost(string str) {
+	static float deserialize_cost(string str) {
 		str = str.substr(2);
 		int i = atoi	(str.c_str());
 		return (float) i;
@@ -449,7 +476,9 @@ public:
 
 		ifstream ifs(db_c.c_str());
 		string str;
-		vector<int> key, pattern, dimensions;
+		key_ key;
+		pattern_ pattern;
+		dimensions_ dimensions;
 		float cost;
 		int is_key = 0;
 		int is_cost = 0;
@@ -619,8 +648,12 @@ public:
 };
 
 class output {
+	string dir;
+	database *db;
 	vector<config_t> packlist;
 public:
+	vector<packlist_> packlist_vector;
+
 	output() { }
 
 	~output() {	}
@@ -633,14 +666,28 @@ public:
 		packlist.clear();
 	}
 
-	void exportpl(database* db) {
-		string output_list = db->dir + "/pack_list.txt";
+	void set_database(database* _db) {
+		db = _db;
+		dir.assign(db->get_dir());
+	}
+
+	void exportpl() {
+		int n = packlist_vector.size() - 1;
+		packlist = packlist_vector[n];
+
+		char f_s[100];
+		sprintf(f_s, "%s/pack_list_%d.txt", dir.c_str(), n);
 
 		ofstream ofs;
-		ofs.open(output_list.c_str());
+		ofs.open(f_s);
+
+		vector<int> origin(3, 0);
 
 		for (uint i = 0; i < packlist.size(); i++) {
 			config_t config = packlist[i];
+			if (i > 0)
+				origin[2] += packlist[i-1].get_height();
+			config.set_origin(origin);
 			ofs << "k " << config.key_s() << "\n";
 			ofs << "c " << config.cost_s() << "\n";
 			ofs << "p " << config.pattern_s() << "\n";
@@ -650,49 +697,161 @@ public:
 		ofs.close();
 	}
 
+	void importpl() {
+		struct stat buf;
+		char f_s[100];
+
+		int count = 0;
+		while (1) {
+			sprintf(f_s, "%s/pack_list_%d.txt", dir.c_str(), count);;
+			if(stat(f_s, &buf) != 0) break;
+			cerr << "Found packlist at " << f_s << endl;
+
+			ifstream ifs(f_s);
+			string str;
+			key_ key;
+			pattern_ pattern;
+			dimensions_ dimensions;
+			float cost;
+			int is_key = 0;
+			int is_cost = 0;
+			int is_pattern = 0;
+			int is_dims = 0;
+
+			while (ifs.good()) {
+				char c = ifs.get();
+				if (c != '\n') {
+					str.push_back(c);
+				} else {
+					switch (str.at(0)) {
+					case 'k':
+						key = database::deserialize_vector(str);
+						is_key = 1;
+						break;
+					case 'c':
+						cost = database::deserialize_cost(str);
+						is_cost = 1;
+						break;
+					case 'p':
+						pattern = database::deserialize_vector(str);
+						is_pattern = 1;
+						break;
+					case 'd':
+						dimensions = database::deserialize_vector(str);
+						is_dims = 1;
+						break;
+					default:
+						printf("error");
+					}
+					str.clear();
+
+					if (is_key && is_cost && is_pattern && is_dims) {
+						config_t c;
+						c.set(db, key, pattern);
+						packlist.push_back(c);
+						if (c.get_dimensions() != dimensions) {
+							cerr << "Error while importing packlist at ";
+							for (uint i = 0; i < c.get_key().size(); i++) {
+								cerr << c.get_key()[i] << " ";
+							}
+							cerr << endl;
+						}
+						key.clear();
+						pattern.clear();
+						dimensions.clear();
+						is_key = 0;
+						is_cost = 0;
+						is_pattern = 0;
+						is_dims = 0;
+					}
+				}
+			}
+			ifs.close();
+
+			packlist_vector.push_back(packlist);
+			packlist.clear();
+			count++;
+		}
+	}
+
+	double find_com_height() {
+		int h = 0;
+		int h_prev = 0;
+		int mass = 0;
+
+		for (uint i = 0; i < packlist.size(); i++) {
+			mass += packlist[i].get_weight();
+			h += packlist[i].get_weight()*((packlist[i].get_height()/2.0) + h_prev);
+			h_prev += packlist[i].get_height();
+		}
+
+		return (double) h/mass;
+	}
+
 	void run_mcmc(int iterations) {
 
-		double* t;
-		double* a;
-
 		int n = packlist.size();
-		t = new double(n*2);
-		a = new double(n*2);
+
+		vector<int> pos(n, 0);
+		double t[n][n];
+		double a[n][n];
 
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
+			pos.push_back(i);
+			for (int j = i; j < n; j++) {
 				if(packlist[i].get_weight() > packlist[j].get_weight()) {
-					t[i*n+j] = 0.8;
-					t[j*n+i] = 0.2;
+					t[i][j] = 8;
+					t[j][i] = 2;
 				}
 				else {
-					t[i*n+j] = 0.2;
-					t[j*n+i] = 0.8;
+					t[i][j] = 2;
+					t[j][i] = 8;
 				}
 			}
 		}
 
-		double pl = 1.0f;
-		double prev_pl = pl;
+		double pl = 1.0f, pl_new = pl;
 
 		while (iterations > 0) {
-
-			// make a random choice
+			pl = 1.0f;
+			pl_new = 1.0f;
 
 			for (int i = 0; i < n - 1; i++) {
-				pl += t[i * n] * t[(i + 1) * n];
+				pl *= t[i][i + 1];
 			}
 
-			if (pl > prev_pl) {
-				// accept choice
+			int e1 = rand()%n;
+			int e2 = rand()%n;
+
+			swap(packlist[e1], packlist[e2]);
+			for (int i = 0; i < n; i++) {
+				double temp = t[e1][i];
+				t[e1][i] = t[e2][i];
+				t[e2][i] = temp;
 			}
 
-			prev_pl = pl;
+			for (int i = 0; i < n - 1; i++) {
+				pl_new *= t[i][i + 1];
+			}
+
+			if ((pl_new  < pl) && !(coin_flip(pl_new/pl))) {
+				swap(packlist[e2], packlist[e1]);
+				for (int i = 0; i < n; i++) {
+					double temp = t[e1][i];
+					t[e1][i] = t[e2][i];
+					t[e2][i] = temp;
+				}
+			}
+			else {
+				//cout << "Accepted swap " << e1 << " and " << e2 << endl;
+			}
+
 			iterations--;
+			//cout << "Iteration " << iterations << " com: " << find_com_height() << endl;
+			packlist_vector.push_back(packlist);
+			exportpl();
 		}
 
-		delete t;
-		delete a;
 	}
 };
 

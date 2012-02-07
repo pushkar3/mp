@@ -11,6 +11,7 @@ int main(int   argc, char *argv[]) {
 	i.load("data");
 
 	d.get_input(i);
+	o.set_database(&d);
 	if (!d.importdb()) {
 		cerr << "Could not import database. End Program." << endl;
 		return 1;
@@ -117,7 +118,8 @@ int main(int   argc, char *argv[]) {
 	delete[] vars;
 	delete env;
 
-	o.exportpl(&d);
+	o.run_mcmc(20);
+	o.exportpl();
 
 	return 0;
 }

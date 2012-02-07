@@ -57,6 +57,10 @@ void config_t::set(database* db, key_ k, pattern_ p) {
 	corner3[2] = n_maxd;
 }
 
+vector<int> config_t::get_origin() {
+	return origin;
+}
+
 void config_t::set_origin(vector<int> o) {
 	origin = o;
 
@@ -122,6 +126,10 @@ void config_t::add(const config_t c) {
 
 	reset();
 	set(this->d, k, p);
+}
+
+int config_t::get_height() {
+	return n_maxd;
 }
 
 int config_t::get_area() {
