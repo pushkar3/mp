@@ -118,7 +118,8 @@ int main(int   argc, char *argv[]) {
 	delete[] vars;
 	delete env;
 
-	o.run_mcmc(20);
+	// o.clear();
+	o.run_mcmc(10);
 	o.exportpl();
 
 	return 0;
