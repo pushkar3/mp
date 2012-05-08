@@ -1,0 +1,9 @@
+System Requirements:
+
+cmake-2.6
+
+Run:
+
+cmake .
+make
+./pallet_planner ex1.order.xml ex1.packlist.xml 
