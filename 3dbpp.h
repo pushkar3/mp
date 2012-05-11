@@ -23,7 +23,7 @@ typedef vector<int> order_t;
 typedef vector<config_t> packlist_;
 
 static int hcf(int x, int y) {
-    int tmp;
+	int tmp;
 	if (x < y) {
 		tmp = x;
 		x = y;
@@ -52,10 +52,12 @@ static int fact(int n) {
 
 static int coin_flip(double p) {
 	int n = 10;
-	int x = n/2;
+	int x = n / 2;
 
-	double y = (fact(n)/(fact(x)*fact(n-x))) * pow(p, x) * pow(1.0-p, n-x);
-	if (y > 0.5) return 1;
+	double y = (fact(n) / (fact(x) * fact(n - x))) * pow(p, x) * pow(1.0 - p,
+			n - x);
+	if (y > 0.5)
+		return 1;
 	return 0;
 }
 
@@ -64,23 +66,13 @@ public:
 	int id, w, h, d, n;
 	int x, y, z;
 	int weight;
-	package_t(int _id, int _w, int _h, int _d, int _n) {
-		id = _id;
-		w = _w;
-		h = _h;
-		d = _d;
-		n = _n;
+	package_t(int _id, int _w, int _h, int _d, int _n) :
+		id(_id), w(_w), h(_h), d(_d), n(_n) {
 		x = y = z = 0;
 	}
 
-	package_t(int _id, int _w, int _h, int _d, int _x, int _y, int _z) {
-		id = _id;
-		w = _w;
-		h = _h;
-		d = _d;
-		x = _x;
-		y = _y;
-		z = _z;
+	package_t(int _id, int _w, int _h, int _d, int _x, int _y, int _z) :
+		id(_id), w(_w), h(_h), d(_d), x(_x), y(_y), z(_z) {
 	}
 
 	void set_weight(int _w) {
@@ -94,50 +86,10 @@ public:
 	int volume() {
 		return (w * d * h);
 	}
-};
 
-class config_t {
-	database* d;
-	vector<int> key;
-	vector<int> pattern;
-	float n_density;
-	int n_packs;
-	int n_area;
-	int n_maxw;
-	int n_maxd;
-	int n_maxh;
-
-	int n_tvolume;
-	int n_packvolume;
-	int n_packweight;
-
-	vector<int> origin;
-	vector<int> corner1, corner2, corner3;
-public:
-	config_t();
-	~config_t() { }
-	void reset();
-	void set(database* d, key_ key, pattern_ pattern);
-	vector<int> get_origin();
-	void set_origin(vector<int> o);
-	void eval();
-	bool operator == (const config_t &c);
-	bool is_bound();
-	bool is_layer();
-	friend ostream & operator <<(ostream &o, const config_t &c);
-	void add(const config_t c);
-	int get_height();
-	int get_area();
-	vector<int> get_corner(int i);
-	key_ get_key();
-	pattern_ get_pattern();
-	dimensions_ get_dimensions();
-	int get_weight();
-	string key_s();
-	string pattern_s();
-	string dimensions_s();
-	string cost_s();
-	float density();
+	void print() {
+		cout << id << " " << w << " " << h << " "  << d << " " << endl;
+	}
 };
 
 class bin_t {
@@ -148,12 +100,8 @@ public:
 		id = w = h = d = n = 0;
 	}
 
-	bin_t(int _id, int _w, int _h, int _d, int _n) {
-		id = _id;
-		w = _w;
-		h = _h;
-		d = _d;
-		n = _n;
+	bin_t(int _id, int _w, int _h, int _d, int _n) :
+		id(_id), w(_w), h(_h), d(_d), n(_n) {
 	}
 
 	int volume() {
@@ -183,123 +131,79 @@ struct classcomp {
 
 		return (d1 < d2);
 	}
+
+	bool operator()(const package_t& lhs, const package_t& rhs) const {
+		int l = lhs.w*lhs.d*lhs.h;
+		int r = rhs.w*rhs.d*rhs.h;
+		return (l < r);
+	}
+};
+
+class config_t {
+	database* d;
+	vector<int> key;
+	vector<int> pattern;
+	float n_density;
+	int n_packs;
+	int n_area;
+	int n_maxw;
+	int n_maxd;
+	int n_maxh;
+
+	int n_tvolume;
+	int n_packvolume;
+	int n_packweight;
+
+	vector<int> origin;
+	vector<int> corner1, corner2, corner3;
+public:
+	config_t();
+	~config_t() {
+	}
+	void reset();
+	void set(database* d, key_ key, pattern_ pattern);
+	vector<int> get_origin();
+	void set_origin(vector<int> o);
+	void eval();
+	bool operator ==(const config_t &c);
+	bool is_bound();
+	bool is_layer();
+	friend ostream & operator <<(ostream &o, const config_t &c);
+	void add(const config_t c);
+	int get_height();
+	int get_area();
+	vector<int> get_corner(int i);
+	key_ get_key();
+	pattern_ get_pattern();
+	dimensions_ get_dimensions();
+	int get_weight();
+	string key_s();
+	string pattern_s();
+	string dimensions_s();
+	string cost_s();
+	float density();
 };
 
 class input {
 public:
 
+	vector<package_t> package_orig;
 	vector<package_t> package;
 	bin_t bin;
 	order_t order;
 	string dir;
 
-	input() {
-	}
-
-	void load_package_list(const char* filename) {
-		ifstream ifs;
-		ifs.open(filename);
-
-		int id, w, h, d, n, weight;
-		while (!ifs.eof()) {
-			ifs >> id >> w >> h >> d >> n >> weight;
-			if (!ifs.good())
-				break;
-			package_t p(id, w, h, d, n);
-			p.set_weight(weight);
-			package.push_back(p);
-		}
-		ifs.close();
-	}
-
-	void print_package_list() {
-		for (uint i = 0; i < package.size(); i++) {
-			cout << package[i].id << " " << package[i].w << " "
-					<< package[i].h << " " << package[i].d << " "
-					<< package[i].n << endl;
-		}
-		cout << endl;
-	}
-
-	void load_bin_list(const char* filename) {
-		ifstream ifs;
-		ifs.open(filename);
-		int id, w, h, d, n;
-		while (!ifs.eof()) {
-			ifs >> id >> w >> h >> d >> n;
-			if (!ifs.good())
-				break;
-			bin_t b(id, w, h, d, n);
-			bin = b;
-		}
-		ifs.close();
-	}
-
-	void print_bin_list() {
-			cout << bin.id << " " << bin.w << " "
-					<< bin.h << " " << bin.d << " "	<< bin.n << endl;
-	}
-
-	void load_problem(const char* filename) {
-		ifstream ifs;
-		ifs.open(filename);
-		int id, quantity;
-		order_t o (package.size(), 0);
-
-		while (!ifs.eof()) {
-			ifs >> id >> quantity;
-			if (!ifs.good()) break;
-			for (uint i = 0; i < package.size(); i++) {
-				if (package[i].id == id) o[i] = quantity;
-			}
-		}
-		order = o;
-		ifs.close();
-	}
-
-	void print_problem() {
-		for (uint i = 0; i < order.size(); i++) {
-			cout << order[i] << " ";
-		}
-		cout << endl;
-	}
-
-	void load(const char* dirname) {
-		dir.assign(dirname);
-		string package_list = dir + "/package_list.txt";
-		string bin_list = dir + "/bin_list.txt";
-		string problem_list = dir + "/problem_list.txt";
-
-		struct stat buf;
-		if (stat(package_list.c_str(), &buf) == 0) {
-			cerr << "Loading " << package_list << endl;
-			load_package_list(package_list.c_str());
-		} else
-			cerr << "Package List not found at " << package_list
-					<< endl;
-
-		if (stat(bin_list.c_str(), &buf) == 0) {
-			cerr << "Loading " << bin_list << endl;
-			load_bin_list(bin_list.c_str());
-		} else
-			cerr << "Bin List not found at " << bin_list << endl;
-
-		if (stat(problem_list.c_str(), &buf) == 0) {
-			cerr << "Loading " << bin_list << endl;
-			load_problem(problem_list.c_str());
-		} else
-			cerr << "Problem List not found at " << problem_list
-					<< endl;
-	}
-
-	void print() {
-		cout << "Package List" << endl;
-		print_package_list();
-		cout << "Bin List" << endl;
-		print_bin_list();
-		cout << "Order" << endl;
-		print_problem();
-	}
+	input();
+	void load_package_list(const char* filename);
+	void print_package_list();
+	void load_bin_list(const char* filename);
+	void print_bin_list();
+	void load_problem(const char* filename);
+	void print_problem();
+	void load(const char* dirname);
+	void load_xml(const char* pre_c);
+	void print();
+	void exporti();
 };
 
 class database {
@@ -314,7 +218,8 @@ public:
 	string db_c, db_l;
 	config_t config_last;
 
-	database() { }
+	database() {
+	}
 
 	void set_dir(const char* dirname) {
 		dir.assign(dirname);
@@ -332,7 +237,7 @@ public:
 		order = i.order;
 		set_dir(i.dir.c_str());
 		db_c = dir + "/db_config.txt";
-		db_l= dir + "/db_layer.txt";
+		db_l = dir + "/db_layer.txt";
 
 		// bin juggad
 		int bin_add = 0;
@@ -343,15 +248,16 @@ public:
 				b.d = lcm(package[i].d, package[j].d);
 				bin_add = 1;
 				for (uint k = 0; k < bin_d.size(); k++) {
-					if(bin_d[k].d == b.d) {
+					if (bin_d[k].d == b.d) {
 						bin_add = 0;
 						break;
 					}
 				}
 
-				if(b.d > bin.d) bin_add = 0;
+				if (b.d > bin.d)
+					bin_add = 0;
 
-				if(bin_add) {
+				if (bin_add) {
 					bin_d.push_back(b);
 					bin_add = 0;
 				}
@@ -360,9 +266,8 @@ public:
 
 		cout << "New bins" << endl;
 		for (uint i = 0; i < bin_d.size(); i++) {
-			cout << bin_d[i].id << " " << bin_d[i].w << " "
-					<< bin_d[i].h << " " << bin_d[i].d << " "
-					<< bin_d[i].n << endl;
+			cout << bin_d[i].id << " " << bin_d[i].w << " " << bin_d[i].h
+					<< " " << bin_d[i].d << " " << bin_d[i].n << endl;
 		}
 		cout << endl;
 	}
@@ -376,10 +281,10 @@ public:
 		config.set(this, key, pattern);
 
 		multimap<key_, config_t>::iterator it;
-		pair <multimap<key_, config_t>::iterator, multimap<key_, config_t>::iterator> ret;
+		pair < multimap<key_, config_t>::iterator, multimap<key_, config_t>::iterator> ret;
 		ret = config_map.equal_range(key);
 		for (it = ret.first; it != ret.second; it++) {
-			if(config == (*it).second) {
+			if (config == (*it).second) {
 				return 0;
 			}
 		}
@@ -387,8 +292,9 @@ public:
 		config_map.insert(pair<key_, config_t> (key, config));
 		config_last = config;
 
-		if(config_last.is_layer()) {
-			layer_map.insert(pair<key_, config_t> (config_last.get_key(), config_last));
+		if (config_last.is_layer()) {
+			layer_map.insert(
+					pair<key_, config_t> (config_last.get_key(), config_last));
 		}
 
 		return 1;
@@ -415,7 +321,7 @@ public:
 		multimap<key_, config_t>::iterator it;
 		for (it = config_map.begin(); it != config_map.end(); it++) {
 			config_t c = (*it).second;
-			if(((float)(area - c.get_area())/(float)area) < 0.05)
+			if (((float) (area - c.get_area()) / (float) area) < 0.05)
 				layer_map.insert(pair<key_, config_t> (c.get_key(), c));
 		}
 	}
@@ -460,13 +366,14 @@ public:
 
 	static float deserialize_cost(string str) {
 		str = str.substr(2);
-		int i = atoi	(str.c_str());
+		int i = atoi(str.c_str());
 		return (float) i;
 	}
 
 	int importdb() {
 		struct stat buf;
-		if (stat(db_c.c_str(), &buf) != 0) return 0;
+		if (stat(db_c.c_str(), &buf) != 0)
+			return 0;
 		cerr << "Found config database at " << db_c << endl;
 
 		ifstream ifs(db_c.c_str());
@@ -508,8 +415,7 @@ public:
 				str.clear();
 
 				if (is_key && is_cost && is_pattern && is_dims) {
-					if (insert(key, pattern) )
-					{
+					if (insert(key, pattern)) {
 						config_t c = get_last_inserted_config();
 						if (c.get_dimensions() != dimensions) {
 							cerr << "Error while importing database at ";
@@ -577,7 +483,8 @@ public:
 			ofs << "    C" << i << "\tCOST" << "\t-1\n";
 			for (uint j = 0; j < c.get_key().size(); j++) {
 				if (c.get_key()[j] > 0)
-					ofs << "    C" << i << "\tR" << j << "\t" << c.get_key()[j] << ".\n";
+					ofs << "    C" << i << "\tR" << j << "\t" << c.get_key()[j]
+							<< ".\n";
 			}
 		}
 		ofs << "    MARK0001  'MARKER'                 'INTEND'\n";
@@ -616,8 +523,9 @@ public:
 			it = layer_map.begin();
 			ofs << ((*it).first)[i] << " c0";
 			it++;
-			for (j = 1	; it != layer_map.end(); it++, j++) {
-				if (((*it).first)[i] != 0) ofs <<  " + " << ((*it).first)[i] << " c" << j;
+			for (j = 1; it != layer_map.end(); it++, j++) {
+				if (((*it).first)[i] != 0)
+					ofs << " + " << ((*it).first)[i] << " c" << j;
 			}
 			ofs << " <= " << order[i];
 			ofs << "\n";
@@ -649,9 +557,11 @@ class output {
 public:
 	vector<packlist_> packlist_vector;
 
-	output() { }
+	output() {
+	}
 
-	~output() {	}
+	~output() {
+	}
 
 	void insert(config_t c) {
 		packlist.push_back(c);
@@ -682,7 +592,7 @@ public:
 		for (uint i = 0; i < packlist.size(); i++) {
 			config_t config = packlist[i];
 			if (i > 0)
-				origin[2] += packlist[i-1].get_height();
+				origin[2] += packlist[i - 1].get_height();
 			config.set_origin(origin);
 			ofs << "k " << config.key_s() << "\n";
 			ofs << "c " << config.cost_s() << "\n";
@@ -699,8 +609,10 @@ public:
 
 		int count = 0;
 		while (1) {
-			sprintf(f_s, "%s/pack_list_%d.txt", dir.c_str(), count);;
-			if(stat(f_s, &buf) != 0) break;
+			sprintf(f_s, "%s/pack_list_%d.txt", dir.c_str(), count);
+			;
+			if (stat(f_s, &buf) != 0)
+				break;
 			cerr << "Found packlist at " << f_s << endl;
 
 			ifstream ifs(f_s);
@@ -777,11 +689,12 @@ public:
 
 		for (uint i = 0; i < packlist.size(); i++) {
 			mass += packlist[i].get_weight();
-			h += packlist[i].get_weight()*((packlist[i].get_height()/2.0) + h_prev);
+			h += packlist[i].get_weight() * ((packlist[i].get_height() / 2.0)
+					+ h_prev);
 			h_prev += packlist[i].get_height();
 		}
 
-		return (double) h/mass;
+		return (double) h / mass;
 	}
 
 	void run_mcmc(int iterations) {
@@ -794,11 +707,10 @@ public:
 		for (int i = 0; i < n; i++) {
 			pos.push_back(i);
 			for (int j = i; j < n; j++) {
-				if(packlist[i].get_weight() > packlist[j].get_weight()) {
+				if (packlist[i].get_weight() > packlist[j].get_weight()) {
 					t[i][j] = 8;
 					t[j][i] = 2;
-				}
-				else if(packlist[i].get_weight() < packlist[j].get_weight()) {
+				} else if (packlist[i].get_weight() < packlist[j].get_weight()) {
 					t[i][j] = 2;
 					t[j][i] = 8;
 				}
@@ -815,8 +727,8 @@ public:
 				pl *= t[i][i + 1];
 			}
 
-			int e1 = rand()%n;
-			int e2 = rand()%n;
+			int e1 = rand() % n;
+			int e2 = rand() % n;
 
 			swap(packlist[e1], packlist[e2]);
 			for (int i = 0; i < n; i++) {
@@ -829,15 +741,14 @@ public:
 				pl_new *= t[i][i + 1];
 			}
 
-			if ((pl_new  < pl) && !(coin_flip(pl_new/pl))) {
+			if ((pl_new < pl) && !(coin_flip(pl_new / pl))) {
 				swap(packlist[e2], packlist[e1]);
 				for (int i = 0; i < n; i++) {
 					double temp = t[e1][i];
 					t[e1][i] = t[e2][i];
 					t[e2][i] = temp;
 				}
-			}
-			else {
+			} else {
 				//cout << "Accepted swap " << e1 << " and " << e2 << endl;
 			}
 

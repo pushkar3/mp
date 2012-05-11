@@ -22,6 +22,7 @@ set ( HEADERS
 set ( BPP_SRC
 3dbpp
 3dbpp_main
+3dbpp_input
 ext/packlist
 ext/response
 ext/xml_parser
@@ -30,13 +31,14 @@ ext/xml_parser
 set ( SIMPLEX_SRC
 simplex_main
 3dbpp
+3dbpp_input
 )
 
 include_directories (${HEADERS})
 add_executable (bpp_planner ${BPP_SRC})
-target_link_libraries (bpp_planner m pthread)
+target_link_libraries (bpp_planner m pthread tinyxml2)
 
 include_directories ($ENV{GUROBI_HOME}/include)
 link_directories ($ENV{GUROBI_HOME}/lib)
 add_executable (simplex_planner ${SIMPLEX_SRC})
-target_link_libraries (simplex_planner m pthread gurobi_c++ gurobi46 gurobi_g++4.1 gurobi_g++4.2)
+target_link_libraries (simplex_planner m pthread gurobi_c++ gurobi50 gurobi_g++4.1 gurobi_g++4.2 tinyxml2)

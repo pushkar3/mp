@@ -50,11 +50,11 @@ void binpack2(database *d) {
 }
 
 int main(int argc, char *argv[]) {
-
 	input i;
 	output o;
 	database d;
-	i.load("data");
+	//i.load("data");
+	i.load_xml("ex");
 	i.print();
 
 	d.get_input(i);
