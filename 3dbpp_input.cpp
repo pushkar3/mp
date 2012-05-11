@@ -3,7 +3,6 @@
 #include <tinyxml2.h>
 #include "3dbpp.h"
 
-using namespace std;
 using namespace tinyxml2;
 
 input::input() {

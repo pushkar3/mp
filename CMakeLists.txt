@@ -23,15 +23,19 @@ set ( BPP_SRC
 3dbpp
 3dbpp_main
 3dbpp_input
-ext/packlist
-ext/response
-ext/xml_parser
+3dbpp_output
+3dbpp_db
+#ext/packlist
+#ext/response
+#ext/xml_parser
 )
 
 set ( SIMPLEX_SRC
 simplex_main
 3dbpp
 3dbpp_input
+3dbpp_output
+3dbpp_db
 )
 
 include_directories (${HEADERS})
