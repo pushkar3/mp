@@ -233,6 +233,7 @@ public:
 	static float deserialize_cost(string str);
 	int importdb();
 	void printdb();
+	void printdb_stat();
 	void pose_mps(const char* filename);
 	void pose_lp(const char* filename);
 };

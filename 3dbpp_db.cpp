@@ -246,6 +246,12 @@ void database::printdb() {
 	cout << "Database End." << endl;
 }
 
+void database::printdb_stat() {
+	cout << "Total Configurations = " << config_map.size() << endl;
+	cout << "Total Layers = " << layer_map.size() << endl;
+	cout << endl;
+}
+
 void database::pose_mps(const char* filename) {
 	uint i = 0;
 	string str = dir + "/" + filename + ".mps";

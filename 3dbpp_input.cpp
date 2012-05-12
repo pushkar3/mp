@@ -26,9 +26,10 @@ void input::load_package_list(const char* filename) {
 }
 
 void input::print_package_list() {
+	cout << "Id \t W \t H \t D \t N" << endl;
 	for (uint i = 0; i < package.size(); i++) {
-		cout << package[i].id << " " << package[i].w << " " << package[i].h
-				<< " " << package[i].d << " " << package[i].n << endl;
+		cout << package[i].id << "\t" << package[i].w << "\t" << package[i].h
+				<< "\t" << package[i].d << "\t" << package[i].n << endl;
 	}
 	cout << endl;
 }
@@ -48,8 +49,10 @@ void input::load_bin_list(const char* filename) {
 }
 
 void input::print_bin_list() {
-	cout << bin.id << " " << bin.w << " " << bin.h << " " << bin.d << " "
+	cout << "Id \t W \t H \t D \t N" << endl;
+	cout << bin.id << "\t" << bin.w << "\t" << bin.h << "\t" << bin.d << "\t"
 			<< bin.n << endl;
+	cout << endl;
 }
 
 void input::load_problem(const char* filename) {
@@ -70,8 +73,9 @@ void input::load_problem(const char* filename) {
 }
 
 void input::print_problem() {
+	cout << "Id \t N" << endl;
 	for (uint i = 0; i < order.size(); i++) {
-		cout << order[i] << " ";
+		cout << package[i].id << "\t" << order[i] << endl;
 	}
 	cout << endl;
 }
@@ -191,7 +195,7 @@ void input::exporti() {
 
 	ofstream ofs(package_list.c_str());
 	for (int i = 0; i < package.size(); i++)
-		ofs << package[i].id << " " << package[i].w << " " << package[i].h << " " << package[i].d << " " << package[i].n << endl;
+		ofs << package[i].id << " " << package[i].w << " " << package[i].h << " " << package[i].d << " " << package[i].n << " " << package[i].weight << endl;
 	ofs.close();
 
 	ofs.open(bin_list.c_str());
@@ -200,6 +204,6 @@ void input::exporti() {
 
 	ofs.open(problem_list.c_str());
 	for (int i = 0; i < order.size(); i++)
-		ofs << i << " " << order[i] << endl;
+		ofs << package[i].id << " " << order[i] << endl;
 	ofs.close();
 }
