@@ -41,9 +41,9 @@ void binpack2(database *d) {
 					d->insert(c1.get_key(), c1.get_pattern());
 				}
 			}
-			if (++n % 10 == 0) {
-				printf("Database size: c %d, l %d\r", d->config_map.size(), d->layer_map.size());
+			if (++n % 100 == 0) {
 				d->exportdb();
+				printf("Database size: c %d, l %d\r", d->config_map.size(), d->layer_map.size());
 			}
 		}
 	}
@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
 	cout << "Starting binpacking" << endl;
 
 	if (!d.importdb()) {
+		d.initdb();
 		binpack2(&d);
 		d.exportdb();
 	}

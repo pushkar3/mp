@@ -21,7 +21,6 @@ void help() {
 }
 
 int main(int argc, char *argv[]) {
-
 	int verbose = 0;
 
 	if (argc < 2) {

@@ -10,7 +10,11 @@
 #include <sys/stat.h>
 #include <cmath>
 
+#include <boost/interprocess/sync/file_lock.hpp>
+#include <boost/interprocess/sync/sharable_lock.hpp>
+
 using namespace std;
+using namespace boost::interprocess;
 
 class database;
 class config_t;
@@ -231,6 +235,7 @@ public:
 	void exportdb();
 	static vector<int> deserialize_vector(string str);
 	static float deserialize_cost(string str);
+	void initdb();
 	int importdb();
 	void printdb();
 	void printdb_stat();

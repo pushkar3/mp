@@ -115,7 +115,13 @@ void database::find_layers() {
 }
 
 void database::exportdb() {
-	ofstream ofs(db_c.c_str());
+
+	ofstream ofs;
+
+	file_lock config_lock(db_c.c_str());
+	config_lock.lock();
+	ofs.open(db_c.c_str());
+
 	multimap<key_, config_t>::iterator it;
 
 	for (it = config_map.begin(); it != config_map.end(); it++) {
@@ -125,9 +131,15 @@ void database::exportdb() {
 		ofs << "p " << config.pattern_s() << "\n";
 		ofs << "d " << config.dimensions_s() << "\n";
 	}
+	ofs.flush();
 	ofs.close();
+	config_lock.unlock();
 
+
+	file_lock layer_lock(db_l.c_str());
+	layer_lock.lock();
 	ofs.open(db_l.c_str());
+
 	for (it = layer_map.begin(); it != layer_map.end(); it++) {
 		config_t config = (*it).second;
 		ofs << "k " << config.key_s() << "\n";
@@ -135,7 +147,9 @@ void database::exportdb() {
 		ofs << "p " << config.pattern_s() << "\n";
 		ofs << "d " << config.dimensions_s() << "\n";
 	}
+	ofs.flush();
 	ofs.close();
+	layer_lock.unlock();
 }
 
 vector<int> database::deserialize_vector(string str) {
@@ -158,12 +172,29 @@ float database::deserialize_cost(string str) {
 	return (float) i;
 }
 
+void database::initdb() {
+	struct stat buf;
+	if (stat(db_c.c_str(), &buf) != 0) {
+		ofstream ofs;
+		ofs.open(db_c.c_str());
+		usleep(1000);
+		ofs.close();
+	}
+	if (stat(db_l.c_str(), &buf) != 0) {
+		ofstream ofs;
+		ofs.open(db_l.c_str());
+		usleep(1000);
+		ofs.close();
+	}
+}
+
 int database::importdb() {
 	struct stat buf;
-	if (stat(db_c.c_str(), &buf) != 0)
-		return 0;
+	if (stat(db_c.c_str(), &buf) != 0) return 0;
 	cerr << "Found config database at " << db_c << endl;
 
+	file_lock config_lock(db_c.c_str());
+	config_lock.lock();
 	ifstream ifs(db_c.c_str());
 	string str;
 	key_ key;
@@ -224,6 +255,7 @@ int database::importdb() {
 		}
 	}
 	ifs.close();
+	config_lock.unlock();
 
 	if (stat(db_l.c_str(), &buf) == 0) {
 		cout << "Found layer database, but will skip import" << endl;
