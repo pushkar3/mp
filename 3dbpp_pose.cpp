@@ -10,7 +10,7 @@ using namespace std;
 
 void help() {
 	cout << "./stat Output stats for the database folder" << endl;
-	cout << "Usage: ./stat <foldername>" << endl;
+	cout << "Usage: ./pose <foldername>" << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -19,12 +19,6 @@ int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		help();
 		return 0;
-	}
-
-	if (argc > 2) {
-		if(strcmp(argv[1], "-v") == 0) verbose = 1;
-		if(strcmp(argv[1], "-vv") == 0) verbose = 2;
-		if(strcmp(argv[1], "-vvv") == 0) verbose = 3;
 	}
 
 	string dir(argv[argc-1]);
@@ -36,12 +30,7 @@ int main(int argc, char *argv[]) {
 	d.get_input(i);
 	d.importdb();
 
-	//o.set_database(&d);
-	//o.importpl();
-
-	d.printdb_stat();
-	if(verbose > 0) i.print();
-	if(verbose > 1) d.printdb();
+	d.pose_lp("prob");
 
 	return 0;
 }

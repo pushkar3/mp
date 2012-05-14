@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <cmath>
 
+#include <tinyxml2.h>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/interprocess/sync/sharable_lock.hpp>
 
@@ -162,8 +163,7 @@ class config_t {
 	vector<int> corner1, corner2, corner3;
 public:
 	config_t();
-	~config_t() {
-	}
+	~config_t();
 	void reset();
 	void set(database* d, key_ key, pattern_ pattern);
 	vector<int> get_origin();
@@ -224,11 +224,13 @@ public:
 
 	database();
 	~database();
+	database(const database& d);
 	void set_dir(const char* dirname);
 	const char* get_dir();
 	void get_input(input i);
 	int insert(config_t c);
 	int insert(key_ key, pattern_ pattern);
+	int insert(multimap<key_, config_t, classcomp> _config_map, multimap<key_, config_t, classcomp> _layer_map);
 	config_t get_last_inserted_config();
 	config_t get_layer_from_name(string str);
 	void find_layers();
@@ -238,6 +240,7 @@ public:
 	void initdb();
 	int importdb();
 	void printdb();
+	void cleandb();
 	void printdb_stat();
 	void pose_mps(const char* filename);
 	void pose_lp(const char* filename);
@@ -247,6 +250,12 @@ class output {
 	string dir;
 	database *db;
 	vector<config_t> packlist;
+	tinyxml2::XMLDocument doc;
+
+	tinyxml2::XMLElement* newTiXMLElement(const char* name, const char* value);
+	tinyxml2::XMLElement* newTiXMLElement(const char* name, int value);
+	tinyxml2::XMLElement* newTiXMLElement(const char* name);
+
 public:
 	vector<packlist_> packlist_vector;
 

@@ -8,6 +8,10 @@ config_t::config_t() {
 	reset();
 }
 
+config_t::~config_t() {
+
+}
+
 void config_t::reset() {
 	key.clear();
 	pattern.clear();

@@ -9,6 +9,18 @@ database::database() {
 database::~database() {
 }
 
+database::database(const database& d) {
+	config_map.clear();
+	layer_map.clear();
+	package = d.package;
+	bin = d.bin;
+	bin_d = d.bin_d;
+	order = d.order;
+	dir = d.dir;
+	db_c = d.db_c;
+	db_l = d.db_l;
+}
+
 void database::set_dir(const char* dirname) {
 	dir.assign(dirname);
 }
@@ -81,11 +93,15 @@ int database::insert(key_ key, pattern_ pattern) {
 	config_last = config;
 
 	if (config_last.is_layer()) {
-		layer_map.insert(
-				pair<key_, config_t> (config_last.get_key(), config_last));
+		layer_map.insert(pair<key_, config_t> (config_last.get_key(), config_last));
 	}
 
 	return 1;
+}
+
+int database::insert(multimap<key_, config_t, classcomp> _config_map, multimap<key_, config_t, classcomp> _layer_map) {
+	config_map.insert(_config_map.begin(), _config_map.end());
+	layer_map.insert(_layer_map.begin(), _layer_map.end());
 }
 
 config_t database::get_last_inserted_config() {
@@ -276,6 +292,13 @@ void database::printdb() {
 		cout << "d " << config.dimensions_s() << "\n";
 	}
 	cout << "Database End." << endl;
+}
+
+void database::cleandb() {
+	package.clear();
+	bin_d.clear();
+	config_map.clear();
+	layer_map.clear();
 }
 
 void database::printdb_stat() {

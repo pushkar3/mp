@@ -42,6 +42,10 @@ add_executable (bpp_stat 3dbpp_stat ${BPP_SRC})
 target_link_libraries (bpp_stat m pthread tinyxml2)
 
 include_directories (${HEADERS})
+add_executable (bpp_pose 3dbpp_pose ${BPP_SRC})
+target_link_libraries (bpp_pose m pthread tinyxml2)
+
+include_directories (${HEADERS})
 add_executable (bpp_planner 3dbpp_main ${BPP_SRC})
 target_link_libraries (bpp_planner m pthread tinyxml2)
 

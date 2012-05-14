@@ -51,8 +51,74 @@ void output::exportpl() {
 	ofs.close();
 }
 
+XMLElement* output::newTiXMLElement(const char* name, const char* value) {
+	XMLElement* element = doc.NewElement(name);
+	XMLText* text = doc.NewText(value);
+	element->LinkEndChild(text);
+	return element;
+}
+
+XMLElement* output::newTiXMLElement(const char* name, int value) {
+	string str;
+	str += value;
+	return newTiXMLElement(name, str.c_str());
+}
+
+XMLElement* output::newTiXMLElement(const char* name) {
+	return doc.NewElement(name);
+}
+
 void output::savepl_xml() {
-	cout << "Implement this!" << endl;
+	int order_id_val = 1;
+
+	string str;
+
+	XMLElement* packlist_root = newTiXMLElement("Packlist");
+	XMLElement* order_id = newTiXMLElement("OrderID", order_id_val);
+	XMLElement* packpallets = newTiXMLElement("PackPallets");
+	packlist_root->LinkEndChild(order_id);
+	packlist_root->LinkEndChild(packpallets);
+
+	// Mulitplies with the number of pallets
+	XMLElement* packpallet = newTiXMLElement("PackPallet");
+	packpallets->LinkEndChild(packpallet);
+
+	XMLElement* palletnumber = newTiXMLElement("PalletNumber", 1);
+	XMLElement* bruttoweight = newTiXMLElement("BruttoWeight", 0);
+	XMLElement* numofpackages = newTiXMLElement("NumberofPackages", packlist.size());
+	XMLElement* description = newTiXMLElement("Description");
+	XMLElement* dimensions = newTiXMLElement("Dimensions");
+	XMLElement* length = newTiXMLElement("Length", db->bin.w);
+	XMLElement* width = newTiXMLElement("Width", db->bin.h);
+	XMLElement* height = newTiXMLElement("MaxLoadHeight", db->bin.d);
+	XMLElement* weight = newTiXMLElement("MaxLoadWeight", 500);
+	dimensions->LinkEndChild(length);
+	dimensions->LinkEndChild(width);
+	dimensions->LinkEndChild(height);
+	dimensions->LinkEndChild(weight);
+
+	XMLElement* overhang = newTiXMLElement("Overhang");
+	XMLElement* overhang_length = newTiXMLElement("Length", 0);
+	XMLElement* overhang_width = newTiXMLElement("Width", 0);
+	overhang->LinkEndChild(overhang_length);
+	overhang->LinkEndChild(overhang_width);
+
+	XMLElement* packages = newTiXMLElement("Packages");
+	for (int i = 0; i < packlist.size(); i++) {
+		XMLElement* package = newTiXMLElement("package");
+		//Everything package
+		packages->LinkEndChild(package);
+	}
+
+	packpallet->LinkEndChild(palletnumber);
+	packpallet->LinkEndChild(bruttoweight);
+	packpallet->LinkEndChild(numofpackages);
+	packpallet->LinkEndChild(description);
+	packpallet->LinkEndChild(dimensions);
+	packpallet->LinkEndChild(overhang);
+	packpallet->LinkEndChild(packages);
+
+	doc.SaveFile("op.packlist.xml");
 }
 
 void output::importpl() {
