@@ -225,6 +225,7 @@ public:
 	database();
 	~database();
 	database(const database& d);
+	database clone();
 	void set_dir(const char* dirname);
 	const char* get_dir();
 	void get_input(input i);

@@ -21,6 +21,20 @@ database::database(const database& d) {
 	db_l = d.db_l;
 }
 
+database database::clone() {
+	database db;
+	db.config_map = config_map;
+	db.layer_map = layer_map;
+	db.package = package;
+	db.bin = bin;
+	db.bin_d = bin_d;
+	db.order = order;
+	db.dir = dir;
+	db.db_c = db_c;
+	db.db_l = db_l;
+	return db;
+}
+
 void database::set_dir(const char* dirname) {
 	dir.assign(dirname);
 }
