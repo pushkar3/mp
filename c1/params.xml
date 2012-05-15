@@ -1,0 +1,6 @@
+<params>
+  <layer_density_threshold>0.25</layer_density_threshold>
+  <max_configmap_ittr>10000</max_configmap_ittr>
+  <single_package_layering_threshold>0.005</single_package_layering_threshold>
+  <multiple_package_layering_threshold>0.05</multiple_package_layering_threshold>
+</params>

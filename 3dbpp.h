@@ -15,10 +15,14 @@
 #include <boost/interprocess/sync/sharable_lock.hpp>
 
 using namespace std;
+using namespace tinyxml2;
 using namespace boost::interprocess;
 
+class bpp_param;
 class database;
 class config_t;
+
+extern bpp_param param;
 
 typedef double cost;
 typedef vector<int> key_;
@@ -142,6 +146,16 @@ struct classcomp {
 		int r = rhs.w*rhs.d*rhs.h;
 		return (l < r);
 	}
+};
+
+class bpp_param {
+	XMLDocument doc;
+	XMLElement* params;
+public:
+	bpp_param();
+	~bpp_param();
+	int load(const char* dir);
+	double get(const char* name);
 };
 
 class config_t {

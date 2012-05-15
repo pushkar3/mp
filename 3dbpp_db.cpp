@@ -40,6 +40,8 @@ void database::get_input(input i) {
 	db_c = dir + "/db_config.txt";
 	db_l = dir + "/db_layer.txt";
 
+	param.load(dir.c_str());
+
 	// bin juggad
 	int bin_add = 0;
 	bin = i.bin;
@@ -128,7 +130,7 @@ void database::find_layers() {
 	multimap<key_, config_t>::iterator it;
 	for (it = config_map.begin(); it != config_map.end(); it++) {
 		config_t c = (*it).second;
-		if (((double) (area - c.get_area()) / (double) area) < 0.25)
+		if (((double) (area - c.get_area()) / (double) area) < param.get("layer_density_threshold"))
 			layer_map.insert(pair<key_, config_t> (c.get_key(), c));
 	}
 }

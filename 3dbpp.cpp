@@ -1,8 +1,30 @@
 #include <iostream>
 #include <sstream>
+#include <tinyxml2.h>
 #include "3dbpp.h"
 
 using namespace std;
+using namespace tinyxml2;
+
+bpp_param param;
+
+bpp_param::bpp_param() {
+}
+
+bpp_param::~bpp_param() {
+}
+
+int bpp_param::load(const char* dir) {
+	string filename(dir);
+	filename += "/params.xml";
+	doc.LoadFile(filename.c_str());
+	params = doc.FirstChildElement("params");
+}
+
+double bpp_param::get(const char* name) {
+	return atof(params->FirstChildElement(name)->GetText());
+}
+
 
 config_t::config_t() {
 	reset();

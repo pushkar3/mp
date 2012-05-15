@@ -56,7 +56,7 @@ public:
 	}
 
 	void set_singlepackage(database* db, int _key, int _hmax) {
-		tolerance = 0.005f;
+		tolerance = param.get("single_package_layering_threshold");
 		is_singlepackage = 1;
 		package_key = _key;
 		h_max = _hmax;
@@ -74,7 +74,7 @@ public:
 	}
 
 	void set_multiplepackage(database db1, database db2, double _hmax) {
-		tolerance = 0.05f;
+		tolerance = param.get("multiple_package_layering_threshold");
 		h_max = _hmax;
 		d1 = db1.clone();
 		d2 = db2.clone();
@@ -127,7 +127,7 @@ public:
 				}
 			}
 
-			if(n > 10000) {
+			if(n > (int) param.get("max_configmap_ittr")) {
 				cout << RED"Reached computation limit!"NORMAL << endl;
 				break;
 			}
@@ -151,7 +151,7 @@ public:
 				}
 			}
 
-			if(n > 10000) {
+			if(n > (int) param.get("max_configmap_ittr")) {
 				cout << RED"Reached computation limit!"NORMAL << endl;
 				break;
 			}
