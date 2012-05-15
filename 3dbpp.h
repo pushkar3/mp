@@ -20,7 +20,7 @@ using namespace boost::interprocess;
 class database;
 class config_t;
 
-typedef float cost;
+typedef double cost;
 typedef vector<int> key_;
 typedef vector<int> pattern_;
 typedef vector<int> dimensions_;
@@ -117,8 +117,8 @@ public:
 		package_list.push_back(p);
 	}
 
-	float density() {
-		float d = 0;
+	double density() {
+		double d = 0;
 		for (uint i = 0; i < package_list.size(); i++) {
 			d += package_list[i].volume();
 		}
@@ -148,7 +148,7 @@ class config_t {
 	database* d;
 	vector<int> key;
 	vector<int> pattern;
-	float n_density;
+	double n_density;
 	int n_packs;
 	int n_area;
 	int n_maxw;
@@ -188,7 +188,7 @@ public:
 	string pattern_s();
 	string dimensions_s();
 	string cost_s();
-	float density();
+	double density();
 };
 
 class input {
@@ -239,7 +239,7 @@ public:
 	void find_layers();
 	void exportdb();
 	static vector<int> deserialize_vector(string str);
-	static float deserialize_cost(string str);
+	static double deserialize_cost(string str);
 	void initdb();
 	int importdb();
 	void printdb();

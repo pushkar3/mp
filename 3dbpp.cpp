@@ -53,7 +53,7 @@ void config_t::set(database* db, key_ k, pattern_ p) {
 	n_packs = c;
 	n_tvolume = n_maxw * n_maxh * n_maxd;
 	if (n_tvolume != 0)
-		n_density = (float) ((float)(n_packvolume) / (float)(n_tvolume));
+		n_density = (double) ((double)(n_packvolume) / (double)(n_tvolume));
 	n_area = n_maxw * n_maxh;
 
 	corner1[0] = n_maxw;
@@ -85,7 +85,7 @@ bool config_t::is_bound() {
 
 bool config_t::is_layer() {
 	int area = d->bin.w * d->bin.h;
-	return(((float)(area - get_area())/(float)area) < 0.15);
+	return(((double)(area - get_area())/(double)area) < 0.15);
 }
 
 ostream & operator << (ostream &o, const config_t &c) {
@@ -182,7 +182,7 @@ int config_t::get_totalvolume() {
 	return n_tvolume;
 }
 
-float config_t::density() {
+double config_t::density() {
 	return n_density;
 }
 

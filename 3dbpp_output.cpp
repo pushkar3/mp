@@ -137,7 +137,7 @@ void output::importpl() {
 		key_ key;
 		pattern_ pattern;
 		dimensions_ dimensions;
-		float cost;
+		double cost;
 		int is_key = 0;
 		int is_cost = 0;
 		int is_pattern = 0;

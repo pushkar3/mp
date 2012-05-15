@@ -128,7 +128,7 @@ void database::find_layers() {
 	multimap<key_, config_t>::iterator it;
 	for (it = config_map.begin(); it != config_map.end(); it++) {
 		config_t c = (*it).second;
-		if (((float) (area - c.get_area()) / (float) area) < 0.15)
+		if (((double) (area - c.get_area()) / (double) area) < 0.25)
 			layer_map.insert(pair<key_, config_t> (c.get_key(), c));
 	}
 }
@@ -185,10 +185,10 @@ vector<int> database::deserialize_vector(string str) {
 	return vec;
 }
 
-float database::deserialize_cost(string str) {
+double database::deserialize_cost(string str) {
 	str = str.substr(2);
 	int i = atoi(str.c_str());
-	return (float) i;
+	return (double) i;
 }
 
 void database::initdb() {
@@ -219,7 +219,7 @@ int database::importdb() {
 	key_ key;
 	pattern_ pattern;
 	dimensions_ dimensions;
-	float cost;
+	double cost;
 	int is_key = 0;
 	int is_cost = 0;
 	int is_pattern = 0;

@@ -19,17 +19,17 @@ using namespace std;
 using namespace tinyxml2;
 
 struct configcomp {
-	static bool compare(config_t c1, config_t c2, float tolerance) {
-		float diff = fabs(c1.density() - c2.density())/max(c1.density(), c2.density());
+	static bool compare(config_t c1, config_t c2, double tolerance) {
+		double diff = fabs(c1.density() - c2.density())/max(c1.density(), c2.density());
 		return (diff < tolerance && c1.is_bound() && c2.is_bound());
 	}
 };
 
 class binpack_job {
-	float tolerance;
+	double tolerance;
 	int is_singlepackage;
 	int package_key;
-	float h_max;
+	double h_max;
 	int completed;
 public:
 	database d;
@@ -47,7 +47,7 @@ public:
 		return is_singlepackage;
 	}
 
-	float get_height() {
+	double get_height() {
 		return h_max;
 	}
 
@@ -70,7 +70,7 @@ public:
 		d1.insert(key, pattern);
 	}
 
-	void set_multiplepackage(database db1, database db2, float _hmax) {
+	void set_multiplepackage(database db1, database db2, double _hmax) {
 		tolerance = 0.05f;
 		h_max = _hmax;
 		d1 = db1.clone();
