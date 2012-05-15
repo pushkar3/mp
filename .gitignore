@@ -28,6 +28,9 @@ lib/
 *.a
 *.so
 *.xml
+*.txt
+*.lp
+*.mps
 .settings
 icra2011TestFiles
 bpp_planner

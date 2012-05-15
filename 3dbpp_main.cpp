@@ -214,18 +214,18 @@ void help() {
 }
 
 int main(int argc, char *argv[]) {
-//	if (argc < 2) {
-//		help();
-//		return 0;
-//	}
+	if (argc < 2) {
+		help();
+		return 0;
+	}
 
 	string dir(argv[argc-1]);
 
 	input i;
 	output o;
 	database d;
-	//i.load("c2");
-	i.load_xml("c2");
+	//i.load(dir.c_str());
+	i.load_xml(dir.c_str());
 	i.print();
 
 	d.get_input(i);

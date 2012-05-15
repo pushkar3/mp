@@ -59,9 +59,9 @@ XMLElement* output::newTiXMLElement(const char* name, const char* value) {
 }
 
 XMLElement* output::newTiXMLElement(const char* name, int value) {
-	string str;
-	str += value;
-	return newTiXMLElement(name, str.c_str());
+	char str[10];
+	sprintf(str, "%d", value);
+	return newTiXMLElement(name, str);
 }
 
 XMLElement* output::newTiXMLElement(const char* name) {
@@ -118,7 +118,10 @@ void output::savepl_xml() {
 	packpallet->LinkEndChild(overhang);
 	packpallet->LinkEndChild(packages);
 
-	doc.SaveFile("op.packlist.xml");
+	doc.LinkEndChild(packlist_root);
+
+	string packlist_file = dir + "/packlist.xml";
+	doc.SaveFile(packlist_file.c_str());
 }
 
 void output::importpl() {

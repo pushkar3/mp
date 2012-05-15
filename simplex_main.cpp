@@ -4,11 +4,23 @@
 
 using namespace std;
 
+void help() {
+	cout << "./simplex Solves IP to give packlist" << endl;
+	cout << "Usage: ./simplex <foldername>" << endl;
+}
+
 int main(int   argc, char *argv[]) {
+	if (argc < 2) {
+		help();
+		return 0;
+	}
+
+	string dir(argv[argc-1]);
+
 	input i;
 	output o;
 	database d;
-	i.load("data");
+	i.load(dir.c_str());
 
 	d.get_input(i);
 	o.set_database(&d);
@@ -17,11 +29,13 @@ int main(int   argc, char *argv[]) {
 		return 1;
 	}
 
+	string lp_path = dir + "/prob.lp";
+
 	GRBEnv *env = 0;
 	GRBVar *vars = 0, *fvars = 0;
 	try {
 		env = new GRBEnv();
-		GRBModel model = GRBModel(*env, "data/prob.lp");
+		GRBModel model = GRBModel(*env, lp_path.c_str());
 
 		if (model.get(GRB_IntAttr_IsMIP) == 0) {
 			throw GRBException("Model is not a MIP");
@@ -118,9 +132,10 @@ int main(int   argc, char *argv[]) {
 	delete[] vars;
 	delete env;
 
-	// o.clear();
+//	o.clear();
 	o.run_mcmc(10);
 	o.exportpl();
+	o.savepl_xml();
 
 	return 0;
 }
