@@ -184,6 +184,7 @@ public:
 	int get_weight();
 	int get_packagevolume();
 	int get_totalvolume();
+	int get_totalpacks();
 	string key_s();
 	string pattern_s();
 	string dimensions_s();
@@ -254,6 +255,7 @@ class output {
 	database *db;
 	vector<config_t> packlist;
 	tinyxml2::XMLDocument doc;
+	vector<int> order_remaining;
 
 	tinyxml2::XMLElement* newTiXMLElement(const char* name, const char* value);
 	tinyxml2::XMLElement* newTiXMLElement(const char* name, int value);
@@ -270,6 +272,7 @@ public:
 	void exportpl();
 	void savepl_xml();
 	void importpl();
+	void find_order_remaining();
 	double find_com_height();
 	void run_mcmc(int iterations);
 };

@@ -182,6 +182,10 @@ int config_t::get_totalvolume() {
 	return n_tvolume;
 }
 
+int config_t::get_totalpacks() {
+	return n_packs;
+}
+
 double config_t::density() {
 	return n_density;
 }

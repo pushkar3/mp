@@ -134,6 +134,7 @@ int main(int   argc, char *argv[]) {
 
 //	o.clear();
 	o.run_mcmc(10);
+	o.find_order_remaining();
 	o.exportpl();
 	o.savepl_xml();
 

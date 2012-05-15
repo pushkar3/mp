@@ -16,8 +16,9 @@ void output::insert(config_t c) {
 }
 
 void output::clear() {
-	packlist_vector.push_back(packlist);
-	packlist.clear();
+	// todo: Bugged
+//	packlist_vector.push_back(packlist);
+//	packlist.clear();
 }
 
 void output::set_database(database* _db) {
@@ -104,10 +105,84 @@ void output::savepl_xml() {
 	overhang->LinkEndChild(overhang_width);
 
 	XMLElement* packages = newTiXMLElement("Packages");
+	int n = 0;
+	int h_before = 0;
+	vector<int> origin(3, 0);
 	for (int i = 0; i < packlist.size(); i++) {
-		XMLElement* package = newTiXMLElement("package");
-		//Everything package
-		packages->LinkEndChild(package);
+		config_t c = packlist[i];
+		if (i > 0) {
+			h_before = packlist[i-1].get_height();
+			origin[2] += h_before;
+		}
+		c.set_origin(origin);
+		int c1 = 0;
+		for (int j = 0; j < c.get_key().size(); j++) {
+			for (int k = 0; k < c.get_key()[j]; k++) {
+				XMLElement* package = newTiXMLElement("Package");
+				XMLElement* packageseq = newTiXMLElement("PackSequence", n++);
+				XMLElement* article = newTiXMLElement("Article");
+				XMLElement* article_id = newTiXMLElement("ID", db->package[j].id);
+				XMLElement* article_desc = newTiXMLElement("Description");
+				XMLElement* article_type = newTiXMLElement("Type", 0);
+				XMLElement* article_l = newTiXMLElement("Length", db->package[j].w);
+				XMLElement* article_w = newTiXMLElement("Width", db->package[j].h);
+				XMLElement* article_h = newTiXMLElement("Height", db->package[j].d);
+				XMLElement* article_W = newTiXMLElement("Weight", db->package[j].weight);
+				XMLElement* article_family = newTiXMLElement("Family", 0);
+				article->LinkEndChild(article_id);
+				article->LinkEndChild(article_desc);
+				article->LinkEndChild(article_type);
+				article->LinkEndChild(article_l);
+				article->LinkEndChild(article_w);
+				article->LinkEndChild(article_h);
+				article->LinkEndChild(article_W);
+				article->LinkEndChild(article_family);
+				XMLElement* barcode = newTiXMLElement("Barcode");
+				XMLElement* placeposition = newTiXMLElement("PlacePosition");
+				XMLElement* placeposition_x = newTiXMLElement("X", c.get_pattern()[c1*3+0]);
+				XMLElement* placeposition_y = newTiXMLElement("X", c.get_pattern()[c1*3+1]);
+				XMLElement* placeposition_z = newTiXMLElement("X", c.get_pattern()[c1*3+2]);
+				placeposition->LinkEndChild(placeposition_x);
+				placeposition->LinkEndChild(placeposition_y);
+				placeposition->LinkEndChild(placeposition_z);
+				XMLElement* orientation = newTiXMLElement("Orientation", 1); // todo
+				XMLElement* approachpoint1 = newTiXMLElement("ApproachPoint1");
+				XMLElement* approachpoint2 = newTiXMLElement("ApproachPoint2");
+				XMLElement* approachpoint3 = newTiXMLElement("ApproachPoint3");
+				XMLElement* approach1_x = newTiXMLElement("X", 0);
+				XMLElement* approach1_y = newTiXMLElement("Y", 0);
+				XMLElement* approach1_z = newTiXMLElement("Z", 0);
+				approachpoint1->LinkEndChild(approach1_x);
+				approachpoint1->LinkEndChild(approach1_y);
+				approachpoint1->LinkEndChild(approach1_z);
+				XMLElement* approach2_x = newTiXMLElement("X", 0);
+				XMLElement* approach2_y = newTiXMLElement("Y", 0);
+				XMLElement* approach2_z = newTiXMLElement("Z", 0);
+				approachpoint2->LinkEndChild(approach2_x);
+				approachpoint2->LinkEndChild(approach2_y);
+				approachpoint2->LinkEndChild(approach2_z);
+				XMLElement* approach3_x = newTiXMLElement("X", 0);
+				XMLElement* approach3_y = newTiXMLElement("Y", 0);
+				XMLElement* approach3_z = newTiXMLElement("Z", 0);
+				approachpoint3->LinkEndChild(approach3_x);
+				approachpoint3->LinkEndChild(approach3_y);
+				approachpoint3->LinkEndChild(approach3_z);
+				XMLElement* stackheightbefore = newTiXMLElement("StackHeightBefore", h_before);
+
+				package->LinkEndChild(packageseq);
+				package->LinkEndChild(article);
+				package->LinkEndChild(barcode);
+				package->LinkEndChild(placeposition);
+				package->LinkEndChild(orientation);
+				package->LinkEndChild(approachpoint1);
+				package->LinkEndChild(approachpoint2);
+				package->LinkEndChild(approachpoint3);
+				package->LinkEndChild(stackheightbefore);
+
+				packages->LinkEndChild(package);
+				c1++;
+			}
+		}
 	}
 
 	packpallet->LinkEndChild(palletnumber);
@@ -200,6 +275,25 @@ void output::importpl() {
 		packlist.clear();
 		count++;
 	}
+}
+
+void output::find_order_remaining() {
+	vector<int> order_sat(db->order.size());
+	vector<int> order_remaining(db->order.size());
+
+	for (uint i = 0; i < packlist.size(); i++) {
+		config_t config = packlist[i];
+		for (uint j = 0; j < config.get_key().size(); j++) {
+			order_sat[j] += config.get_key()[j];
+		}
+	}
+
+	cout << "Order Remaining: " << endl;
+	for (uint i = 0; i < db->order.size(); i++) {
+		order_remaining[i] = db->order[i] - order_sat[i];
+		cout << i << "->" << order_remaining[i] << endl;
+	}
+	cout << endl;
 }
 
 double output::find_com_height() {
