@@ -10,8 +10,8 @@ database::~database() {
 }
 
 database::database(const database& d) {
-	config_map.clear();
-	layer_map.clear();
+	config_map.insert(d.config_map.begin(), d.config_map.end());
+	layer_map.insert(d.layer_map.begin(), d.layer_map.end());
 	package = d.package;
 	bin = d.bin;
 	bin_d = d.bin_d;
@@ -22,17 +22,7 @@ database::database(const database& d) {
 }
 
 database database::clone() {
-	database db;
-	db.config_map = config_map;
-	db.layer_map = layer_map;
-	db.package = package;
-	db.bin = bin;
-	db.bin_d = bin_d;
-	db.order = order;
-	db.dir = dir;
-	db.db_c = db_c;
-	db.db_l = db_l;
-	return db;
+	return database(*this);
 }
 
 void database::set_dir(const char* dirname) {
@@ -114,8 +104,13 @@ int database::insert(key_ key, pattern_ pattern) {
 }
 
 int database::insert(multimap<key_, config_t, classcomp> _config_map, multimap<key_, config_t, classcomp> _layer_map) {
-	config_map.insert(_config_map.begin(), _config_map.end());
-	layer_map.insert(_layer_map.begin(), _layer_map.end());
+	multimap<key_, config_t>::iterator it;
+	for (it = _config_map.begin(); it != _config_map.end(); it++) {
+		insert((*it).second);
+	}
+	for (it = _layer_map.begin(); it != _layer_map.end(); it++) {
+		insert((*it).second);
+	}
 }
 
 config_t database::get_last_inserted_config() {

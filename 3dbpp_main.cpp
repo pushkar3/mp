@@ -39,6 +39,8 @@ public:
 		package_key = _key;
 		h_max = _hmax;
 		d1 = db->clone();
+		d1.config_map.clear();
+		d1.layer_map.clear();
 
 		vector<int> key(d1.package.size(), 0);
 		vector<int> pattern(3, 0);
@@ -47,12 +49,9 @@ public:
 	}
 
 	void set_multiplepackage(database db1, database db2, float _hmax) {
-//		h_max = _hmax;
-//		d1 = db1.clone();
-//		d2 = db2.clone();
-//		d1.config_map = db1.config_map;
-//		cout << "Set multiplepackage" << endl;
-		cout << "d1 " << d1.config_map.size() << " db1 " << db1.config_map.size()  << endl;
+		h_max = _hmax;
+		d1 = db1.clone();
+		d2 = db2.clone();
 	}
 
 	void singlepackageconfig() {
@@ -75,13 +74,9 @@ public:
 			}
 		}
 		d = d1.clone();
-		d.config_map = d1.config_map;
-		d.layer_map = d1.layer_map;
 	}
 
 	void multiplepackageconfig() {
-		cout << "Running Multiple package version" << endl;
-		cout << "Size " << d1.config_map.size() << " " << d2.config_map.size() << endl;
 		multimap<key_, config_t>::iterator it1;
 		multimap<key_, config_t>::iterator it2;
 
@@ -134,17 +129,15 @@ void binpack2(database *d) {
 			if (l == h1 || l == h2) {
 				binpack_job* bj = new binpack_job();
 				bj->set_multiplepackage(job[i]->d, job[j]->d, l);
-				cout << endl;
-				cout << i << " " << j << " " << l << " [" <<  job[j]->d.config_map.size() << "]"  <<endl;
 				job.push_back(bj);
 			}
 		}
 	}
 
 	for (uint i = 0; i < job.size(); i++) {
-//		cout << "Running Job " << i << endl;
-//		job[i]->run();
-//		job[i]->d.printdb_stat();
+		cout << "Running Job " << i << endl;
+		job[i]->run();
+		// job[i]->d.printdb_stat();
 	}
 
 	for (uint i = 0; i < job.size(); i++) {
