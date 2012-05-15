@@ -30,8 +30,19 @@ int main(int argc, char *argv[]) {
 	d.get_input(i);
 	d.importdb();
 
+//	multimap<key_, config_t>::iterator it;
+//
+//	for (it = d.config_map.begin(); it != d.config_map.end(); it++) {
+//		if((*it).second.is_layer()) {
+//			(*it).second.spread_out(d.bin);
+//		}
+//	}
+//
+//	// This is important
+//	d.exportdb();
+
+	// This all makes the db_layer database invalid, since I am not updating it here
 	// todo: layer spacing
-	// scan all the layers and spread them out
 
 	d.pose_lp("prob");
 

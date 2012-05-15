@@ -174,6 +174,9 @@ class config_t {
 	int n_packvolume;
 	int n_packweight;
 
+	int gap_w;
+	int gap_h;
+
 	vector<int> origin;
 	vector<int> corner1, corner2, corner3;
 public:
@@ -181,6 +184,7 @@ public:
 	~config_t();
 	void reset();
 	void set(database* d, key_ key, pattern_ pattern, vector<int> orientation);
+	void recalc();
 	vector<int> get_origin();
 	void set_origin(vector<int> o);
 	void eval();
@@ -209,6 +213,8 @@ public:
 	string dimensions_s();
 	string cost_s();
 	double density();
+	void set_gap(int x, int y);
+	void spread_out(bin_t bin);
 };
 
 class input {
