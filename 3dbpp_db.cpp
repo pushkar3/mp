@@ -74,12 +74,12 @@ void database::get_input(input i) {
 }
 
 int database::insert(config_t c) {
-	return insert(c.get_key(), c.get_pattern());
+	return insert(c.get_key(), c.get_pattern(), c.get_orientation());
 }
 
-int database::insert(key_ key, pattern_ pattern) {
+int database::insert(key_ key, pattern_ pattern, vector<int> orientation) {
 	config_t config;
-	config.set(this, key, pattern);
+	config.set(this, key, pattern, orientation);
 
 	multimap<key_, config_t>::iterator it;
 	pair < multimap<key_, config_t>::iterator, multimap<key_, config_t>::iterator> ret;
@@ -148,6 +148,7 @@ void database::exportdb() {
 		ofs << "k " << config.key_s() << "\n";
 		ofs << "c " << config.cost_s() << "\n";
 		ofs << "p " << config.pattern_s() << "\n";
+		ofs << "o " << config.orientation_s() << "\n";
 		ofs << "d " << config.dimensions_s() << "\n";
 	}
 	ofs.flush();
@@ -164,6 +165,7 @@ void database::exportdb() {
 		ofs << "k " << config.key_s() << "\n";
 		ofs << "c " << config.cost_s() << "\n";
 		ofs << "p " << config.pattern_s() << "\n";
+		ofs << "o " << config.orientation_s() << "\n";
 		ofs << "d " << config.dimensions_s() << "\n";
 	}
 	ofs.flush();
@@ -218,11 +220,13 @@ int database::importdb() {
 	string str;
 	key_ key;
 	pattern_ pattern;
+	vector<int> orientation;
 	dimensions_ dimensions;
 	double cost;
 	int is_key = 0;
 	int is_cost = 0;
 	int is_pattern = 0;
+	int is_orientation = 0;
 	int is_dims = 0;
 
 	while (ifs.good()) {
@@ -243,6 +247,10 @@ int database::importdb() {
 				pattern = deserialize_vector(str);
 				is_pattern = 1;
 				break;
+			case 'o':
+				orientation = deserialize_vector(str);
+				is_orientation = 1;
+				break;
 			case 'd':
 				dimensions = deserialize_vector(str);
 				is_dims = 1;
@@ -252,8 +260,8 @@ int database::importdb() {
 			}
 			str.clear();
 
-			if (is_key && is_cost && is_pattern && is_dims) {
-				if (insert(key, pattern)) {
+			if (is_key && is_cost && is_pattern && is_dims && is_orientation) {
+				if (insert(key, pattern, orientation)) {
 					config_t c = get_last_inserted_config();
 					if (c.get_dimensions() != dimensions) {
 						cerr << "Error while importing database at ";
@@ -269,6 +277,7 @@ int database::importdb() {
 				is_key = 0;
 				is_cost = 0;
 				is_pattern = 0;
+				is_orientation = 0;
 				is_dims = 0;
 			}
 		}

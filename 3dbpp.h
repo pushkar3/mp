@@ -148,6 +148,7 @@ class config_t {
 	database* d;
 	vector<int> key;
 	vector<int> pattern;
+	vector<int> orientation;
 	double n_density;
 	int n_packs;
 	int n_area;
@@ -165,7 +166,7 @@ public:
 	config_t();
 	~config_t();
 	void reset();
-	void set(database* d, key_ key, pattern_ pattern);
+	void set(database* d, key_ key, pattern_ pattern, vector<int> orientation);
 	vector<int> get_origin();
 	void set_origin(vector<int> o);
 	void eval();
@@ -180,13 +181,17 @@ public:
 	vector<int> get_corner(int i);
 	key_ get_key();
 	pattern_ get_pattern();
+	vector<int> get_orientation();
 	dimensions_ get_dimensions();
 	int get_weight();
 	int get_packagevolume();
 	int get_totalvolume();
 	int get_totalpacks();
+	void change_orientation();
+	void change_orientation(database* db); // hack to remove a segfault
 	string key_s();
 	string pattern_s();
+	string orientation_s();
 	string dimensions_s();
 	string cost_s();
 	double density();
@@ -233,7 +238,7 @@ public:
 	const char* get_dir();
 	void get_input(input i);
 	int insert(config_t c);
-	int insert(key_ key, pattern_ pattern);
+	int insert(key_ key, pattern_ pattern, vector<int> orientation);
 	int insert(multimap<key_, config_t, classcomp> _config_map);
 	config_t get_last_inserted_config();
 	config_t get_layer_from_name(string str);

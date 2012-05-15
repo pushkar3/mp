@@ -185,7 +185,6 @@ void OrderXML::convertToProblem(const char* filename, const char* problem_filena
 		}
 	}
 
-	//TODO:
 	if(count > 100) count = 100;
 	prob_all.append(itoa(count).c_str()); prob_all.append(" ");
 	prob_all.append(prob.c_str());

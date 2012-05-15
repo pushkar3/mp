@@ -16,9 +16,8 @@ void output::insert(config_t c) {
 }
 
 void output::clear() {
-	// todo: Bugged
-//	packlist_vector.push_back(packlist);
-//	packlist.clear();
+	packlist_vector.push_back(packlist);
+	packlist.clear();
 }
 
 void output::set_database(database* _db) {
@@ -46,6 +45,7 @@ void output::exportpl() {
 		ofs << "k " << config.key_s() << "\n";
 		ofs << "c " << config.cost_s() << "\n";
 		ofs << "p " << config.pattern_s() << "\n";
+		ofs << "o " << config.orientation_s() << "\n";
 		ofs << "d " << config.dimensions_s() << "\n";
 	}
 
@@ -145,7 +145,7 @@ void output::savepl_xml() {
 				placeposition->LinkEndChild(placeposition_x);
 				placeposition->LinkEndChild(placeposition_y);
 				placeposition->LinkEndChild(placeposition_z);
-				XMLElement* orientation = newTiXMLElement("Orientation", 1); // todo
+				XMLElement* orientation = newTiXMLElement("Orientation", c.get_orientation()[c1]);
 				XMLElement* approachpoint1 = newTiXMLElement("ApproachPoint1");
 				XMLElement* approachpoint2 = newTiXMLElement("ApproachPoint2");
 				XMLElement* approachpoint3 = newTiXMLElement("ApproachPoint3");
@@ -214,11 +214,13 @@ void output::importpl() {
 		string str;
 		key_ key;
 		pattern_ pattern;
+		vector<int> orientation;
 		dimensions_ dimensions;
 		double cost;
 		int is_key = 0;
 		int is_cost = 0;
 		int is_pattern = 0;
+		int is_orientation = 0;
 		int is_dims = 0;
 
 		while (ifs.good()) {
@@ -239,6 +241,10 @@ void output::importpl() {
 					pattern = database::deserialize_vector(str);
 					is_pattern = 1;
 					break;
+				case 'o':
+					orientation = database::deserialize_vector(str);
+					is_orientation = 1;
+					break;
 				case 'd':
 					dimensions = database::deserialize_vector(str);
 					is_dims = 1;
@@ -248,9 +254,9 @@ void output::importpl() {
 				}
 				str.clear();
 
-				if (is_key && is_cost && is_pattern && is_dims) {
+				if (is_key && is_cost && is_pattern && is_dims && is_orientation) {
 					config_t c;
-					c.set(db, key, pattern);
+					c.set(db, key, pattern, orientation);
 					packlist.push_back(c);
 					if (c.get_dimensions() != dimensions) {
 						cerr << "Error while importing packlist at ";
@@ -265,6 +271,7 @@ void output::importpl() {
 					is_key = 0;
 					is_cost = 0;
 					is_pattern = 0;
+					is_orientation = 0;
 					is_dims = 0;
 				}
 			}

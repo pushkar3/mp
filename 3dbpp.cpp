@@ -15,6 +15,7 @@ config_t::~config_t() {
 void config_t::reset() {
 	key.clear();
 	pattern.clear();
+	orientation.clear();
 	n_packs = 0;
 	n_area = 0;
 	n_maxh = 0;
@@ -30,16 +31,26 @@ void config_t::reset() {
 	corner3.assign(3, 0);
 }
 
-void config_t::set(database* db, key_ k, pattern_ p) {
+void config_t::set(database* db, key_ k, pattern_ p, vector<int> o) {
 	d = db;
 	key = k;
 	pattern = p;
+	orientation = o;
 
 	int c = 0;
 	for (uint i = 0; i < key.size(); i++) {
 		for (int j = 0; j < key[i]; j++) {
-			int xn = pattern[c*3 + 0] + d->package[i].w;
-			int yn = pattern[c*3 + 1] + d->package[i].h;
+			int pack_w = 0, pack_h = 0;
+			if(o[c] == 1) {
+				pack_w = d->package[i].h;
+				pack_h = d->package[i].w;
+			}
+			else {
+				pack_w = d->package[i].w;
+				pack_h = d->package[i].h;
+			}
+			int xn = pattern[c*3 + 0] + pack_w;
+			int yn = pattern[c*3 + 1] + pack_h;
 			int zn = pattern[c*3 + 2] + d->package[i].d;
 			if (n_maxw < xn)	n_maxw = xn;
 			if (n_maxh < yn)	n_maxh = yn;
@@ -108,6 +119,7 @@ ostream & operator << (ostream &o, const config_t &c) {
 
 void config_t::add(const config_t c) {
 	vector<int> p;
+	vector<int> o;
 	vector<int> k(key.size(), 0);
 	int c1 = 0, c2 = 0;
 
@@ -116,6 +128,7 @@ void config_t::add(const config_t c) {
 			p.push_back(pattern[c1*3 + 0]);
 			p.push_back(pattern[c1*3 + 1]);
 			p.push_back(pattern[c1*3 + 2]);
+			o.push_back(orientation[c1]);
 			c1++;
 		}
 
@@ -123,13 +136,14 @@ void config_t::add(const config_t c) {
 			p.push_back(c.pattern[c2*3 + 0]);
 			p.push_back(c.pattern[c2*3 + 1]);
 			p.push_back(c.pattern[c2*3 + 2]);
+			o.push_back(c.orientation[c2]);
 			c2++;
 		}
 		k[i] = key[i] + c.key[i];
 	}
 
 	reset();
-	set(this->d, k, p);
+	set(this->d, k, p, o);
 }
 
 void config_t::add(database* db, const config_t c) {
@@ -162,6 +176,10 @@ pattern_ config_t::get_pattern() {
 	return pattern;
 }
 
+vector<int> config_t::get_orientation() {
+	return orientation;
+}
+
 dimensions_ config_t::get_dimensions() {
 	dimensions_ dims;
 	dims.push_back(n_maxw);
@@ -186,6 +204,33 @@ int config_t::get_totalpacks() {
 	return n_packs;
 }
 
+void config_t::change_orientation() {
+	int c1 = 0;
+	vector<int> p(pattern.size(), 0);
+	vector<int> o(orientation.size(), 0);
+	vector<int> k(key.size(), 0);
+
+	for (uint i = 0; i < key.size(); i++) {
+		k[i] = key[i];
+		for (int j = 0; j < key[i]; j++) {
+			p[c1*3 + 1] = pattern[c1*3 + 0];
+			p[c1*3 + 0] = pattern[c1*3 + 1];
+			p[c1*3 + 2] = pattern[c1*3 + 2];
+			if(orientation[c1] == 0) o[c1] = 1;
+			else if(orientation[c1] == 1) o[c1] = 0;
+			c1++;
+		}
+	}
+
+	reset();
+	set(this->d, k, p, o);
+}
+
+void config_t::change_orientation(database* db) {
+	d = db;
+	change_orientation();
+}
+
 double config_t::density() {
 	return n_density;
 }
@@ -206,6 +251,15 @@ string config_t::pattern_s() {
 	}
 	return s.str();
 }
+
+string config_t::orientation_s() {
+	stringstream s(stringstream::out);
+	for (uint i = 0; i < orientation.size(); i++) {
+		s << orientation[i] << " ";
+	}
+	return s.str();
+}
+
 
 string config_t::dimensions_s() {
 	stringstream s(stringstream::out);

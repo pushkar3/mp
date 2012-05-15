@@ -30,6 +30,9 @@ int main(int argc, char *argv[]) {
 	d.get_input(i);
 	d.importdb();
 
+	// todo: layer spacing
+	// scan all the layers and spread them out
+
 	d.pose_lp("prob");
 
 	return 0;

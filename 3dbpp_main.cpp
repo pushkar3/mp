@@ -66,8 +66,11 @@ public:
 
 		vector<int> key(d1.package.size(), 0);
 		vector<int> pattern(3, 0);
+		vector<int> orientation(1, 0);
 		key[package_key] = 1;
-		d1.insert(key, pattern);
+		d1.insert(key, pattern, orientation);
+		orientation[0] = 1;
+		d1.insert(key, pattern, orientation);
 	}
 
 	void set_multiplepackage(database db1, database db2, double _hmax) {
@@ -86,11 +89,14 @@ public:
 				for (uint i = 0; i < 3; i++) {
 					config_t c1 = (*it1).second;
 					config_t c2 = (*it2).second;
-					c2.set_origin(c1.get_corner(i));
-					c1.add(&d1, c2);
+					for (int j = 0; j < 2; j++) {
+						if (j == 0) c1.change_orientation();
+						c2.set_origin(c1.get_corner(i));
+						c1.add(&d1, c2);
 
-					if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max	&& c2.get_height() <= h_max) {
-						d1.insert(c1.get_key(), c1.get_pattern());
+						if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max	&& c2.get_height() <= h_max) {
+							d1.insert(c1.get_key(), c1.get_pattern(), c1.get_orientation());
+						}
 					}
 				}
 			}
@@ -109,11 +115,14 @@ public:
 				for (uint i = 0; i < 3; i++) {
 					config_t c1 = (*it1).second;
 					config_t c2 = (*it2).second;
-					c2.set_origin(c1.get_corner(i));
-					c1.add(&d1, c2);
+					for (int j = 0; j < 2; j++) {
+						if (j == 0) c1.change_orientation(&d1);
+						c2.set_origin(c1.get_corner(i));
+						c1.add(&d1, c2);
 
-					if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max && c2.get_height() <= h_max) {
-						d1.insert(c1.get_key(), c1.get_pattern());
+						if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max && c2.get_height() <= h_max) {
+							d1.insert(c1.get_key(), c1.get_pattern(), c1.get_orientation());
+						}
 					}
 				}
 			}
@@ -130,11 +139,14 @@ public:
 				for (uint i = 0; i < 3; i++) {
 					config_t c1 = (*it1).second;
 					config_t c2 = (*it2).second;
-					c2.set_origin(c1.get_corner(i));
-					c1.add(&d1, c2);
+					for (int j = 0; j < 2; j++) {
+						if (j == 0) c1.change_orientation(&d1);
+						c2.set_origin(c1.get_corner(i));
+						c1.add(&d1, c2);
 
-					if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max	&& c2.get_height() <= h_max) {
-						d1.insert(c1.get_key(), c1.get_pattern());
+						if (configcomp::compare(c1, c2, tolerance) && c1.get_height() <= h_max	&& c2.get_height() <= h_max) {
+							d1.insert(c1.get_key(), c1.get_pattern(), c1.get_orientation());
+						}
 					}
 				}
 			}
