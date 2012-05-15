@@ -331,7 +331,8 @@ string config_t::dimensions_s() {
 
 string config_t::cost_s() {
 	stringstream s(stringstream::out);
-	s << n_density;
+	// s << n_packweight + n_area + n_density;
+	s << n_packweight;
 	return s.str();
 }
 

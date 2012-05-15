@@ -212,11 +212,8 @@ void binpack2(database *d) {
 		cout << "Job " << i << " Height=" << job[i]->get_height() << " Package Key="<< job[i]->get_packagekey() <<endl;
 		job[i]->run();
 		job[i]->d.printdb_stat();
-	}
-
-	for (uint i = 0; i < job.size(); i++) {
-		if(job[i]->is_singlepack() == 0)
-			d->insert(job[i]->d.config_map);
+		d->insert(job[i]->d.config_map);
+		d->exportdb();
 	}
 }
 

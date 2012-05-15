@@ -63,6 +63,7 @@ void database::get_input(input i) {
 			if (bin_add) {
 				bin_d.push_back(b);
 				bin_add = 0;
+				cout << "Adding " << b.d << " for " << package[i].d << " and " << package[j].d << endl;
 			}
 		}
 	}
@@ -390,7 +391,7 @@ void database::pose_lp(const char* filename) {
 			if (((*it).first)[i] != 0)
 				ofs << " + " << ((*it).first)[i] << " c" << j;
 		}
-		ofs << " <= " << order[i];
+		ofs << " <= " << order[i] * param.get("langrangian_slack_on_order");
 		ofs << "\n";
 	}
 

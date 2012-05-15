@@ -31,23 +31,12 @@ typedef vector<int> dimensions_;
 typedef vector<int> order_t;
 typedef vector<config_t> packlist_;
 
-static int hcf(int x, int y) {
-	int tmp;
-	if (x < y) {
-		tmp = x;
-		x = y;
-		y = tmp;
+static int lcm(int a, int b) {
+	int n;
+	for (n = 1;; n++) {
+		if (n % a == 0 && n % b == 0)
+			return n;
 	}
-	while (x % y != 0) {
-		tmp = x % y;
-		y = x;
-		x = tmp;
-	}
-	return (y);
-}
-
-static int lcm(int x, int y) {
-	return (x * y / hcf(x, y));
 }
 
 static int fact(int n) {
