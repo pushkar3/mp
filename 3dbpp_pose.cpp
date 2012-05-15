@@ -9,7 +9,7 @@
 using namespace std;
 
 void help() {
-	cout << "./stat Output stats for the database folder" << endl;
+	cout << "./pose Convert the database into IP problems" << endl;
 	cout << "Usage: ./pose <foldername>" << endl;
 }
 

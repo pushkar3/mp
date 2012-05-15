@@ -174,6 +174,7 @@ public:
 	bool is_layer();
 	friend ostream & operator <<(ostream &o, const config_t &c);
 	void add(const config_t c);
+	void add(database* db, const config_t c); // hack to remove a segfault
 	int get_height();
 	int get_area();
 	vector<int> get_corner(int i);
@@ -181,6 +182,8 @@ public:
 	pattern_ get_pattern();
 	dimensions_ get_dimensions();
 	int get_weight();
+	int get_packagevolume();
+	int get_totalvolume();
 	string key_s();
 	string pattern_s();
 	string dimensions_s();
@@ -224,14 +227,13 @@ public:
 
 	database();
 	~database();
-	database(const database& d);
 	database clone();
 	void set_dir(const char* dirname);
 	const char* get_dir();
 	void get_input(input i);
 	int insert(config_t c);
 	int insert(key_ key, pattern_ pattern);
-	int insert(multimap<key_, config_t, classcomp> _config_map, multimap<key_, config_t, classcomp> _layer_map);
+	int insert(multimap<key_, config_t, classcomp> _config_map);
 	config_t get_last_inserted_config();
 	config_t get_layer_from_name(string str);
 	void find_layers();

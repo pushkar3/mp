@@ -9,20 +9,17 @@ database::database() {
 database::~database() {
 }
 
-database::database(const database& d) {
-	config_map.insert(d.config_map.begin(), d.config_map.end());
-	layer_map.insert(d.layer_map.begin(), d.layer_map.end());
-	package = d.package;
-	bin = d.bin;
-	bin_d = d.bin_d;
-	order = d.order;
-	dir = d.dir;
-	db_c = d.db_c;
-	db_l = d.db_l;
-}
-
 database database::clone() {
-	return database(*this);
+	database db;
+	db.package.assign(package.begin(), package.end());
+	db.bin_d.assign(bin_d.begin(), bin_d.end());
+	db.order.assign(order.begin(), order.end());
+	db.bin = bin;
+	db.dir = dir;
+	db.db_c = db_c;
+	db.db_l = db_l;
+	db.insert(config_map);
+	return db;
 }
 
 void database::set_dir(const char* dirname) {
@@ -103,12 +100,9 @@ int database::insert(key_ key, pattern_ pattern) {
 	return 1;
 }
 
-int database::insert(multimap<key_, config_t, classcomp> _config_map, multimap<key_, config_t, classcomp> _layer_map) {
+int database::insert(multimap<key_, config_t, classcomp> _config_map) {
 	multimap<key_, config_t>::iterator it;
 	for (it = _config_map.begin(); it != _config_map.end(); it++) {
-		insert((*it).second);
-	}
-	for (it = _layer_map.begin(); it != _layer_map.end(); it++) {
 		insert((*it).second);
 	}
 }
@@ -134,7 +128,7 @@ void database::find_layers() {
 	multimap<key_, config_t>::iterator it;
 	for (it = config_map.begin(); it != config_map.end(); it++) {
 		config_t c = (*it).second;
-		if (((float) (area - c.get_area()) / (float) area) < 0.05)
+		if (((float) (area - c.get_area()) / (float) area) < 0.15)
 			layer_map.insert(pair<key_, config_t> (c.get_key(), c));
 	}
 }
