@@ -14,6 +14,13 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/interprocess/sync/sharable_lock.hpp>
 
+#define BOLD "\033[1m"
+#define NORMAL "\033[0m"
+#define RED "\033[0;31m"
+#define GREEN "\033[0;32m"
+#define YELLOW "\033[0;33m"
+#define BLUE "\033[0;34m"
+
 using namespace std;
 using namespace tinyxml2;
 using namespace boost::interprocess;
@@ -281,7 +288,7 @@ public:
 	output();
 	~output();
 	void insert(config_t c);
-	void clear();
+	void save_packlist();
 	void set_database(database* _db);
 	void exportpl();
 	void savepl_xml();

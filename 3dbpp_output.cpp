@@ -15,14 +15,14 @@ void output::insert(config_t c) {
 	packlist.push_back(c);
 }
 
-void output::clear() {
-	packlist_vector.push_back(packlist);
-	packlist.clear();
-}
-
 void output::set_database(database* _db) {
 	db = _db;
 	dir.assign(db->get_dir());
+}
+
+void output::save_packlist() {
+	packlist_vector.push_back(packlist);
+	packlist.clear();
 }
 
 void output::exportpl() {
@@ -71,8 +71,6 @@ XMLElement* output::newTiXMLElement(const char* name) {
 
 void output::savepl_xml() {
 	int order_id_val = 1;
-
-	string str;
 
 	XMLElement* packlist_root = newTiXMLElement("Packlist");
 	XMLElement* order_id = newTiXMLElement("OrderID", order_id_val);
