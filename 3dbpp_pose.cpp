@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
 			o.insert(pl[i]);
 		}
 		else {
-			h -= pl[i].get_height();
+			h = 0;
 			o.save_packlist();
 		}
 	}
