@@ -120,7 +120,7 @@ void output::savepl_xml() {
 					XMLElement* packageseq = newTiXMLElement("PackSequence", n++);
 					XMLElement* article = newTiXMLElement("Article");
 					XMLElement* article_id = newTiXMLElement("ID", db->package[j].id);
-					XMLElement* article_desc = newTiXMLElement("Description");
+					XMLElement* article_desc = newTiXMLElement("Description", db->package[j].description.c_str());
 					XMLElement* article_type = newTiXMLElement("Type", 0);
 					XMLElement* article_l = newTiXMLElement("Length", db->package[j].w);
 					XMLElement* article_w = newTiXMLElement("Width", db->package[j].h);
@@ -135,11 +135,11 @@ void output::savepl_xml() {
 					article->LinkEndChild(article_h);
 					article->LinkEndChild(article_W);
 					article->LinkEndChild(article_family);
-					XMLElement* barcode = newTiXMLElement("Barcode");
+					XMLElement* barcode = newTiXMLElement("Barcode", db->package[j].get_new_barcode().c_str());
 					XMLElement* placeposition = newTiXMLElement("PlacePosition");
 					XMLElement* placeposition_x = newTiXMLElement("X", c.get_pattern()[c1*3+0]);
 					XMLElement* placeposition_y = newTiXMLElement("Y", c.get_pattern()[c1*3+1]);
-					XMLElement* placeposition_z = newTiXMLElement("Z", c.get_pattern()[c1*3+2]);
+					XMLElement* placeposition_z = newTiXMLElement("Z", c.get_pattern()[c1*3+2] + db->package[j].d );
 					placeposition->LinkEndChild(placeposition_x);
 					placeposition->LinkEndChild(placeposition_y);
 					placeposition->LinkEndChild(placeposition_z);

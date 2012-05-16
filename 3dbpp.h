@@ -71,13 +71,33 @@ public:
 	int id, w, h, d, n;
 	int x, y, z;
 	int weight;
+	string description;
+	vector<string> barcode;
+	int barcode_c;
 	package_t(int _id, int _w, int _h, int _d, int _n) :
 		id(_id), w(_w), h(_h), d(_d), n(_n) {
 		x = y = z = 0;
+		barcode_c = 0;
 	}
 
 	package_t(int _id, int _w, int _h, int _d, int _x, int _y, int _z) :
 		id(_id), w(_w), h(_h), d(_d), x(_x), y(_y), z(_z) {
+		barcode_c = 0;
+	}
+
+	void set_description(const char* value) {
+		description.assign(value);
+	}
+
+	void insert_barcode(const char* value) {
+		barcode.push_back(value);
+	}
+
+	string get_new_barcode() {
+		string str = barcode[barcode_c];
+		barcode_c++;
+		if(barcode_c == barcode.size()) barcode_c = 0;
+		return str;
 	}
 
 	void set_weight(int _w) {
