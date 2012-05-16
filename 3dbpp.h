@@ -274,7 +274,7 @@ public:
 class output {
 	string dir;
 	database *db;
-	vector<config_t> packlist;
+	vector<config_t> _packlist;
 	tinyxml2::XMLDocument doc;
 	vector<int> order_remaining;
 
@@ -293,7 +293,6 @@ public:
 	void exportpl();
 	void savepl_xml();
 	void importpl();
-	void find_order_remaining();
 	double find_com_height();
 	void run_mcmc(int iterations);
 };

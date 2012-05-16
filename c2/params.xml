@@ -1,7 +1,7 @@
 <params>
-  <layer_density_threshold>0.35</layer_density_threshold>
+  <layer_density_threshold>0.15</layer_density_threshold>
   <max_configmap_ittr>100000000</max_configmap_ittr>
   <single_package_layering_threshold>0.005</single_package_layering_threshold>
-  <multiple_package_layering_threshold>0.35</multiple_package_layering_threshold>
+  <multiple_package_layering_threshold>0.5</multiple_package_layering_threshold>
   <langrangian_slack_on_order>1.2</langrangian_slack_on_order>
 </params>
