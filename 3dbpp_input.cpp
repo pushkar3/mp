@@ -30,9 +30,17 @@ void input::print_package_list() {
 	for (uint i = 0; i < package.size(); i++) {
 		cout << package[i].id << "\t" << package[i].w << "\t" << package[i].h
 				<< "\t" << package[i].d << "\t" << package[i].n << endl;
+//		int c = 0;
+//		int c_val = package[i].vid[0];
 //		for (int j = 0; j < package[i].vid.size(); j++) {
-//			cout << package[i].vid[j] << " " << endl;
+//	        if(c_val == package[i].vid[j]) c++;
+//	        else {
+//	        	cout << package[i].vid[j] << "\t\t\t\t" << c << endl;
+//	        	c_val = package[i].vid[j];
+//	        	c = 0;
+//	        }
 //		}
+//		cout << endl;
 	}
 	cout << endl;
 }
