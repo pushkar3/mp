@@ -144,8 +144,7 @@ void output::savepl_xml() {
 					placeposition->LinkEndChild(placeposition_y);
 					placeposition->LinkEndChild(placeposition_z);
 					int orr = c.get_orientation()[c1];
-					if (orr == 0) orr = 1;
-					if (orr == 1) orr = 0;
+					orr++;
 					XMLElement* orientation = newTiXMLElement("Orientation", orr);
 					XMLElement* approachpoint1 = newTiXMLElement("ApproachPoint1");
 					XMLElement* approachpoint2 = newTiXMLElement("ApproachPoint2");
