@@ -137,8 +137,8 @@ void output::savepl_xml() {
 					article->LinkEndChild(article_family);
 					XMLElement* barcode = newTiXMLElement("Barcode", db->package[j].get_new_barcode().c_str());
 					XMLElement* placeposition = newTiXMLElement("PlacePosition");
-					XMLElement* placeposition_x = newTiXMLElement("X", c.get_pattern()[c1*3+0]);
-					XMLElement* placeposition_y = newTiXMLElement("Y", c.get_pattern()[c1*3+1]);
+					XMLElement* placeposition_x = newTiXMLElement("X", c.get_pattern()[c1*3+0] + db->package[j].w/2 );
+					XMLElement* placeposition_y = newTiXMLElement("Y", c.get_pattern()[c1*3+1] + db->package[j].h/2 );
 					XMLElement* placeposition_z = newTiXMLElement("Z", c.get_pattern()[c1*3+2] + db->package[j].d );
 					placeposition->LinkEndChild(placeposition_x);
 					placeposition->LinkEndChild(placeposition_y);
