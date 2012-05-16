@@ -158,7 +158,7 @@ bool config_t::is_bound() {
 
 bool config_t::is_layer() {
 	int area = d->bin.w * d->bin.h;
-	return(((double)(area - get_area())/(double)area) < 0.15);
+	return(((double)(area - get_area())/(double)area) < param.get("layer_density_threshold"));
 }
 
 ostream & operator << (ostream &o, const config_t &c) {
