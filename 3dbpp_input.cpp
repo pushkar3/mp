@@ -30,6 +30,9 @@ void input::print_package_list() {
 	for (uint i = 0; i < package.size(); i++) {
 		cout << package[i].id << "\t" << package[i].w << "\t" << package[i].h
 				<< "\t" << package[i].d << "\t" << package[i].n << endl;
+//		for (int j = 0; j < package[i].vid.size(); j++) {
+//			cout << package[i].vid[j] << " " << endl;
+//		}
 	}
 	cout << endl;
 }
@@ -80,7 +83,7 @@ void input::print_problem() {
 	cout << endl;
 }
 
-void input::load(const char* dirname) {
+void input::load_old(const char* dirname) {
 	dir.assign(dirname);
 	string package_list = dir + "/package_list.txt";
 	string bin_list = dir + "/bin_list.txt";
@@ -162,23 +165,36 @@ void input::load_xml(const char* pre_c) {
 
 	map<package_t, int, classcomp> package_map;
 	map<package_t, int, classcomp>::iterator pmap_it;
+	map<package_t, vector<int>, classcomp> package_map_vecid;
+	map<package_t, vector<int>, classcomp>::iterator pmap_vecid_it;
 
 	// Order
 	for (int i = 0; i < package_orig.size(); i++) {
 		package_t p = package_orig[i];
 		pmap_it = package_map.find(p);
-		if (pmap_it == package_map.end())
+		pmap_vecid_it = package_map_vecid.find(p);
+		if (pmap_it == package_map.end()) {
 			package_map.insert(pair<package_t, int> (p, p.n));
-		else
+			vector<int> vector_ids;
+			for (int i = 0; i < p.n; i++) vector_ids.push_back(p.id);
+			package_map_vecid.insert(pair<package_t, vector<int> > (p, vector_ids));
+		}
+		else {
 			pmap_it->second += p.n;
+			for (int i = 0; i < p.n; i++)
+				(pmap_vecid_it->second).push_back(p.id);
+		}
 	}
 
 	order_t o(package_map.size());
 
 	int c = 0;
-	for (pmap_it = package_map.begin(); pmap_it != package_map.end(); pmap_it++) {
+	for (pmap_it = package_map.begin(), pmap_vecid_it = package_map_vecid.begin();
+			pmap_it != package_map.end();
+			pmap_it++, pmap_vecid_it++) {
 		package_t p = pmap_it->first;
 		p.n = pmap_it->second;
+		p.set_id((*pmap_vecid_it).second);
 		package.push_back(p);
 		o[c++] = p.n;
 	}

@@ -119,7 +119,7 @@ void output::savepl_xml() {
 					XMLElement* package = newTiXMLElement("Package");
 					XMLElement* packageseq = newTiXMLElement("PackSequence", n++);
 					XMLElement* article = newTiXMLElement("Article");
-					XMLElement* article_id = newTiXMLElement("ID", db->package[j].id);
+					XMLElement* article_id = newTiXMLElement("ID", db->package[j].get_id());
 					XMLElement* article_desc = newTiXMLElement("Description", db->package[j].description.c_str());
 					XMLElement* article_type = newTiXMLElement("Type", db->package[j].type);
 					XMLElement* article_l = newTiXMLElement("Length", db->package[j].w);

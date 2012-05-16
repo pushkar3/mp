@@ -20,7 +20,7 @@ int main(int   argc, char *argv[]) {
 	input i;
 	output o;
 	database d;
-	i.load(dir.c_str());
+	i.load_xml(dir.c_str());
 
 	d.get_input(i);
 	o.set_database(&d);

@@ -73,21 +73,35 @@ public:
 	int weight;
 	string description;
 	vector<string> barcode;
+	vector<int> vid;
 	int barcode_c;
 	int type, family;
+	int id_c;
 	package_t(int _id, int _w, int _h, int _d, int _n) :
 		id(_id), w(_w), h(_h), d(_d), n(_n) {
 		x = y = z = 0;
 		barcode_c = 0;
+		id_c = 0;
 	}
 
 	package_t(int _id, int _w, int _h, int _d, int _x, int _y, int _z) :
 		id(_id), w(_w), h(_h), d(_d), x(_x), y(_y), z(_z) {
 		barcode_c = 0;
+		id_c = 0;
 	}
 
 	void set_description(const char* value) {
 		description.assign(value);
+	}
+
+	void set_id(vector<int> _ids) {
+		vid.assign(_ids.begin(), _ids.end());
+	}
+
+	int get_id() {
+		int ret = vid[id_c++];
+		if(id_c == vid.size()) id_c = 0;
+		return ret;
 	}
 
 	void insert_barcode(const char* value) {
@@ -250,7 +264,7 @@ public:
 	void print_bin_list();
 	void load_problem(const char* filename);
 	void print_problem();
-	void load(const char* dirname);
+	void load_old(const char* dirname);
 	void load_xml(const char* pre_c);
 	void print();
 	void exporti();

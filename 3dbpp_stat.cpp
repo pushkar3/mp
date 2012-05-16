@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 	output o;
 	database d;
 
-	i.load(dir.c_str());
+	i.load_xml(dir.c_str());
 	d.get_input(i);
 	d.importdb();
 
