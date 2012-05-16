@@ -29,10 +29,19 @@ double diff(vector<int> d1, vector<int> d2) {
 }
 
 vector<int> subtract(vector<int> d1, vector<int> d2) {
+	vector<int> d(d1.size(), 0);
 	for (int i = 0; i < d1.size(); i++) {
-		d1[i] -= d2[i];
+		d[i] = d1[i] - d2[i];
 	}
-	return d1;
+	return d;
+}
+
+vector<int> add(vector<int> d1, vector<int> d2) {
+	vector<int> d(d1.size(), 0);
+	for (int i = 0; i < d1.size(); i++) {
+		d[i] = d1[i] + d2[i];
+	}
+	return d;
 }
 
 
@@ -88,6 +97,7 @@ int main(int argc, char *argv[]) {
 	print("Order is ", order);
 
 	vector<config_t> packlist;
+	packlist_ pl;
 
 	// Layers
 	while (distance(order) > 0) {
@@ -119,13 +129,14 @@ int main(int argc, char *argv[]) {
 		packlist_temp.insert(pair<int, config_t>(packlist[i].get_weight(), packlist[i]));
 	}
 	for (pt = packlist_temp.rbegin(); pt != packlist_temp.rend() ; pt++) {
-		o.insert((*pt).second);
+		pl.push_back((*pt).second);
 	}
 	packlist_temp.clear();
 
 	print("Order left ", order);
 
 	// Configs
+	vector<config_t> c_vec;
 	while (distance(order) > 0) {
 
 		int selected = 0;
@@ -145,11 +156,60 @@ int main(int argc, char *argv[]) {
 
 		if(selected == 0) break;
 		cout << "Selected  " << c.key_s() << " Dims: " << c.dimensions_s() << endl;
-		o.insert(c);
+		c_vec.push_back(c);
+
 		order = subtract(order, c.get_key());
 	}
 
+	for (uint i = 0; i < c_vec.size(); i++) {
+		packlist_temp.insert(pair<int, config_t>(c_vec[i].get_area(), c_vec[i]));
+	}
+	for (pt = packlist_temp.rbegin(); pt != packlist_temp.rend() ; pt++) {
+		pl.push_back((*pt).second);
+	}
+	packlist_temp.clear();
+
 	print("Order left ", order);
+
+	// Put it in bins
+
+	int h = 0;
+	for (int i = 0; i < pl.size(); i++) {
+		h += pl[i].get_height();
+		if (h <= d.bin.d) {
+			o.insert(pl[i]);
+		}
+		else {
+			h -= pl[i].get_height();
+			o.save_packlist();
+		}
+	}
+
+	// Only layers are inserted until now, insert configs
+//	for (int i = 0; i < c_vec.size(); i++) {
+//		config_t c = c_vec[i];
+//		for (int j = i+1; j < c_vec.size(); j++) {
+//			if(c.get_height() == c_vec[j].get_height()) {
+//				for(int k = 0; k < 3; k++) {
+//					c_vec[j].set_origin(c.get_corner(k));
+//					c.add(&d, c_vec[j]);
+//					dimensions_ dim = c.get_dimensions();
+//					if(dim[0] <= d.bin.w && dim[1] <= d.bin.h) {
+//						o.insert(c);
+//						cout << "Inserting " << c.key_s() << endl;
+//						c_vec.erase(c_vec.begin()+j);
+//						break;
+//					}
+//					else {
+//						o.insert(c_vec[i]);
+//						cout << "Inserting " << c_vec[i].key_s() << endl;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//
+//	}
 
 	o.save_packlist();
 	o.exportpl();
