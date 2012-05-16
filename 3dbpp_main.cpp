@@ -182,6 +182,8 @@ void binpack2(database *d) {
 		cout << "Job " << i << " Height=" << job[i]->get_height() << " Package Key="<< job[i]->get_packagekey() <<endl;
 		job[i]->run();
 		job[i]->d.printdb_stat();
+		d->insert(job[i]->d.config_map);
+		d->exportdb();
 	}
 
 	cout << BOLD"Running for multiple packages"NORMAL << endl;
