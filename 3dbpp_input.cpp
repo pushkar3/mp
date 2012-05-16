@@ -138,6 +138,8 @@ void input::load_xml(const char* pre_c) {
 		int h = atoi(article->FirstChildElement("Width")->GetText());
 		int d = atoi(article->FirstChildElement("Height")->GetText());
 		int weight = atoi(article->FirstChildElement("Weight")->GetText());
+		int type = atoi(article->FirstChildElement("Type")->GetText());
+		int family = atoi(article->FirstChildElement("Family")->GetText());
 
 		int n = 0;
 		vector<string> barcode_str;
@@ -151,6 +153,8 @@ void input::load_xml(const char* pre_c) {
 		package_t p(id, w, h, d, n);
 		p.set_description(article->FirstChildElement("Description")->GetText());
 		p.barcode.assign(barcode_str.begin(), barcode_str.end());
+		p.type = type;
+		p.family = family;
 		p.set_weight(weight);
 		package_orig.push_back(p);
 		ordern = ordern->NextSibling();

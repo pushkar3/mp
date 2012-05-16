@@ -121,12 +121,12 @@ void output::savepl_xml() {
 					XMLElement* article = newTiXMLElement("Article");
 					XMLElement* article_id = newTiXMLElement("ID", db->package[j].id);
 					XMLElement* article_desc = newTiXMLElement("Description", db->package[j].description.c_str());
-					XMLElement* article_type = newTiXMLElement("Type", 0);
+					XMLElement* article_type = newTiXMLElement("Type", db->package[j].type);
 					XMLElement* article_l = newTiXMLElement("Length", db->package[j].w);
 					XMLElement* article_w = newTiXMLElement("Width", db->package[j].h);
 					XMLElement* article_h = newTiXMLElement("Height", db->package[j].d);
 					XMLElement* article_W = newTiXMLElement("Weight", db->package[j].weight);
-					XMLElement* article_family = newTiXMLElement("Family", 0);
+					XMLElement* article_family = newTiXMLElement("Family", db->package[j].family);
 					article->LinkEndChild(article_id);
 					article->LinkEndChild(article_desc);
 					article->LinkEndChild(article_type);
