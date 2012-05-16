@@ -71,7 +71,8 @@ XMLElement* output::newTiXMLElement(const char* name) {
 void output::savepl_xml() {
 	int order_id_val = 1;
 
-	XMLElement* packlist_root = newTiXMLElement("Packlist");
+	XMLElement* response_root = newTiXMLElement("Response");
+	XMLElement* packlist_root = newTiXMLElement("PackList");
 	XMLElement* order_id = newTiXMLElement("OrderID", order_id_val);
 	XMLElement* packpallets = newTiXMLElement("PackPallets");
 	packlist_root->LinkEndChild(order_id);
@@ -83,15 +84,13 @@ void output::savepl_xml() {
 		XMLElement* packpallet = newTiXMLElement("PackPallet");
 		packpallets->LinkEndChild(packpallet);
 
-		XMLElement* palletnumber = newTiXMLElement("PalletNumber", pn);
-		XMLElement* bruttoweight = newTiXMLElement("BruttoWeight", 0);
-		XMLElement* numofpackages = newTiXMLElement("NumberofPackages", packlist.size());
-		XMLElement* description = newTiXMLElement("Description");
+		XMLElement* palletnumber = newTiXMLElement("PalletNumber", pn+1);
+		XMLElement* description = newTiXMLElement("Description", "16 x 12\"");
 		XMLElement* dimensions = newTiXMLElement("Dimensions");
 		XMLElement* length = newTiXMLElement("Length", db->bin.w);
 		XMLElement* width = newTiXMLElement("Width", db->bin.h);
 		XMLElement* height = newTiXMLElement("MaxLoadHeight", db->bin.d);
-		XMLElement* weight = newTiXMLElement("MaxLoadWeight", 500);
+		XMLElement* weight = newTiXMLElement("MaxLoadWeight", 166667);
 		dimensions->LinkEndChild(length);
 		dimensions->LinkEndChild(width);
 		dimensions->LinkEndChild(height);
@@ -104,7 +103,7 @@ void output::savepl_xml() {
 		overhang->LinkEndChild(overhang_width);
 
 		XMLElement* packages = newTiXMLElement("Packages");
-		int n = 0;
+		int n = 1;
 		int h_before = 0;
 		vector<int> origin(3, 0);
 		for (int i = 0; i < packlist.size(); i++) {
@@ -144,7 +143,10 @@ void output::savepl_xml() {
 					placeposition->LinkEndChild(placeposition_x);
 					placeposition->LinkEndChild(placeposition_y);
 					placeposition->LinkEndChild(placeposition_z);
-					XMLElement* orientation = newTiXMLElement("Orientation", c.get_orientation()[c1]);
+					int orr = c.get_orientation()[c1];
+					if (orr == 0) orr = 1;
+					if (orr == 1) orr = 0;
+					XMLElement* orientation = newTiXMLElement("Orientation", orr);
 					XMLElement* approachpoint1 = newTiXMLElement("ApproachPoint1");
 					XMLElement* approachpoint2 = newTiXMLElement("ApproachPoint2");
 					XMLElement* approachpoint3 = newTiXMLElement("ApproachPoint3");
@@ -185,15 +187,14 @@ void output::savepl_xml() {
 		}
 
 		packpallet->LinkEndChild(palletnumber);
-		packpallet->LinkEndChild(bruttoweight);
-		packpallet->LinkEndChild(numofpackages);
 		packpallet->LinkEndChild(description);
 		packpallet->LinkEndChild(dimensions);
 		packpallet->LinkEndChild(overhang);
 		packpallet->LinkEndChild(packages);
 	}
 
-	doc.LinkEndChild(packlist_root);
+	response_root->LinkEndChild(packlist_root);
+	doc.LinkEndChild(response_root);
 
 	string packlist_file = dir + "/packlist.xml";
 	doc.SaveFile(packlist_file.c_str());

@@ -122,8 +122,8 @@ void input::load_xml(const char* pre_c) {
 
 	// Bin
 	bin.w = atoi(pallet_dimensions->FirstChildElement("Length")->GetText());
-	bin.d = atoi(pallet_dimensions->FirstChildElement("Width")->GetText());
-	bin.h = atoi(pallet_dimensions->FirstChildElement("MaxLoadHeight")->GetText());
+	bin.h = atoi(pallet_dimensions->FirstChildElement("Width")->GetText());
+	bin.d = atoi(pallet_dimensions->FirstChildElement("MaxLoadHeight")->GetText());
 	bin.n = 10;
 
 	// Articles (Boxes)
