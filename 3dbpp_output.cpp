@@ -11,8 +11,38 @@ output::output() {
 output::~output() {
 }
 
+void output::gen_bins(int n) {
+	for(int i = 0; i < n+1; i++) {
+		packlist_ p;
+		packlist_vector.push_back(p);
+	}
+}
+
 void output::insert(config_t c) {
 	_packlist.push_back(c);
+}
+
+void output::insert(int bin_n, config_t c) {
+	packlist_vector[bin_n].push_back(c);
+}
+
+int output::get_height(int bin_n) {
+	int h = 0;
+	packlist_ p = packlist_vector[bin_n];
+	for (int i = 0; i < p.size(); i++) {
+		h += p[i].get_height();
+	}
+	return h;
+}
+
+int output::get_n_configs(int bin_n) {
+	packlist_ p = packlist_vector[bin_n];
+		return p.size();
+}
+
+config_t output::get_config_on_top(int bin_n) {
+	packlist_ p = packlist_vector[bin_n];
+	return p[p.size()-1];
 }
 
 void output::set_database(database* _db) {

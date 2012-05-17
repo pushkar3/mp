@@ -100,6 +100,9 @@ int main(int argc, char *argv[]) {
 	packlist_ pl;
 
 	// Layers
+	config_t prev_c;
+	int prev_rot = 0;
+
 	while (distance(order) > 0) {
 
 		int selected = 0;
@@ -118,9 +121,11 @@ int main(int argc, char *argv[]) {
 		}
 
 		if(selected == 0) break;
-		cout << "Selected  " << c.key_s() << endl;
+		cout << "Selected  " << c.key_s();
 		packlist.push_back(c);
+		prev_c = c;
 		order = subtract(order, c.get_key());
+		cout << endl;
 	}
 
 	multimap<int, config_t> packlist_temp;
@@ -162,7 +167,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	for (uint i = 0; i < c_vec.size(); i++) {
-		packlist_temp.insert(pair<int, config_t>(c_vec[i].get_area(), c_vec[i]));
+		packlist_temp.insert(pair<int, config_t>(c_vec[i].get_weight(), c_vec[i]));
 	}
 	for (pt = packlist_temp.rbegin(); pt != packlist_temp.rend() ; pt++) {
 		pl.push_back((*pt).second);
@@ -172,17 +177,43 @@ int main(int argc, char *argv[]) {
 	print("Order left ", order);
 
 	// Put it in bins
-
 	int h = 0;
 	for (int i = 0; i < pl.size(); i++) {
-		h += pl[i].get_height();
-		if (h <= d.bin.d) {
-			o.insert(pl[i]);
+			h += pl[i].get_height();
+	}
+
+	int n_bins_req = round((double)h/(double)d.bin.d);
+	o.gen_bins(n_bins_req);
+
+	h = 0;
+	int n_bin = 0;
+	for (int i = 0; i < pl.size(); i++) {
+		int bn = n_bin % n_bins_req;
+		int bn_new = bn;
+		if ((o.get_height(bn)+pl[i].get_height()) > d.bin.d) {
+			bn_new = n_bins_req;
 		}
-		else {
-			h = 0;
-			o.save_packlist();
+
+		if(((double) pl[i].get_area()/(double) d.bin.get_area()) > 0.40) {
+			pl[i].spread_out(d.bin);
+			pl[i].center_in(d.bin);
 		}
+
+		config_t prev;
+		if (o.get_n_configs(bn_new) > 0)
+			prev = o.get_config_on_top(bn_new);
+
+		if (pl[i].compare(prev) == 0) {
+			if (prev_rot == 0) {
+				pl[i].rotate();
+				prev_rot = 1;
+			}
+			else
+				prev_rot = 0;
+		}
+
+		o.insert(bn_new, pl[i]);
+		n_bin++;
 	}
 
 	// Only layers are inserted until now, insert configs

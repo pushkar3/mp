@@ -148,6 +148,10 @@ public:
 		return (w * d * h);
 	}
 
+	int get_area() {
+		return (w * d);
+	}
+
 	void add_package(package_t p) {
 		package_list.push_back(p);
 	}
@@ -215,7 +219,6 @@ public:
 	~config_t();
 	void reset();
 	void set(database* d, key_ key, pattern_ pattern, vector<int> orientation);
-	void recalc();
 	vector<int> get_origin();
 	void set_origin(vector<int> o);
 	void eval();
@@ -246,6 +249,9 @@ public:
 	double density();
 	void set_gap(int x, int y);
 	void spread_out(bin_t bin);
+	void center_in(bin_t bin);
+	void rotate();
+	int compare(config_t c);
 };
 
 class input {
@@ -323,7 +329,12 @@ public:
 	output();
 	~output();
 	void insert(config_t c);
+	void insert(int bin_n, config_t c);
+	int get_height(int bin_n);
+	int get_n_configs(int bin_n);
+	config_t get_config_on_top(int bin_n);
 	void save_packlist();
+	void gen_bins(int n);
 	void set_database(database* _db);
 	void exportpl();
 	void savepl_xml();

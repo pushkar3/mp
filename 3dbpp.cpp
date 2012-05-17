@@ -96,44 +96,6 @@ void config_t::set(database* db, key_ k, pattern_ p, vector<int> o) {
 	corner3[2] = n_maxd;
 }
 
-void config_t::recalc() {
-	int c = 0;
-	for (uint i = 0; i < key.size(); i++) {
-		for (int j = 0; j < key[i]; j++) {
-			int pack_w = 0, pack_h = 0;
-			if(orientation[c] == 1) {
-				pack_w = d->package[i].h;
-				pack_h = d->package[i].w;
-			}
-			else {
-				pack_w = d->package[i].w;
-				pack_h = d->package[i].h;
-			}
-			pattern[c*3+0] += gap_w;
-			pattern[c*3+1] += gap_h;
-			int xn = pattern[c*3 + 0] + pack_w;
-			int yn = pattern[c*3 + 1] + pack_h;
-			int zn = pattern[c*3 + 2] + d->package[i].d;
-			if (n_maxw < xn)	n_maxw = xn;
-			if (n_maxh < yn)	n_maxh = yn;
-			if (n_maxd < zn)	n_maxd = zn;
-			n_packvolume += d->package[i].volume();
-			n_packweight += d->package[i].get_weight();
-			c++;
-		}
-	}
-
-	n_packs = c;
-	n_tvolume = n_maxw * n_maxh * n_maxd;
-	if (n_tvolume != 0)
-		n_density = (double) ((double)(n_packvolume) / (double)(n_tvolume));
-	n_area = n_maxw * n_maxh;
-
-	corner1[0] = n_maxw;
-	corner2[1] = n_maxh;
-	corner3[2] = n_maxd;
-}
-
 vector<int> config_t::get_origin() {
 	return origin;
 }
@@ -342,15 +304,106 @@ void config_t::set_gap(int w, int h) {
 }
 
 void config_t::spread_out(bin_t bin) {
-	while(n_maxw <= bin.w) {
-		gap_w += 1;
-		recalc();
-	}
+	double sw = 0.0f, sh = 0.0f;
 
-	while(n_maxh <= bin.h) {
-		gap_h += 1;
-		recalc();
-	}
+	sw = (float)bin.w/n_maxw;
+	sh = (float)bin.h/n_maxh;
 
-	cout << "Changed this config by " << gap_w << " " << gap_h << endl;
+	int c = 0;
+	for (uint i = 0; i < key.size(); i++) {
+		for (int j = 0; j < key[i]; j++) {
+
+			int pack_w = 0, pack_h = 0;
+			if(orientation[c] == 1) {
+				pack_w = d->package[i].h;
+				pack_h = d->package[i].w;
+			}
+			else {
+				pack_w = d->package[i].w;
+				pack_h = d->package[i].h;
+			}
+
+			pattern[c*3+0] = (pattern[c*3+0]-pattern[0])*sw;
+			pattern[c*3+1] = (pattern[c*3+1]-pattern[1])*sh;
+
+			// new max calc's
+			int xn = pattern[c*3 + 0] + pack_w;
+			int yn = pattern[c*3 + 1] + pack_h;
+			int zn = pattern[c*3 + 2] + d->package[i].d;
+			if (n_maxw < xn)	n_maxw = xn;
+			if (n_maxh < yn)	n_maxh = yn;
+			if (n_maxd < zn)	n_maxd = zn;
+			c++;
+		}
+	}
+}
+
+
+void config_t::center_in(bin_t bin) {
+	double sw = 0.0f, sh = 0.0f;
+
+	int dw = n_maxw - bin.w;
+	int dh = n_maxh - bin.h;
+
+	sw = (float) dw/2.0f;
+	sh = (float) dh/2.0f;
+
+	int c = 0;
+	for (uint i = 0; i < key.size(); i++) {
+		for (int j = 0; j < key[i]; j++) {
+
+			int pack_w = 0, pack_h = 0;
+			if(orientation[c] == 1) {
+				pack_w = d->package[i].h;
+				pack_h = d->package[i].w;
+			}
+			else {
+				pack_w = d->package[i].w;
+				pack_h = d->package[i].h;
+			}
+
+			pattern[c*3+0] -= sw;
+			pattern[c*3+1] -= sh;
+
+			// new max calc's
+			int xn = pattern[c*3 + 0] + pack_w;
+			int yn = pattern[c*3 + 1] + pack_h;
+			int zn = pattern[c*3 + 2] + d->package[i].d;
+			if (n_maxw < xn)	n_maxw = xn;
+			if (n_maxh < yn)	n_maxh = yn;
+			if (n_maxd < zn)	n_maxd = zn;
+			c++;
+		}
+	}
+}
+
+void config_t::rotate() {
+	int c = 0;
+	for (uint i = 0; i < key.size(); i++) {
+		for (int j = 0; j < key[i]; j++) {
+			int pack_w = 0, pack_h = 0;
+			if(orientation[c] == 1) {
+
+				pack_w = d->package[i].h;
+				pack_h = d->package[i].w;
+			}
+			else {
+				pack_w = d->package[i].w;
+				pack_h = d->package[i].h;
+			}
+
+			pattern[c*3+0] = n_maxw - pattern[c*3+0] - pack_w;
+			pattern[c*3+1] = n_maxh - pattern[c*3+1] - pack_h;
+			c++;
+		}
+	}
+}
+
+int config_t::compare(config_t c) {
+	int ret = 0;
+	if(key.size() != c.key.size()) return -1;
+	for (int i = 0; i < c.key.size(); i++) {
+		if(key[i] != c.key[i]) ret = -1;
+	}
+	return ret;
 }
