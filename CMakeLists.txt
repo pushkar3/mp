@@ -24,6 +24,7 @@ set ( BPP_SRC
 3dbpp_input
 3dbpp_output
 3dbpp_db
+3dbpp_postplan
 #ext/packlist
 #ext/response
 #ext/xml_parser

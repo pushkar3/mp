@@ -310,6 +310,7 @@ public:
 	void printdb_stat();
 	void pose_mps(const char* filename);
 	void pose_lp(const char* filename);
+	void pose_lpc(const char* filename);
 };
 
 class output {
@@ -342,5 +343,9 @@ public:
 	double find_com_height();
 	void run_mcmc(int iterations);
 };
+
+// Post Plan
+packlist_ greedy_select(database* d);
+void postplan(packlist_ pl, database *d, output* o);
 
 #endif /* BPP_H_ */

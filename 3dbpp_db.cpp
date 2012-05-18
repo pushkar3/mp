@@ -409,3 +409,49 @@ void database::pose_lp(const char* filename) {
 	ofs.close();
 }
 
+void database::pose_lpc(const char* filename) {
+	uint j = 0;
+	string str = dir + "/" + filename + ".lp";
+	multimap<key_, config_t>::iterator it;
+
+	cout << "Will write to " << str << endl;
+	ofstream ofs(str.c_str());
+
+	ofs << "Maximize\n";
+	ofs << "    ";
+	it = config_map.begin();
+	it++;
+	ofs << "c0";
+	for (j = 1; it != config_map.end(); it++, j++) {
+		ofs << " + " << "c" << j;
+	}
+	ofs << "\n";
+
+	ofs << "Subject To\n";
+	for (uint i = 0; i < package.size(); i++) {
+		ofs << "    ";
+		ofs << "c" << i << ": ";
+		it = config_map.begin();
+		ofs << ((*it).first)[i] << " c0";
+		it++;
+		for (j = 1; it != config_map.end(); it++, j++) {
+			if (((*it).first)[i] != 0)
+				ofs << " + " << ((*it).first)[i] << " c" << j;
+		}
+		ofs << " <= " << order[i] * param.get("langrangian_slack_on_order");
+		ofs << "\n";
+	}
+
+	ofs << "Generals\n";
+	ofs << "    ";
+	it = config_map.begin();
+	ofs << "c0";
+	it++;
+	for (j = 1; it != config_map.end(); it++, j++) {
+		ofs << " c" << j;
+	}
+	ofs << "\n";
+	ofs << "End\n";
+
+	ofs.close();
+}
