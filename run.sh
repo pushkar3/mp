@@ -1,14 +1,22 @@
 #!/bin/bash
 
-if [ ! -n "$1" ]
+if [ ! -n "$2" ]
 then
-  echo "Usage: `basename $0` <foldername>"
+  echo "Usage: `basename $0 $1` <plan|noplan> <foldername>"
   exit $E_BADARGS
 fi  
 
-make && 
-rm -rf $1/*.txt
-./bpp_planner $1 &&
-./bpp_stat $1 &&
-./bpp_pose $1 
-./simplex_planner greedy $1
+make &&
+
+if [ $1 = "plan" ]
+then
+    echo 'Will plan in this run'
+    rm -rf $2/*.txt
+fi
+
+./bpp_planner $2
+./bpp_stat $2 &&
+./bpp_pose $2 
+./simplex_planner greedy $2
+./bpp_viewer $2
+cp $2/index.html /var/www/palletviewer/
