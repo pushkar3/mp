@@ -1,0 +1,101 @@
+        grid();
+        axes();
+
+        light = new THREE.DirectionalLight( 0xBBBBBB );
+		light.position.set( 1000, 1000, 1000 );
+		scene.add( light );
+
+        light = new THREE.DirectionalLight( 0xBBBBBB );
+		light.position.set( -1000, -1000, 1000 );
+		scene.add( light );
+
+		light = new THREE.AmbientLight( 0x111111);
+		scene.add( light );
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer.setClearColor( scene.fog.color, 1 );
+		renderer.setSize( window.innerWidth - 25, window.innerHeight - 25 );
+        renderer.render( scene, camera );
+        container = document.getElementById( 'container' );
+        container.appendChild( renderer.domElement );
+    }
+        
+    function animate() {
+        requestAnimationFrame( animate );
+		controls.update();
+	}
+		
+	function render() {
+		renderer.render( scene, camera );
+	}
+	
+	function drawCube(w, h, d, x, y, z, _color) {
+    	cube = new THREE.Mesh(new THREE.CubeGeometry( w, h, d ), new THREE.MeshLambertMaterial( { color: _color } ));
+        cube.position.set(x, y, z);
+        scene.add( cube );
+	}
+	
+	function grid() {
+    	var points = [];
+        
+        for (var x = -2000; x < 2000; x+=100) {
+            points.push( new THREE.Vector3 ( x, -1000, 0 ) );
+            var y;
+            for (y = -1000; y < 1000; y+=100) {
+                points.push( new THREE.Vector3 ( x, y, 0 ) );
+	            points.push( new THREE.Vector3 ( x+100, y, 0 ) );
+	            points.push( new THREE.Vector3 ( x+100, y+100, 0 ) );
+	            points.push( new THREE.Vector3 ( x, y+100, 0 ) );
+	        }
+	        points.push( new THREE.Vector3 ( x, y, 0 ) );
+	        points.push( new THREE.Vector3 ( x, -1000, 0 ) );
+		}
+		
+		var pointsShape = new THREE.Shape(points);
+		var pointsMesh = pointsShape.createPointsGeometry();
+
+        var line = new THREE.Line( pointsMesh, new THREE.LineBasicMaterial( { color: 0x777777, linewidth: 0.5, opacity: 0.5 } ));
+		line.position.set( 0, 0, 0 );
+		line.scale.set( 1, 1, 1 );
+		scene.add( line );
+	}
+	
+	function axes() {
+	    var points_x = [];
+	    var points_y = [];
+	    var points_z = [];
+	    
+	    points_x.push( new THREE.Vector3 ( 0, 0, 0 ) );
+	    points_x.push( new THREE.Vector3 ( 5, 0, 0 ) );
+	    
+	    points_y.push( new THREE.Vector3 ( 0, 0, 0 ) );
+	    points_y.push( new THREE.Vector3 ( 0, 5, 0 ) );
+	    
+	    points_z.push( new THREE.Vector3 ( 0, 0, 0 ) );
+	    points_z.push( new THREE.Vector3 ( 0, 0, 5 ) );
+	    
+	    var shapeX = new THREE.Shape(points_x);
+	    var shapeY = new THREE.Shape(points_y);
+	    var shapeZ = new THREE.Shape(points_z);
+	    
+	    var axisX = shapeX.createPointsGeometry(); 
+	    var axisY = shapeY.createPointsGeometry();
+	    var axisZ = shapeZ.createPointsGeometry();
+	    
+	    var lineX = new THREE.Line(axisX, new THREE.LineBasicMaterial ( { color: 0xFF0000 , linewidth: 2.0 } ));
+	    var lineY = new THREE.Line(axisY, new THREE.LineBasicMaterial ( { color: 0x00FF00 , linewidth: 2.0 } ));
+	    var lineZ = new THREE.Line(axisZ, new THREE.LineBasicMaterial ( { color: 0x0000FF , linewidth: 2.0 } ));
+	    
+	    lineX.position.set(0, 0, 0); lineX.scale.set(1, 1, 1);
+	    lineY.position.set(0, 0, 0); lineY.scale.set(1, 1, 1);
+	    lineZ.position.set(0, 0, 0); lineZ.scale.set(1, 1, 1);
+	    
+	    scene.add(lineX);
+	    scene.add(lineY);
+	    scene.add(lineZ);
+	}
+	
+    </script>
+</body>
+
+</html>

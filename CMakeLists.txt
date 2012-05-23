@@ -50,6 +50,10 @@ include_directories (${HEADERS})
 add_executable (bpp_planner 3dbpp_main ${BPP_SRC})
 target_link_libraries (bpp_planner m pthread tinyxml2)
 
+include_directories (${HEADERS})
+add_executable (bpp_viewer 3dbpp_viewer ${BPP_SRC})
+target_link_libraries (bpp_viewer m pthread tinyxml2)
+
 include_directories ($ENV{GUROBI_HOME}/include)
 link_directories ($ENV{GUROBI_HOME}/lib)
 add_executable (simplex_planner ${SIMPLEX_SRC} ${BPP_SRC})
