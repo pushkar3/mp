@@ -402,7 +402,7 @@ void config_t::rotate() {
 int config_t::compare(config_t c) {
 	int ret = 0;
 	if(key.size() != c.key.size()) return -1;
-	for (int i = 0; i < c.key.size(); i++) {
+	for (uint i = 0; i < c.key.size(); i++) {
 		if(key[i] != c.key[i]) ret = -1;
 	}
 	return ret;

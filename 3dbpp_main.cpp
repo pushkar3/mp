@@ -5,8 +5,10 @@
 #include <math.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <tinyxml2.h>
 #include "3dbpp.h"
+#include <dirent.h>
 
 using namespace std;
 using namespace tinyxml2;
@@ -188,7 +190,7 @@ void binpack2(database *d) {
 
 	cout << BOLD"Running for multiple packages"NORMAL << endl;
 
-	int n = job.size();
+	uint n = job.size();
 	for (uint i = 0; i < n; i++) {
 		for (uint j = 0; j < n; j++) {
 
@@ -218,6 +220,12 @@ void help() {
 }
 
 int main(int argc, char *argv[]) {
+
+	DIR dirs;
+	dirs = opendir("./");
+
+	return 1;
+
 	if (argc < 2) {
 		help();
 		return 0;

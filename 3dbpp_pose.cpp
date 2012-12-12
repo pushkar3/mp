@@ -3,6 +3,8 @@
 #include <vector>
 #include <map>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <math.h>
 #include "3dbpp.h"
 
@@ -15,6 +17,24 @@ void help() {
 
 int main(int argc, char *argv[]) {
 	int verbose = 0;
+
+	DIR *dirs;
+	struct dirent *ent;
+	    dirs = opendir ("xml");
+	if (dirs != NULL) {
+
+	  /* print all the files and directories within directory */
+	  while ((ent = readdir (dirs)) != NULL) {
+	    printf ("%s\n", ent->d_name);
+	  }
+	  closedir (dirs);
+	} else {
+	  /* could not open directory */
+	  perror ("");
+	  return EXIT_FAILURE;
+	}
+
+	return 1;
 
 	if (argc < 2) {
 		help();

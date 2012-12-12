@@ -74,9 +74,9 @@ public:
 	string description;
 	vector<string> barcode;
 	vector<int> vid;
-	int barcode_c;
+	uint barcode_c;
 	int type, family;
-	int id_c;
+	uint id_c;
 	package_t(int _id, int _w, int _h, int _d, int _n) :
 		id(_id), w(_w), h(_h), d(_d), n(_n) {
 		x = y = z = 0;

@@ -87,15 +87,15 @@ int main(int argc, char *argv[]) {
 
 
 	int w_before = -(d.bin.w)*(o.packlist_vector.size()/2.0);
-	for (int i = 0; i < o.packlist_vector.size() - 1; i++) {
+	for (uint i = 0; i < o.packlist_vector.size() - 1; i++) {
 		packlist_ p = o.packlist_vector[i];
 		print(d.bin.w, d.bin.h, 15, d.bin.w/2.0+w_before, d.bin.h/2.0, -15, "0x000000");
 
-		for (int j = 0; j < p.size(); j++) {
+		for (uint j = 0; j < p.size(); j++) {
 			config_t c = p[j];
 			vector<int> ori = c.get_orientation();
 			int c1 = 0;
-			for (int a = 0; a < c.get_key().size(); a++) {
+			for (uint a = 0; a < c.get_key().size(); a++) {
 				for (int b = 0; b < c.get_key()[a]; b++) {
 					int id = d.package[a].get_id();
 					int w = d.package[a].w;

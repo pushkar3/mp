@@ -15,7 +15,7 @@ double diff(vector<int> d1, vector<int> d2) {
 	}
 
 	double s1 = 0.0f, s2 = 0.0f;
-	for (int i = 0; i < d1.size(); i++) {
+	for (uint i = 0; i < d1.size(); i++) {
 		s1 += d1[i]*d1[i];
 		s2 += d2[i]*d2[i];
 	}
@@ -25,7 +25,7 @@ double diff(vector<int> d1, vector<int> d2) {
 
 vector<int> subtract(vector<int> d1, vector<int> d2) {
 	vector<int> d(d1.size(), 0);
-	for (int i = 0; i < d1.size(); i++) {
+	for (uint i = 0; i < d1.size(); i++) {
 		d[i] = d1[i] - d2[i];
 	}
 	return d;
@@ -33,7 +33,7 @@ vector<int> subtract(vector<int> d1, vector<int> d2) {
 
 vector<int> add(vector<int> d1, vector<int> d2) {
 	vector<int> d(d1.size(), 0);
-	for (int i = 0; i < d1.size(); i++) {
+	for (uint i = 0; i < d1.size(); i++) {
 		d[i] = d1[i] + d2[i];
 	}
 	return d;
@@ -43,7 +43,7 @@ vector<int> add(vector<int> d1, vector<int> d2) {
 int diff_checks(vector<int> key, vector<int> order) {
 	order = subtract(order, key);
 	int sign = 1;
-	for (int i = 0; i < order.size(); i++) {
+	for (uint i = 0; i < order.size(); i++) {
 		if(order[i] < 0) sign = 0;
 	}
 	return sign;
@@ -55,7 +55,7 @@ double diff_c(config_t c1, config_t c2) {
 
 int distance(vector<int> d) {
 	int s = 0;
-	for (int i = 0; i < d.size(); i++) {
+	for (uint i = 0; i < d.size(); i++) {
 		s += d[i]*d[i];
 	}
 	return s;
@@ -160,7 +160,7 @@ void postplan(packlist_ pl, database *d, output* o) {
 
 	// Put it in bins
 	int h = 0;
-	for (int i = 0; i < pl.size(); i++) {
+	for (uint i = 0; i < pl.size(); i++) {
 			h += pl[i].get_height();
 	}
 
@@ -169,7 +169,7 @@ void postplan(packlist_ pl, database *d, output* o) {
 
 	h = 0;
 	int n_bin = 0;
-	for (int i = 0; i < pl.size(); i++) {
+	for (uint i = 0; i < pl.size(); i++) {
 		int bn = n_bin % n_bins_req;
 		int bn_new = bn;
 		if ((o->get_height(bn)+pl[i].get_height()) > d->bin.d) {

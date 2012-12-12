@@ -29,7 +29,7 @@ void output::insert(int bin_n, config_t c) {
 int output::get_height(int bin_n) {
 	int h = 0;
 	packlist_ p = packlist_vector[bin_n];
-	for (int i = 0; i < p.size(); i++) {
+	for (uint i = 0; i < p.size(); i++) {
 		h += p[i].get_height();
 	}
 	return h;
@@ -136,7 +136,7 @@ void output::savepl_xml() {
 		int n = 1;
 		int h_before = 0;
 		vector<int> origin(3, 0);
-		for (int i = 0; i < packlist.size(); i++) {
+		for (uint i = 0; i < packlist.size(); i++) {
 			config_t c = packlist[i];
 			if (i > 0) {
 				h_before = packlist[i-1].get_height();
@@ -144,7 +144,7 @@ void output::savepl_xml() {
 			}
 			c.set_origin(origin);
 			int c1 = 0;
-			for (int j = 0; j < c.get_key().size(); j++) {
+			for (uint j = 0; j < c.get_key().size(); j++) {
 				for (int k = 0; k < c.get_key()[j]; k++) {
 					XMLElement* package = newTiXMLElement("Package");
 					XMLElement* packageseq = newTiXMLElement("PackSequence", n++);

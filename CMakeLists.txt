@@ -11,6 +11,9 @@ SET(CPACK_SYSTEM_NAME "i386")
 
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
+SET (CMAKE_C_FLAGS "-std=c99")
+SET (CMAKE_CXX_FLAGS "-Wsign-compare -std=c++0x")
+
 set ( HEADERS
 ./
 ./ext

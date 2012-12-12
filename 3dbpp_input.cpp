@@ -177,7 +177,7 @@ void input::load_xml(const char* pre_c) {
 	map<package_t, vector<int>, classcomp>::iterator pmap_vecid_it;
 
 	// Order
-	for (int i = 0; i < package_orig.size(); i++) {
+	for (uint i = 0; i < package_orig.size(); i++) {
 		package_t p = package_orig[i];
 		pmap_it = package_map.find(p);
 		pmap_vecid_it = package_map_vecid.find(p);
@@ -227,7 +227,7 @@ void input::exporti() {
 	problem_list = dir + "/problem_list.txt";
 
 	ofstream ofs(package_list.c_str());
-	for (int i = 0; i < package.size(); i++)
+	for (uint i = 0; i < package.size(); i++)
 		ofs << package[i].id << " " << package[i].w << " " << package[i].h << " " << package[i].d << " " << package[i].n << " " << package[i].weight << endl;
 	ofs.close();
 
@@ -236,7 +236,7 @@ void input::exporti() {
 	ofs.close();
 
 	ofs.open(problem_list.c_str());
-	for (int i = 0; i < order.size(); i++)
+	for (uint i = 0; i < order.size(); i++)
 		ofs << package[i].id << " " << order[i] << endl;
 	ofs.close();
 }
