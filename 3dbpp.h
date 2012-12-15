@@ -348,4 +348,25 @@ public:
 packlist_ greedy_select(database* d);
 void postplan(packlist_ pl, database *d, output* o);
 
+class binpack_job {
+	double tolerance;
+	int is_singlepackage;
+	int package_key;
+	double h_max;
+	int completed;
+public:
+	database d;
+	database d1, d2;
+	binpack_job();
+	~binpack_job();
+	int is_singlepack();
+	double get_height();
+	int get_packagekey();
+	void set_singlepackage(database* db, int _key, int _hmax);
+	void set_multiplepackage(database db1, database db2, double _hmax);
+	void singlepackageconfig();
+	void multiplepackageconfig();
+	void run();
+};
+
 #endif /* BPP_H_ */
