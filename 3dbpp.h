@@ -1,3 +1,12 @@
+/** @3dbpp.h
+ *  @brief Class prototypes and declarations for 3D bin packing
+ *
+ *  The algorithm uses dynamic programming to construct layers and column-based optimization for bin packing
+ *
+ *  @todo Logging framework
+ *  @author Pushkar Kolhe
+ */
+
 #ifndef BPP_H_
 #define BPP_H_
 
@@ -66,6 +75,9 @@ static int coin_flip(double p) {
 	return 0;
 }
 
+/**
+ * @brief A package is what needs to be binpacked
+ */
 class package_t {
 public:
 	int id, w, h, d, n;
@@ -132,6 +144,9 @@ public:
 	}
 };
 
+/**
+ * @brief A packaging is made for a bin
+ */
 class bin_t {
 public:
 	int id, w, h, d, n;
@@ -165,6 +180,9 @@ public:
 	}
 };
 
+/**
+ * @brief Compares basic types key and packages
+ */
 struct classcomp {
 	bool operator()(const key_& lhs, const key_& rhs) const {
 		int d1 = 0, d2 = 0;
@@ -183,6 +201,9 @@ struct classcomp {
 	}
 };
 
+/**
+ * @brief Loads external parameters
+ */
 class bpp_param {
 	XMLDocument doc;
 	XMLElement* params;
@@ -193,6 +214,11 @@ public:
 	double get(const char* name);
 };
 
+/**
+ * @brief Smallest unit of a binpack
+ *
+ * Multiple configurations can be put together to create other configurations or layers
+ */
 class config_t {
 	database* d;
 	vector<int> key;
@@ -215,45 +241,108 @@ class config_t {
 	vector<int> origin;
 	vector<int> corner1, corner2, corner3;
 public:
+	/** reset() is called. Initializes all variables */
 	config_t();
+
 	~config_t();
+
+	/** Initializes all variables */
 	void reset();
+
+	/** Sets internal variables for this particular configuration */
 	void set(database* d, key_ key, pattern_ pattern, vector<int> orientation);
+
+	/** Gets the origin of this configuration. Usually the point closer to 0,0 0 */
 	vector<int> get_origin();
+
+	/** Sets the origin */
 	void set_origin(vector<int> o);
-	void eval();
+
+	/** Compares if the two configurations are equal in size. Checks the number of packages and their dimensions. */
 	bool operator ==(const config_t &c);
+
+	/** Checks if the configuration is bigger than the bin or not */
 	bool is_bound();
+
+	/** Checks if the configuration is a layer or not by comparing density difference */
 	bool is_layer();
+
+	/** Writes the configuration to a stringstream */
 	friend ostream & operator <<(ostream &o, const config_t &c);
+
+	/** Adds a configuration to the current one. Set origin of the configuration which will be added on using set_origin() before calling this function */
 	void add(const config_t c);
-	void add(database* db, const config_t c); // hack to remove a segfault
+
+	/** Adds a configuration to the current one. Set origin of the configuration which will be added on using set_origin() before calling this function
+	 * @bug Same as add(), but had to use this to remove a segfault */
+	void add(database* db, const config_t c); // Hack to remove a segfault
+
+	/** Returns height of this configuration */
 	int get_height();
+
+	/** Returns are of this configuration */
 	int get_area();
+
+	/** Returns corner this configuration. Input is 0-2. 0, 1, 2 return corners along w, h, d respectively */
 	vector<int> get_corner(int i);
+
+	/** Returns the key of this configuration */
 	key_ get_key();
+
+	/** Returns the pattern of this configuration */
 	pattern_ get_pattern();
+
+	/** Returns the orientation vector of this configuration */
 	vector<int> get_orientation();
+
+	/** Returns dimensions of this configuration */
 	dimensions_ get_dimensions();
+
+	/** Returns weight of this configuration */
 	int get_weight();
+
+	/** Returns the total volume of all packages in this configuration */
 	int get_packagevolume();
+
+	/** Returns the total volume taken by this configuration, as derived from it w, h and d */
 	int get_totalvolume();
+
+	/** Returns the total number of packages in this configuration */
 	int get_totalpacks();
+
+	/** Rotates the configuration by 90 degrees */
 	void change_orientation();
+
+	/** Rotates the configuration by 90 degrees
+	* @bug Same as change_orientation(), but had to use this to remove a segfault */
 	void change_orientation(database* db); // hack to remove a segfault
+
 	string key_s();
 	string pattern_s();
 	string orientation_s();
 	string dimensions_s();
 	string cost_s();
 	double density();
+
+	/** Sets maximum gap between packages */
 	void set_gap(int x, int y);
+
+	/** Spreads out the packages in the configuration using the gap provided */
 	void spread_out(bin_t bin);
+
+	/** Centers the configuration in the bin center  */
 	void center_in(bin_t bin);
+
+	/** Rotates the configuration by 180 degrees */
 	void rotate();
+
+	/** Commpares the key of the package, that is the number of packages of each type */
 	int compare(config_t c);
 };
 
+/**
+ * @brief Gets input from XML or Text format
+ */
 class input {
 public:
 
@@ -276,43 +365,101 @@ public:
 	void exporti();
 };
 
+/**
+ * @brief Database for storing configurations and layers
+ *
+ * Configurations are smaller parts of layers that are not as wide as the bin size.
+ */
 class database {
 public:
-	vector<package_t> package;
-	bin_t bin;
-	vector<bin_t> bin_d;
-	vector<int> order;
-	multimap<key_, config_t, classcomp> config_map;
-	multimap<key_, config_t, classcomp> layer_map;
+	vector<package_t> package; 							/*< Layers are made using these packets */
+	bin_t bin;											/*< Layers have to be created for this bin */
+	vector<int> order;									/*< Layers are made for these orders */
+	multimap<key_, config_t, classcomp> config_map;     /*< Configurations are stored here - Input<number of each package type, geometric configuration> */
+	multimap<key_, config_t, classcomp> layer_map;		/*< Layers are stored here - Input<number of each package type, geometric configuration> */
+
+	vector<bin_t> bin_d;								/*< Layers are made for these bins. Temp variable. Juggad in get_input() */
 	string dir;
 	string db_c, db_l;
 	config_t config_last;
 
+	/** Empty */
 	database();
+
+	/** Empty */
 	~database();
+
+	/** Clones the database.
+	 * Copies over all class attributes except layer_map */
 	database clone();
+
+	/** Set directory where database will reside */
 	void set_dir(const char* dirname);
+
+	/** Returns directory name where database is stored */
 	const char* get_dir();
+
+	/** Initializes and populates the database object. */
 	void get_input(input i);
+
+	/** Inserts a configuration in the database */
 	int insert(config_t c);
+
+	/** Inserts a configuration in the database using parameters
+	 * \param key Number of packages of each type
+	 * \param pattern The geometric position of each package
+	 * \param orientation The orientation for each package. If 1, package is rotated and placed. */
 	int insert(key_ key, pattern_ pattern, vector<int> orientation);
+
+	/** Function to help database cloning. Copies config_map */
 	int insert(multimap<key_, config_t, classcomp> _config_map);
+
+	/** Returns the last inserted configuration */
 	config_t get_last_inserted_config();
+
+	/** Function for accessing layers using string names for Gurobi calls. Example: c1 returns the 2nd layer in layer_map */
 	config_t get_layer_from_name(string str);
+
+	/** Populates layer_map from config_map */
 	void find_layers();
+
+	/** Exports database in a text file. If the file is present, it is rewritten */
 	void exportdb();
+
+	/** Converts a string of numbers into a vector of integers */
 	static vector<int> deserialize_vector(string str);
+
+	/** Converts a string into a double */
 	static double deserialize_cost(string str);
+
+	/** Initializes the database. Creates the empty files required. */
 	void initdb();
+
+	/** Imports the database from a text file */
 	int importdb();
+
+	/** Prints the database on the terminal */
 	void printdb();
+
+	/** Cleans the database object and reinitializes all the variables */
 	void cleandb();
+
+	/** Print database stats. It can print the total configurations and layers it has found */
 	void printdb_stat();
+
+	/** Poses the binpacking problem in MPS format for Gurobi */
 	void pose_mps(const char* filename);
+
+	/** Poses the binpacking problem in LP format for Gurobi */
 	void pose_lp(const char* filename);
+
+	/** Poses the binpacking problem in LPC format for Gurobi */
 	void pose_lpc(const char* filename);
 };
 
+/**
+ * @brief Exports database or packlists in XML or Text format
+ */
 class output {
 	string dir;
 	database *db;
@@ -348,6 +495,9 @@ public:
 packlist_ greedy_select(database* d);
 void postplan(packlist_ pl, database *d, output* o);
 
+/**
+ * @brief Used for running high level layer-finding jobs
+ */
 class binpack_job {
 	double tolerance;
 	int is_singlepackage;

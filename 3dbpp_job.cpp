@@ -1,5 +1,12 @@
+/** 3dbpp_job.cpp
+ *  @todo Divide up the job for running on multiple clusters
+ *
+ *  @author Pushkar Kolhe
+ */
+
 #include <3dbpp.h>
 
+/** @brief Compares two configurations */
 struct configcomp {
 	static bool compare(config_t c1, config_t c2, double tolerance) {
 		double diff = fabs(c1.density() - c2.density())/max(c1.density(), c2.density());

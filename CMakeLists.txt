@@ -16,7 +16,6 @@ SET (CMAKE_CXX_FLAGS "-Wsign-compare -std=c++0x")
 
 set ( HEADERS
 ./
-./ext
 /usr/include
 /usr/local/include
 /usr/include/c++/4.4.3
@@ -29,14 +28,36 @@ set ( BPP_SRC
 3dbpp_db
 3dbpp_postplan
 3dbpp_job
-#ext/packlist
-#ext/response
-#ext/xml_parser
 )
 
 set ( SIMPLEX_SRC
 simplex_main
 )
+
+FIND_PACKAGE(Doxygen)
+IF (DOXYGEN_FOUND)
+
+  SET(DOXYGEN_INPUT "Doxyfile")
+  SET(DOXYGEN_OUTPUT "doc")
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${DOXYGEN_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_INPUT}
+    COMMAND ${CMAKE_COMMAND} -E echo "Done."
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS ${DOXYGEN_INPUT}
+    )
+
+  ADD_CUSTOM_TARGET(docs DEPENDS ${DOXYGEN_OUTPUT})
+
+  ADD_CUSTOM_TARGET(docs_forced
+    COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_INPUT}
+    COMMAND ${CMAKE_COMMAND} -E echo "Done."
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+ENDIF (DOXYGEN_FOUND)
 
 add_library (3dbpp SHARED ${BPP_SRC})
 install (FILES 3dbpp.h DESTINATION include)

@@ -15,8 +15,6 @@
 using namespace std;
 using namespace tinyxml2;
 
-
-
 void binpack2(database *d) {
 	vector<binpack_job*> job;
 
