@@ -2,8 +2,6 @@
  *  @brief Class prototypes and declarations for 3D bin packing
  *
  *  The algorithm uses dynamic programming to construct layers and column-based optimization for bin packing
- *
- *  @todo Logging framework
  *  @author Pushkar Kolhe
  */
 
@@ -20,6 +18,7 @@
 #include <cmath>
 
 #include <tinyxml2.h>
+#include <ext/log.h>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/interprocess/sync/sharable_lock.hpp>
 

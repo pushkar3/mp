@@ -63,17 +63,17 @@ void database::get_input(input i) {
 			if (bin_add) {
 				bin_d.push_back(b);
 				bin_add = 0;
-				cout << "Adding " << b.d << " for " << package[i].d << " and " << package[j].d << endl;
+				FILE_LOG(logWARNING) << "Adding " << b.d << " for " << package[i].d << " and " << package[j].d;
 			}
 		}
 	}
 
-	cout << "New bins" << endl;
+	FILE_LOG(logWARNING) << "New bins";
 	for (uint i = 0; i < bin_d.size(); i++) {
-		cout << bin_d[i].id << " " << bin_d[i].w << " " << bin_d[i].h
-				<< " " << bin_d[i].d << " " << bin_d[i].n << endl;
+		FILE_LOG(logWARNING) << bin_d[i].id << " " << bin_d[i].w << " " << bin_d[i].h
+				<< " " << bin_d[i].d << " " << bin_d[i].n;
 	}
-	cout << endl;
+	FILE_LOG(logWARNING);
 }
 
 int database::insert(config_t c) {
@@ -215,7 +215,7 @@ void database::initdb() {
 int database::importdb() {
 	struct stat buf;
 	if (stat(db_c.c_str(), &buf) != 0) return 0;
-	cerr << "Found config database at " << db_c << endl;
+	FILE_LOG(logINFO) << "Found config database at " << db_c;
 
 	file_lock config_lock(db_c.c_str());
 	config_lock.lock();
@@ -289,7 +289,7 @@ int database::importdb() {
 	config_lock.unlock();
 
 	if (stat(db_l.c_str(), &buf) == 0) {
-		cout << "Found layer database, but will skip import" << endl;
+		FILE_LOG(logINFO) << "Found layer database, but will skip import" << endl;
 	}
 
 	return 1;
@@ -317,9 +317,8 @@ void database::cleandb() {
 }
 
 void database::printdb_stat() {
-	cout << "Total Configurations = " << config_map.size() << endl;
-	cout << "Total Layers = " << layer_map.size() << endl;
-	cout << endl;
+	FILE_LOG(logDEBUG1) << "Total Configurations = " << config_map.size();
+	FILE_LOG(logDEBUG1) << "Total Layers = " << layer_map.size();
 }
 
 void database::pose_mps(const char* filename) {
