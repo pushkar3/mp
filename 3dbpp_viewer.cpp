@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 	string op_file(dir + "/index.html");
 	ofs.open(op_file.c_str());
 
-	ifs.open("ext/three_header.html");
+	ifs.open("/var/www/mp/ext/three_header.html");
 	while (ifs.good()) {
 		char c = ifs.get();
 		if (ifs.good())
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 		w_before += 100;
 	}
 
-	ifs.open("ext/three_footer.html");
+	ifs.open("/var/www/mp/ext/three_footer.html");
 	while (ifs.good()) {
 		char c = ifs.get();
 		if (ifs.good())

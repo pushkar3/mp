@@ -6,7 +6,7 @@ then
   exit $E_BADARGS
 fi  
 
-make &&
+make > $3
 
 if [ $1 = "plan" ]
 then
@@ -14,9 +14,16 @@ then
     rm -rf $2/*.txt
 fi
 
-./bpp_planner $2
-./bpp_stat $2 &&
-./bpp_pose $2 
-./simplex_planner greedy $2
-./bpp_viewer $2
+echo "bpp_planner" >> $3
+/var/www/mp/bpp_planner DEBUG4 $2 &>> $3 &&
+echo "bpp_stat" >> $3
+/var/www/mp/bpp_stat $2 &>> $3 &&
+echo "bpp_pose" >> $3
+/var/www/mp/bpp_pose $2 &>> $3 &&
+echo "bpp_simplex_planner" >> $3
+/var/www/mp/simplex_planner greedy $2 &>> $3 &&
+echo "bpp_viewer" >> $3
+/var/www/mp/bpp_viewer $2 &>> $3 &&
+echo "bpp_cp" >> $3
 cp $2/index.html /var/www/palletviewer/
+cp $2/packlist.xml /var/www/palletviewer/
