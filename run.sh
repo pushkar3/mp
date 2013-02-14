@@ -14,16 +14,17 @@ then
     rm -rf $2/*.txt
 fi
 
-echo "bpp_planner" >> $3
+echo "<b>Starting Planner</b>" >> $3
 /var/www/mp/bpp_planner DEBUG4 $2 &>> $3 &&
-echo "bpp_stat" >> $3
+echo "<b>Stats</b>" >> $3
 /var/www/mp/bpp_stat $2 &>> $3 &&
-echo "bpp_pose" >> $3
+echo "<b>Posing the Order for Palletizing</b>" >> $3
 /var/www/mp/bpp_pose $2 &>> $3 &&
-echo "bpp_simplex_planner" >> $3
+echo "<b>Starting Simplex Planner</b>" >> $3
 /var/www/mp/simplex_planner greedy $2 &>> $3 &&
-echo "bpp_viewer" >> $3
+echo "<b>Transferring Plan to Viewer</b>" >> $3
 /var/www/mp/bpp_viewer $2 &>> $3 &&
-echo "bpp_cp" >> $3
+echo "<b>Check the Pallet Viewer</b>" >> $3
 cp $2/index.html /var/www/palletviewer/
+cp $2/order.xml /var/www/palletviewer/
 cp $2/packlist.xml /var/www/palletviewer/

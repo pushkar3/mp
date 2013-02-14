@@ -76,10 +76,16 @@
         <div class="sidebar-nav-fixed">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header">Options</li>
+              <li class="nav-header">Current Order</li>
               <li class="disabled"><a href="#">Upload Order</a></li>
-              <li><a href="#" id="load_basic">Plan Pallet</a></li>
+              <li><a href="#" id="load_basic1">Plan Order 1</a></li>
+              <li><a href="#" id="load_basic2">Plan Order 2</a></li>
+              <li>&nbsp; </li>
+              <li class="nav-header">Previous Plan</li>
+              <li><a href="#" id="load_bash">Output (bash)</a></li>
+              <li><a href="#" id="load_score">View Score (bash)</a></li>
               <li><a href="palletviewer/index.html">View Pallet</a></li>
+              <li><a href="palletviewer/order.xml">Download Order</a></li>
               <li><a href="palletviewer/packlist.xml">Download Packlist</a></li>
             </ul> 
            </div>
@@ -117,18 +123,41 @@
          
          var ajax_load = "<img src='load.gif' alt='Loading...' /> Running... <br />";  
 
-         var loadUrl = "load.php";
-         $("#load_basic").click(function() {
+
+         $("#load_bash").click(function() {
+            timer.play();
+         });
+
+         $("#load_basic1").click(function() {
             timer.play();
             status_div.warning("Timer Started.");
             $("#result")
                .html(ajax_load)
-               .load(loadUrl, null, function() {
+               .load("load.php?order=c2", null, function() {
                    //timer.stop();
                    status_div.warning("Timer Stopped.");
                });
          });
          
+         $("#load_basic2").click(function() {
+            timer.play();
+            status_div.warning("Timer Started.");
+            $("#result")
+               .html(ajax_load)
+               .load("load.php?order=c1", null, function() {
+                   //timer.stop();
+                   status_div.warning("Timer Stopped.");
+               });
+         });
+         
+         $("#load_score").click(function() {
+            timer.play();
+            $("#result")
+               .html(ajax_load)
+               .load("load.php?order=score", null, function() {
+                   //timer.stop();
+               });
+         });
                              
     </script> 
         
